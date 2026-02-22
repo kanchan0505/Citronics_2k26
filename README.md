@@ -31,7 +31,7 @@ Citronics is an open-source event management platform built with Next.js, Materi
 
 - **Node.js** 18.x or higher
 - **PostgreSQL** 14.x or higher
-- **pnpm** (recommended package manager)
+- **yarn** (recommended package manager)
 
 ### Installation
 
@@ -43,13 +43,13 @@ Citronics is an open-source event management platform built with Next.js, Materi
 
 2. **Install dependencies**
    ```bash
-   pnpm install
+   yarn install
    ```
 
 3. **Environment Setup**
    Copy the example environment file and configure your variables:
    ```bash
-   cp .env.example .env
+   cp .env.example .env.local
    ```
    *Make sure to update the database credentials and NextAuth secrets in your `.env` file.*
 
@@ -61,7 +61,7 @@ Citronics is an open-source event management platform built with Next.js, Materi
 
 5. **Start the Development Server**
    ```bash
-   pnpm dev
+   yarn dev
    ```
    Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 

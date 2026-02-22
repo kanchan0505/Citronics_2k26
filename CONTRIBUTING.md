@@ -85,8 +85,8 @@ Unsure where to begin? Look for issues labeled:
 
 #### PR Process
 
-1. Ensure your code passes linting: `pnpm lint`
-2. Format your code: `pnpm format`
+1. Ensure your code passes linting: `yarn lint:check`
+2. Format your code: `yarn format`
 3. Update relevant documentation in `docs/`
 4. Fill out the PR template completely
 5. Request review from maintainers
@@ -98,22 +98,22 @@ Unsure where to begin? Look for issues labeled:
 
 - **Node.js** 18.x or higher
 - **PostgreSQL** 14.x or higher
-- **pnpm** (recommended)
+- **yarn** (recommended)
 
 ### Local Development
 
 ```bash
 # Install dependencies
-pnpm install
+yarn install
 
 # Copy environment variables
-cp .env.example .env
+cp .env.example .env.local
 
 # Set up database
 psql -U postgres -f schema.sql
 
 # Start development server
-pnpm dev
+yarn dev
 ```
 
 ### Environment Variables
@@ -151,10 +151,10 @@ See `.env.example` for required environment variables. Key variables:
 
 ```bash
 # Run ESLint
-pnpm lint
+yarn lint:check
 
 # Format with Prettier
-pnpm format
+yarn format
 ```
 
 ### Project Conventions
