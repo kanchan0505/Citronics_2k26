@@ -58,7 +58,7 @@ const Guard = ({ children, authGuard, guestGuard }) => {
 /**
  * App — root component
  */
-const App = (props) => {
+const App = props => {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
@@ -66,13 +66,12 @@ const App = (props) => {
   } = props
 
   const contentHeightFixed = Component.contentHeightFixed ?? false
-  const getLayout = Component.getLayout ?? ((page) => (
-    <UserLayout contentHeightFixed={contentHeightFixed}>{page}</UserLayout>
-  ))
-  const setConfig   = Component.setConfig ?? undefined
-  const authGuard   = Component.authGuard  ?? true
-  const guestGuard  = Component.guestGuard ?? false
-  const aclAbilities = Component.acl       ?? defaultACLObj
+  const getLayout =
+    Component.getLayout ?? (page => <UserLayout contentHeightFixed={contentHeightFixed}>{page}</UserLayout>)
+  const setConfig = Component.setConfig ?? undefined
+  const authGuard = Component.authGuard ?? true
+  const guestGuard = Component.guestGuard ?? false
+  const aclAbilities = Component.acl ?? defaultACLObj
 
   return (
     <SessionProvider session={session}>
@@ -80,27 +79,27 @@ const App = (props) => {
         <CacheProvider value={emotionCache}>
           <Head>
             <title>{themeConfig.templateName}</title>
-            <meta name="description" content="Citronics — The official college event management platform" />
-            <meta name="viewport" content="initial-scale=1, width=device-width" />
+            <meta name='description' content='Citronics — The official college event management platform' />
+            <meta name='viewport' content='initial-scale=1, width=device-width' />
 
             {/* PWA meta */}
-            <meta name="application-name"       content={themeConfig.templateName} />
-            <meta name="apple-mobile-web-app-capable"           content="yes" />
-            <meta name="apple-mobile-web-app-status-bar-style"  content="default" />
-            <meta name="apple-mobile-web-app-title"             content={themeConfig.templateName} />
-            <meta name="format-detection" content="telephone=no" />
-            <meta name="mobile-web-app-capable" content="yes" />
-            <meta name="theme-color" content="#7C3AED" />
-            <link rel="manifest" href="/manifest.json" />
-            <link rel="apple-touch-icon" href="/images/icons/pwa/apple-touch-icon.png" />
-            <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/pwa/icon-32x32.png" />
-            <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/pwa/icon-16x16.png" />
+            <meta name='application-name' content={themeConfig.templateName} />
+            <meta name='apple-mobile-web-app-capable' content='yes' />
+            <meta name='apple-mobile-web-app-status-bar-style' content='default' />
+            <meta name='apple-mobile-web-app-title' content={themeConfig.templateName} />
+            <meta name='format-detection' content='telephone=no' />
+            <meta name='mobile-web-app-capable' content='yes' />
+            <meta name='theme-color' content='#7C3AED' />
+            <link rel='manifest' href='/manifest.json' />
+            <link rel='apple-touch-icon' href='/images/icons/pwa/apple-touch-icon.png' />
+            <link rel='icon' type='image/png' sizes='32x32' href='/images/icons/pwa/icon-32x32.png' />
+            <link rel='icon' type='image/png' sizes='16x16' href='/images/icons/pwa/icon-16x16.png' />
 
             {/* Open Graph */}
-            <meta property="og:type"        content="website" />
-            <meta property="og:title"       content={themeConfig.templateName} />
-            <meta property="og:description" content="Citronics — The official college event management platform" />
-            <meta property="og:image"       content="/images/og-image.png" />
+            <meta property='og:type' content='website' />
+            <meta property='og:title' content={themeConfig.templateName} />
+            <meta property='og:description' content='Citronics — The official college event management platform' />
+            <meta property='og:image' content='/images/og-image.png' />
           </Head>
 
           <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
@@ -108,11 +107,7 @@ const App = (props) => {
               {({ settings }) => (
                 <AppThemeProvider settings={settings}>
                   <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                    <AclGuard
-                      aclAbilities={aclAbilities}
-                      guestGuard={guestGuard}
-                      authGuard={authGuard}
-                    >
+                    <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard} authGuard={authGuard}>
                       {getLayout(<Component {...pageProps} />)}
                     </AclGuard>
                   </Guard>

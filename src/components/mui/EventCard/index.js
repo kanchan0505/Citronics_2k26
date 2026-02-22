@@ -34,26 +34,26 @@ const EventCard = ({ event = {}, onClick, sx }) => {
   const theme = useTheme()
 
   const {
-    title            = 'Untitled Event',
+    title = 'Untitled Event',
     banner,
     event_date,
     venue_name,
-    capacity         = 0,
+    capacity = 0,
     registrations_count = 0,
-    status           = 'draft',
+    status = 'draft',
     category
   } = event
 
-  const fillPct   = capacity > 0 ? Math.min((registrations_count / capacity) * 100, 100) : 0
+  const fillPct = capacity > 0 ? Math.min((registrations_count / capacity) * 100, 100) : 0
   const isSoldOut = fillPct >= 100
 
   const formattedDate = event_date
     ? new Intl.DateTimeFormat('en-IN', {
-        day:   '2-digit',
+        day: '2-digit',
         month: 'short',
-        year:  'numeric',
-        hour:  '2-digit',
-        minute:'2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: true
       }).format(new Date(event_date))
     : null
@@ -61,12 +61,12 @@ const EventCard = ({ event = {}, onClick, sx }) => {
   return (
     <Card
       sx={{
-        height:        '100%',
-        display:       'flex',
+        height: '100%',
+        display: 'flex',
         flexDirection: 'column',
-        borderRadius:  3,
-        border:        `1px solid ${theme.palette.divider}`,
-        transition:    'box-shadow 0.2s ease, transform 0.2s ease',
+        borderRadius: 3,
+        border: `1px solid ${theme.palette.divider}`,
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
         '&:hover': {
           boxShadow: theme.shadows[8],
           transform: 'translateY(-2px)'
@@ -81,22 +81,23 @@ const EventCard = ({ event = {}, onClick, sx }) => {
         {/* ── Banner ── */}
         <Box
           sx={{
-            height:                200,
-            backgroundImage:       banner ? `url(${banner})` : 'none',
-            backgroundSize:        'cover',
-            backgroundPosition:    'center',
-            backgroundColor:       banner
-              ? 'transparent'
-              : alpha(theme.palette.primary.main, 0.12),
-            display:               'flex',
-            alignItems:            'center',
-            justifyContent:        'center',
-            position:              'relative',
-            flexShrink:            0
+            height: 200,
+            backgroundImage: banner ? `url(${banner})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: banner ? 'transparent' : alpha(theme.palette.primary.main, 0.12),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            flexShrink: 0
           }}
         >
           {!banner && (
-            <Icon icon='tabler:calendar-event' style={{ fontSize: 56, color: theme.palette.primary.main, opacity: 0.5 }} />
+            <Icon
+              icon='tabler:calendar-event'
+              style={{ fontSize: 56, color: theme.palette.primary.main, opacity: 0.5 }}
+            />
           )}
 
           {/* Status badge top-right */}
@@ -107,7 +108,12 @@ const EventCard = ({ event = {}, onClick, sx }) => {
           {/* Category badge top-left */}
           {category && (
             <Box sx={{ position: 'absolute', top: 10, left: 10 }}>
-              <StatusChip type='event' status='published' sx={{ bgcolor: alpha(theme.palette.common.black, 0.5), color: '#fff' }} label={category} />
+              <StatusChip
+                type='event'
+                status='published'
+                sx={{ bgcolor: alpha(theme.palette.common.black, 0.5), color: '#fff' }}
+                label={category}
+              />
             </Box>
           )}
         </Box>
@@ -119,10 +125,10 @@ const EventCard = ({ event = {}, onClick, sx }) => {
             fontWeight={600}
             sx={{
               mb: 1.5,
-              display:           '-webkit-box',
-              WebkitLineClamp:   2,
-              WebkitBoxOrient:   'vertical',
-              overflow:          'hidden'
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
             }}
           >
             {title}
@@ -140,7 +146,9 @@ const EventCard = ({ event = {}, onClick, sx }) => {
           {venue_name && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, color: 'text.secondary' }}>
               <Icon icon='tabler:map-pin' style={{ fontSize: 16 }} />
-              <Typography variant='body2' noWrap>{venue_name}</Typography>
+              <Typography variant='body2' noWrap>
+                {venue_name}
+              </Typography>
             </Box>
           )}
 

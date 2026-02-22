@@ -14,7 +14,7 @@ const nextAuthConfig = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email:    { label: 'Email',    type: 'email'    },
+        email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
@@ -50,12 +50,12 @@ const nextAuthConfig = {
           }
 
           return {
-            id:        user.id,
-            email:     user.email,
+            id: user.id,
+            email: user.email,
             firstName: user.first_name,
-            lastName:  user.last_name,
-            role:      user.role,
-            eventIds,             // populated for Head, [] for others
+            lastName: user.last_name,
+            role: user.role,
+            eventIds // populated for Head, [] for others
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -73,23 +73,23 @@ const nextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id        = user.id
-        token.email     = user.email
+        token.id = user.id
+        token.email = user.email
         token.firstName = user.firstName
-        token.lastName  = user.lastName
-        token.role      = user.role
-        token.eventIds  = user.eventIds  // Head: assigned event IDs; others: []
+        token.lastName = user.lastName
+        token.role = user.role
+        token.eventIds = user.eventIds // Head: assigned event IDs; others: []
       }
       return token
     },
 
     async session({ session, token }) {
-      session.user.id        = token.id
-      session.user.email     = token.email
+      session.user.id = token.id
+      session.user.email = token.email
       session.user.firstName = token.firstName
-      session.user.lastName  = token.lastName
-      session.user.role      = token.role
-      session.user.eventIds  = token.eventIds ?? []
+      session.user.lastName = token.lastName
+      session.user.role = token.role
+      session.user.eventIds = token.eventIds ?? []
       return session
     }
   },

@@ -14,9 +14,7 @@ const initialSettings = {
   navCollapsed: themeConfig.navCollapsed,
   contentWidth: themeConfig.contentWidth,
   toastPosition: themeConfig.toastPosition,
-  appBar: themeConfig.layout === 'horizontal' && themeConfig.appBar === 'hidden' 
-    ? 'fixed' 
-    : themeConfig.appBar
+  appBar: themeConfig.layout === 'horizontal' && themeConfig.appBar === 'hidden' ? 'fixed' : themeConfig.appBar
 }
 
 // Static settings (not persisted)
@@ -34,12 +32,10 @@ const staticSettings = {
  */
 const restoreSettings = () => {
   let settings = null
-  
+
   try {
-    const storedData = typeof window !== 'undefined' 
-      ? window.localStorage.getItem('settings') 
-      : null
-      
+    const storedData = typeof window !== 'undefined' ? window.localStorage.getItem('settings') : null
+
     if (storedData) {
       settings = { ...JSON.parse(storedData), ...staticSettings }
     } else {
@@ -56,9 +52,9 @@ const restoreSettings = () => {
 /**
  * Store settings in localStorage
  */
-const storeSettings = (settings) => {
+const storeSettings = settings => {
   const initSettings = Object.assign({}, settings)
-  
+
   // Remove static settings before storing
   delete initSettings.appBar
   delete initSettings.footer
@@ -66,7 +62,7 @@ const storeSettings = (settings) => {
   delete initSettings.navHidden
   delete initSettings.lastLayout
   delete initSettings.toastPosition
-  
+
   if (typeof window !== 'undefined') {
     window.localStorage.setItem('settings', JSON.stringify(initSettings))
   }
@@ -86,11 +82,11 @@ export const SettingsProvider = ({ children, pageSettings }) => {
 
   useEffect(() => {
     const restoredSettings = restoreSettings()
-    
+
     if (restoredSettings) {
       setSettings({ ...restoredSettings })
     }
-    
+
     if (pageSettings) {
       setSettings(prev => ({ ...prev, ...pageSettings }))
     }
@@ -101,22 +97,18 @@ export const SettingsProvider = ({ children, pageSettings }) => {
     if (settings.layout === 'horizontal' && settings.mode === 'semi-dark') {
       saveSettings({ ...settings, mode: 'light' })
     }
-    
+
     if (settings.layout === 'horizontal' && settings.appBar === 'hidden') {
       saveSettings({ ...settings, appBar: 'fixed' })
     }
   }, [settings.layout])
 
-  const saveSettings = (updatedSettings) => {
+  const saveSettings = updatedSettings => {
     storeSettings(updatedSettings)
     setSettings(updatedSettings)
   }
 
-  return (
-    <SettingsContext.Provider value={{ settings, saveSettings }}>
-      {children}
-    </SettingsContext.Provider>
-  )
+  return <SettingsContext.Provider value={{ settings, saveSettings }}>{children}</SettingsContext.Provider>
 }
 
 export const SettingsConsumer = SettingsContext.Consumer

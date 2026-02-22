@@ -20,46 +20,46 @@ const defineRulesFor = (role, meta = {}) => {
   switch (role) {
     // ── Owner ─────────────────────────────────────────────────────────────────
     case 'Owner':
-      can('manage', 'all')                         // full access everywhere
+      can('manage', 'all') // full access everywhere
       break
 
     // ── Admin ─────────────────────────────────────────────────────────────────
     case 'Admin':
-      can('manage', 'all')                         // same operational power as Owner…
-      cannot('manage', 'owner-settings')           // …except Owner-level system settings
-      cannot('delete', 'user', { role: 'Owner' })  // cannot remove Owner accounts
+      can('manage', 'all') // same operational power as Owner…
+      cannot('manage', 'owner-settings') // …except Owner-level system settings
+      cannot('delete', 'user', { role: 'Owner' }) // cannot remove Owner accounts
       break
 
     // ── Head ──────────────────────────────────────────────────────────────────
     case 'Head': {
       const eventIds = meta?.eventIds ?? []
-      can('read',   'dashboard')
-      can('read',   'profile')
+      can('read', 'dashboard')
+      can('read', 'profile')
       can('update', 'profile')
 
       // Their assigned events only
-      can('read',   'event',        { id: { $in: eventIds } })
-      can('update', 'event',        { id: { $in: eventIds } })  // basic details
+      can('read', 'event', { id: { $in: eventIds } })
+      can('update', 'event', { id: { $in: eventIds } }) // basic details
 
       // Read-only view of registrations for their events
-      can('read',   'registration', { eventId: { $in: eventIds } })
+      can('read', 'registration', { eventId: { $in: eventIds } })
 
       // Can view attendee list for their events
-      can('read',   'attendee',     { eventId: { $in: eventIds } })
+      can('read', 'attendee', { eventId: { $in: eventIds } })
       break
     }
 
     // ── Student ───────────────────────────────────────────────────────────────
     case 'Student':
-      can('read',   'dashboard')
-      can('read',   'profile')
+      can('read', 'dashboard')
+      can('read', 'profile')
       can('update', 'profile')
 
-      can('read',   'event')                       // browse all published events
-      can('create', 'registration')                // book a ticket
-      can('read',   'registration', { userId: meta?.userId })  // own bookings only
-      can('update', 'registration', { userId: meta?.userId })  // e.g. cancel
-      can('read',   'ticket',       { userId: meta?.userId })  // own tickets
+      can('read', 'event') // browse all published events
+      can('create', 'registration') // book a ticket
+      can('read', 'registration', { userId: meta?.userId }) // own bookings only
+      can('update', 'registration', { userId: meta?.userId }) // e.g. cancel
+      can('read', 'ticket', { userId: meta?.userId }) // own tickets
       break
 
     default:

@@ -26,33 +26,29 @@ import themeConfig from 'src/configs/themeConfig'
 const drawerWidth = themeConfig.navigationSize
 
 // ── Styled main content ───────────────────────────────────────────────────────
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open, isMobile }) => ({
-    flexGrow: 1,
-    minHeight: '100vh',
+const Main = styled('main', { shouldForwardProp: prop => prop !== 'open' })(({ theme, open, isMobile }) => ({
+  flexGrow: 1,
+  minHeight: '100vh',
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen
+  }),
+  marginLeft: isMobile ? 0 : `-${drawerWidth}px`,
+  ...(open && {
     transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
     }),
-    marginLeft: isMobile ? 0 : `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen
-      }),
-      marginLeft: 0
-    })
+    marginLeft: 0
   })
-)
+}))
 
 // ── Navigation structure ──────────────────────────────────────────────────────
 // ── Navigation items — add new routes here as pages are built ────────────────
 const NAV_SECTIONS = [
   {
     label: 'Main',
-    items: [
-      { title: 'Dashboard', path: '/dashboard', icon: 'tabler:layout-dashboard' }
-    ]
+    items: [{ title: 'Dashboard', path: '/dashboard', icon: 'tabler:layout-dashboard' }]
   }
 ]
 
@@ -71,22 +67,18 @@ const Layout = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const handleDrawerToggle = () => {
-    if (isMobile) setMobileOpen((v) => !v)
-    else setOpen((v) => !v)
+    if (isMobile) setMobileOpen(v => !v)
+    else setOpen(v => !v)
   }
 
   const handleLogout = () => signOut({ callbackUrl: '/login' })
 
   // ── Check if a path/prefix is active ──────────────────────────────────────
-  const isActive = (path) =>
-    path === '/dashboard'
-      ? router.pathname === path
-      : router.pathname.startsWith(path)
+  const isActive = path => (path === '/dashboard' ? router.pathname === path : router.pathname.startsWith(path))
 
   // ── Drawer content ─────────────────────────────────────────────────────────
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-
       {/* Logo */}
       <Box
         sx={{
@@ -110,28 +102,28 @@ const Layout = ({ children }) => {
             flexShrink: 0
           }}
         >
-          <Icon icon="tabler:calendar-event" color="#fff" fontSize={20} />
+          <Icon icon='tabler:calendar-event' color='#fff' fontSize={20} />
         </Box>
-        <Typography variant="h6" fontWeight={700} color="text.primary" noWrap>
+        <Typography variant='h6' fontWeight={700} color='text.primary' noWrap>
           {themeConfig.templateName}
         </Typography>
       </Box>
 
       {/* Navigation */}
       <Box sx={{ flex: 1, overflowY: 'auto', py: 1 }}>
-        {NAV_SECTIONS.map((section) => (
+        {NAV_SECTIONS.map(section => (
           <Box key={section.label} sx={{ mb: 0.5 }}>
             <Typography
-              variant="caption"
+              variant='caption'
               fontWeight={600}
-              color="text.disabled"
+              color='text.disabled'
               sx={{ px: 3, py: 1, display: 'block', textTransform: 'uppercase', letterSpacing: '0.08em' }}
             >
               {section.label}
             </Typography>
 
             <List dense disablePadding sx={{ px: 1.5 }}>
-              {section.items.map((item) => {
+              {section.items.map(item => {
                 const active = isActive(item.path)
 
                 return (
@@ -162,7 +154,7 @@ const Layout = ({ children }) => {
                         primaryTypographyProps={{ variant: 'body2', fontWeight: active ? 600 : 400 }}
                       />
                       {item.badge && (
-                        <Chip label={item.badge} size="small" color="success" sx={{ height: 18, fontSize: 10 }} />
+                        <Chip label={item.badge} size='small' color='success' sx={{ height: 18, fontSize: 10 }} />
                       )}
                     </ListItemButton>
                   </ListItem>
@@ -194,10 +186,10 @@ const Layout = ({ children }) => {
               {(session.user.name || session.user.email || 'U')[0].toUpperCase()}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={600} noWrap>
+              <Typography variant='body2' fontWeight={600} noWrap>
                 {session.user.name || session.user.email}
               </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
+              <Typography variant='caption' color='text.secondary' noWrap>
                 {session.user.role || 'Organizer'}
               </Typography>
             </Box>
@@ -206,9 +198,9 @@ const Layout = ({ children }) => {
 
         <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2 }}>
           <ListItemIcon sx={{ minWidth: 38 }}>
-            <Icon icon="tabler:logout" fontSize={20} />
+            <Icon icon='tabler:logout' fontSize={20} />
           </ListItemIcon>
-          <ListItemText primary="Logout" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary='Logout' primaryTypographyProps={{ variant: 'body2' }} />
         </ListItemButton>
       </Box>
     </Box>
@@ -218,7 +210,7 @@ const Layout = ({ children }) => {
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* ── AppBar ─────────────────────────────────────────────────────────── */}
       <AppBar
-        position="fixed"
+        position='fixed'
         elevation={0}
         sx={{
           width: { md: open ? `calc(100% - ${drawerWidth}px)` : '100%' },
@@ -234,28 +226,26 @@ const Layout = ({ children }) => {
         }}
       >
         <Toolbar sx={{ gap: 1 }}>
-          <IconButton color="inherit" onClick={handleDrawerToggle} edge="start">
+          <IconButton color='inherit' onClick={handleDrawerToggle} edge='start'>
             <Icon icon={open ? 'tabler:layout-sidebar-left-collapse' : 'tabler:layout-sidebar-left-expand'} />
           </IconButton>
 
           <Box sx={{ flexGrow: 1 }} />
 
           {/* Quick actions */}
-          <Tooltip title="Notifications">
-            <IconButton color="inherit" size="small">
-              <Icon icon="tabler:bell" fontSize={20} />
+          <Tooltip title='Notifications'>
+            <IconButton color='inherit' size='small'>
+              <Icon icon='tabler:bell' fontSize={20} />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Search">
-            <IconButton color="inherit" size="small">
-              <Icon icon="tabler:search" fontSize={20} />
+          <Tooltip title='Search'>
+            <IconButton color='inherit' size='small'>
+              <Icon icon='tabler:search' fontSize={20} />
             </IconButton>
           </Tooltip>
 
           {session?.user && (
-            <Avatar
-              sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 13, cursor: 'pointer', ml: 0.5 }}
-            >
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 13, cursor: 'pointer', ml: 0.5 }}>
               {(session.user.name || session.user.email || 'U')[0].toUpperCase()}
             </Avatar>
           )}
@@ -264,7 +254,7 @@ const Layout = ({ children }) => {
 
       {/* ── Mobile Drawer ──────────────────────────────────────────────────── */}
       <Drawer
-        variant="temporary"
+        variant='temporary'
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
@@ -278,7 +268,7 @@ const Layout = ({ children }) => {
 
       {/* ── Desktop Drawer ─────────────────────────────────────────────────── */}
       <Drawer
-        variant="persistent"
+        variant='persistent'
         open={open}
         sx={{
           display: { xs: 'none', md: 'block' },
@@ -300,30 +290,5 @@ const Layout = ({ children }) => {
     </Box>
   )
 }
-
-export default Layout
-
-
-/**
- * Main content wrapper
- */
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open, isMobile }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: isMobile ? 0 : `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  })
-)
 
 export default Layout

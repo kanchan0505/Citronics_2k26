@@ -1,7 +1,7 @@
 /**
  * Global Styles
  */
-const GlobalStyling = (theme) => ({
+const GlobalStyling = theme => ({
   '*': {
     boxSizing: 'border-box'
   },

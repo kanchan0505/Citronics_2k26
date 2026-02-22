@@ -2,7 +2,7 @@
  * Color Palette Configuration
  * Light and dark mode color schemes
  */
-const palette = (mode) => {
+const palette = mode => {
   const lightPalette = {
     mode: 'light',
     primary: {

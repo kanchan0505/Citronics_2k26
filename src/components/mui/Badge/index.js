@@ -15,23 +15,20 @@ import useBgColor from 'src/hooks/useBgColor'
  *   <Icon icon='tabler:bell' />
  * </CustomBadge>
  */
-const CustomBadge = (props) => {
+const CustomBadge = props => {
   const { sx, skin, color, ...rest } = props
   const bgColors = useBgColor()
 
   const colors = {
-    primary:   { ...bgColors.primaryLight },
+    primary: { ...bgColors.primaryLight },
     secondary: { ...bgColors.secondaryLight },
-    success:   { ...bgColors.successLight },
-    error:     { ...bgColors.errorLight },
-    warning:   { ...bgColors.warningLight },
-    info:      { ...bgColors.infoLight }
+    success: { ...bgColors.successLight },
+    error: { ...bgColors.errorLight },
+    warning: { ...bgColors.warningLight },
+    info: { ...bgColors.infoLight }
   }
 
-  const badgeSx =
-    skin === 'light' && color
-      ? Object.assign({ '& .MuiBadge-badge': colors[color] }, sx)
-      : sx
+  const badgeSx = skin === 'light' && color ? Object.assign({ '& .MuiBadge-badge': colors[color] }, sx) : sx
 
   return <MuiBadge {...rest} color={skin === 'light' ? 'default' : color} sx={badgeSx} />
 }

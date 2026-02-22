@@ -18,23 +18,23 @@ const NotAuthorized = () => {
         textAlign: 'center'
       }}
     >
-      <Typography variant="h1" sx={{ mb: 2, fontSize: '6rem !important' }}>
+      <Typography variant='h1' sx={{ mb: 2, fontSize: '6rem !important' }}>
         401
       </Typography>
-      <Typography variant="h5" sx={{ mb: 2, letterSpacing: '0.18px' }}>
+      <Typography variant='h5' sx={{ mb: 2, letterSpacing: '0.18px' }}>
         You are not authorized! 🔐
       </Typography>
-      <Typography variant="body2" sx={{ mb: 6 }}>
-        You don't have permission to access this page. Go back to home.
+      <Typography variant='body2' sx={{ mb: 6 }}>
+        You don&apos;t have permission to access this page. Go back to home.
       </Typography>
-      <Button variant="contained" component={Link} href="/">
+      <Button variant='contained' component={Link} href='/'>
         Back to Home
       </Button>
     </Box>
   )
 }
 
-NotAuthorized.getLayout = (page) => <MinimalLayout>{page}</MinimalLayout>
+NotAuthorized.getLayout = page => <MinimalLayout>{page}</MinimalLayout>
 NotAuthorized.authGuard = false
 NotAuthorized.guestGuard = false
 

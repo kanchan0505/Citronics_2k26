@@ -18,23 +18,23 @@ const NotFound = () => {
         textAlign: 'center'
       }}
     >
-      <Typography variant="h1" sx={{ mb: 2, fontSize: '6rem !important' }}>
+      <Typography variant='h1' sx={{ mb: 2, fontSize: '6rem !important' }}>
         404
       </Typography>
-      <Typography variant="h5" sx={{ mb: 2, letterSpacing: '0.18px' }}>
+      <Typography variant='h5' sx={{ mb: 2, letterSpacing: '0.18px' }}>
         Page Not Found ⚠️
       </Typography>
-      <Typography variant="body2" sx={{ mb: 6 }}>
-        We couldn't find the page you are looking for.
+      <Typography variant='body2' sx={{ mb: 6 }}>
+        We couldn&apos;t find the page you are looking for.
       </Typography>
-      <Button variant="contained" component={Link} href="/">
+      <Button variant='contained' component={Link} href='/'>
         Back to Home
       </Button>
     </Box>
   )
 }
 
-NotFound.getLayout = (page) => <MinimalLayout>{page}</MinimalLayout>
+NotFound.getLayout = page => <MinimalLayout>{page}</MinimalLayout>
 NotFound.authGuard = false
 NotFound.guestGuard = false
 

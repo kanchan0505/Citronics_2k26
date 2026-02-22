@@ -9,7 +9,7 @@ export const store = configureStore({
   reducer: {
     dashboard: dashboardReducer
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false
     })

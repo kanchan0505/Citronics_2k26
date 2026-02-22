@@ -16,23 +16,20 @@ import useBgColor from 'src/hooks/useBgColor'
  * <CustomChip skin='light' color='warning'  label='Draft'    rounded />
  * <CustomChip skin='light' color='error'    label='Cancelled' />
  */
-const CustomChip = (props) => {
+const CustomChip = props => {
   const { sx, skin, color, rounded, ...rest } = props
   const bgColors = useBgColor()
 
   const colors = {
-    primary:   { ...bgColors.primaryLight },
+    primary: { ...bgColors.primaryLight },
     secondary: { ...bgColors.secondaryLight },
-    success:   { ...bgColors.successLight },
-    error:     { ...bgColors.errorLight },
-    warning:   { ...bgColors.warningLight },
-    info:      { ...bgColors.infoLight }
+    success: { ...bgColors.successLight },
+    error: { ...bgColors.errorLight },
+    warning: { ...bgColors.warningLight },
+    info: { ...bgColors.infoLight }
   }
 
-  const colorSx =
-    skin === 'light' && color && colors[color]
-      ? Object.assign({}, colors[color], sx)
-      : sx
+  const colorSx = skin === 'light' && color && colors[color] ? Object.assign({}, colors[color], sx) : sx
 
   return (
     <MuiChip

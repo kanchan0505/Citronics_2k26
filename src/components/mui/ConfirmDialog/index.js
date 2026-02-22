@@ -39,22 +39,22 @@ import Icon from 'src/components/Icon'
  */
 
 const ICON_MAP = {
-  error:   'tabler:trash-x',
+  error: 'tabler:trash-x',
   warning: 'tabler:alert-triangle',
-  info:    'tabler:info-circle',
+  info: 'tabler:info-circle',
   success: 'tabler:circle-check'
 }
 
 const ConfirmDialog = ({
-  open          = false,
+  open = false,
   onClose,
   onConfirm,
-  title         = 'Are you sure?',
-  message       = 'This action cannot be undone.',
-  confirmLabel  = 'Confirm',
-  cancelLabel   = 'Cancel',
-  severity      = 'warning',
-  loading       = false
+  title = 'Are you sure?',
+  message = 'This action cannot be undone.',
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  severity = 'warning',
+  loading = false
 }) => {
   const theme = useTheme()
   const iconColor = theme.palette[severity]?.main ?? theme.palette.warning.main
@@ -71,19 +71,21 @@ const ConfirmDialog = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width:           40,
-              height:          40,
-              borderRadius:    '50%',
-              display:         'flex',
-              alignItems:      'center',
-              justifyContent:  'center',
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               backgroundColor: alpha(iconColor, 0.12),
-              flexShrink:      0
+              flexShrink: 0
             }}
           >
             <Icon icon={ICON_MAP[severity] ?? ICON_MAP.warning} style={{ fontSize: 22, color: iconColor }} />
           </Box>
-          <Typography variant='h6' fontWeight={600}>{title}</Typography>
+          <Typography variant='h6' fontWeight={600}>
+            {title}
+          </Typography>
         </Box>
       </DialogTitle>
 
@@ -94,13 +96,7 @@ const ConfirmDialog = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button
-          variant='outlined'
-          color='secondary'
-          onClick={onClose}
-          disabled={loading}
-          sx={{ borderRadius: 2 }}
-        >
+        <Button variant='outlined' color='secondary' onClick={onClose} disabled={loading} sx={{ borderRadius: 2 }}>
           {cancelLabel}
         </Button>
         <Button

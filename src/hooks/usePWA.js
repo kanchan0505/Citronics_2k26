@@ -31,9 +31,7 @@ const usePWA = () => {
 
   // ── Detect standalone (already installed) ─────────────────────────────────
   useEffect(() => {
-    const standalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.navigator.standalone === true
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
     setIsInstalled(standalone)
   }, [])
 
@@ -68,7 +66,7 @@ const usePWA = () => {
 
   // ── A2HS install prompt ────────────────────────────────────────────────────
   useEffect(() => {
-    const onBeforeInstall = (e) => {
+    const onBeforeInstall = e => {
       e.preventDefault()
       setInstallPromptEvent(e)
       setIsInstallable(true)

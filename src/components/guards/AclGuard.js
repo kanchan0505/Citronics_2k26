@@ -30,7 +30,7 @@ const AclGuard = ({ children, aclAbilities, guestGuard = false, authGuard = true
       //   Student → userId: own user ID for own-record rules
       const meta = {
         eventIds: session.user.eventIds ?? [],
-        userId:   session.user.id
+        userId: session.user.id
       }
       setAbility(buildAbilityFor(session.user.role, meta))
     }
@@ -44,11 +44,7 @@ const AclGuard = ({ children, aclAbilities, guestGuard = false, authGuard = true
   // For guest guards or error pages
   if (guestGuard || router.route === '/404' || router.route === '/500' || !authGuard) {
     if (session?.user && ability) {
-      return (
-        <AbilityContext.Provider value={ability}>
-          {children}
-        </AbilityContext.Provider>
-      )
+      return <AbilityContext.Provider value={ability}>{children}</AbilityContext.Provider>
     }
     return <>{children}</>
   }
@@ -59,11 +55,7 @@ const AclGuard = ({ children, aclAbilities, guestGuard = false, authGuard = true
       return <Spinner />
     }
 
-    return (
-      <AbilityContext.Provider value={ability}>
-        {children}
-      </AbilityContext.Provider>
-    )
+    return <AbilityContext.Provider value={ability}>{children}</AbilityContext.Provider>
   }
 
   // Show not authorized page

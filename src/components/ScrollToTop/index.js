@@ -38,9 +38,9 @@ const ScrollToTop = () => {
 
   return (
     <Zoom in={visible} timeout={300} unmountOnExit>
-      <Tooltip title="Scroll to top" placement="left">
-        <StyledFab color="primary" size="small" aria-label="Scroll to top" onClick={scrollTop}>
-          <Icon icon="tabler:arrow-up" fontSize={20} />
+      <Tooltip title='Scroll to top' placement='left'>
+        <StyledFab color='primary' size='small' aria-label='Scroll to top' onClick={scrollTop}>
+          <Icon icon='tabler:arrow-up' fontSize={20} />
         </StyledFab>
       </Tooltip>
     </Zoom>

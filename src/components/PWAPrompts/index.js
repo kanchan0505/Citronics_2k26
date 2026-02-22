@@ -31,60 +31,48 @@ const PWAPrompts = () => {
         sx={{ mb: 7 }}
       >
         <Alert
-          severity="info"
-          icon={<Icon icon="tabler:device-mobile" />}
+          severity='info'
+          icon={<Icon icon='tabler:device-mobile' />}
           action={
             <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-              <Button size="small" variant="contained" onClick={promptInstall}>
+              <Button size='small' variant='contained' onClick={promptInstall}>
                 Install
               </Button>
-              <IconButton size="small" onClick={() => setInstallDismissed(true)}>
-                <Icon icon="tabler:x" fontSize={16} />
+              <IconButton size='small' onClick={() => setInstallDismissed(true)}>
+                <Icon icon='tabler:x' fontSize={16} />
               </IconButton>
             </Box>
           }
           sx={{ alignItems: 'center' }}
         >
-          <Typography variant="body2" fontWeight={500}>
+          <Typography variant='body2' fontWeight={500}>
             Add EventHub to your home screen
           </Typography>
         </Alert>
       </Snackbar>
 
       {/* ── Update available ───────────────────────────────────────────── */}
-      <Snackbar
-        open={updateAvailable}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
+      <Snackbar open={updateAvailable} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
         <Alert
-          severity="success"
-          icon={<Icon icon="tabler:refresh" />}
+          severity='success'
+          icon={<Icon icon='tabler:refresh' />}
           action={
-            <Button size="small" variant="contained" color="success" onClick={applyUpdate}>
+            <Button size='small' variant='contained' color='success' onClick={applyUpdate}>
               Reload
             </Button>
           }
           sx={{ alignItems: 'center' }}
         >
-          <Typography variant="body2" fontWeight={500}>
+          <Typography variant='body2' fontWeight={500}>
             A new version of EventHub is ready!
           </Typography>
         </Alert>
       </Snackbar>
 
       {/* ── Offline banner ─────────────────────────────────────────────── */}
-      <Snackbar
-        open={!isOnline && !offlineDismissed}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          severity="warning"
-          icon={<Icon icon="tabler:wifi-off" />}
-          onClose={() => setOfflineDismissed(true)}
-        >
-          <Typography variant="body2">
-            You are currently offline. Some features may not be available.
-          </Typography>
+      <Snackbar open={!isOnline && !offlineDismissed} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert severity='warning' icon={<Icon icon='tabler:wifi-off' />} onClose={() => setOfflineDismissed(true)}>
+          <Typography variant='body2'>You are currently offline. Some features may not be available.</Typography>
         </Alert>
       </Snackbar>
     </>

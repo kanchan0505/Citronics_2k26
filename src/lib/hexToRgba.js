@@ -10,7 +10,7 @@ export const hexToRGBA = (hex, opacity) => {
     h.length === 3
       ? h
           .split('')
-          .map((c) => c + c)
+          .map(c => c + c)
           .join('')
       : h
 

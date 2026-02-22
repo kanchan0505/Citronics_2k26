@@ -7,12 +7,12 @@ pgp.pg.types.setTypeParser(1082, val => val)
 
 // ── Connection pool ───────────────────────────────────────────────────────────
 const db = pgp({
-  host:     process.env.DB_HOST,
-  port:     parseInt(process.env.DB_PORT     || '5432'),
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432'),
   database: process.env.DB_NAME,
-  user:     process.env.DB_USER,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  max:      parseInt(process.env.DB_POOLSIZE || '10'),
+  max: parseInt(process.env.DB_POOLSIZE || '10'),
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 5_000
 })

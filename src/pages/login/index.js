@@ -30,7 +30,7 @@ const LoginPage = () => {
   const router = useRouter()
   const theme = useTheme()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -47,7 +47,7 @@ const LoginPage = () => {
       } else {
         router.push('/dashboard')
       }
-    } catch (err) {
+    } catch (_err) {
       setError('An error occurred during login')
     } finally {
       setLoading(false)
@@ -69,17 +69,17 @@ const LoginPage = () => {
         <CardContent sx={{ p: 4 }}>
           {/* Logo */}
           <Box sx={{ mb: 4, textAlign: 'center' }}>
-            <Typography variant="h4" fontWeight={600} color="primary">
+            <Typography variant='h4' fontWeight={600} color='primary'>
               {themeConfig.templateName}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
               Sign in to your account
             </Typography>
           </Box>
 
           {/* Error Alert */}
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity='error' sx={{ mb: 3 }}>
               {error}
             </Alert>
           )}
@@ -88,10 +88,10 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Email"
-              type="email"
+              label='Email'
+              type='email'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               sx={{ mb: 3 }}
               required
               disabled={loading}
@@ -99,20 +99,17 @@ const LoginPage = () => {
 
             <TextField
               fullWidth
-              label="Password"
+              label='Password'
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               sx={{ mb: 3 }}
               required
               disabled={loading}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
+                  <InputAdornment position='end'>
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge='end'>
                       {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
                     </IconButton>
                   </InputAdornment>
@@ -120,29 +117,20 @@ const LoginPage = () => {
               }}
             />
 
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loading}
-              sx={{ mb: 2 }}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+            <Button fullWidth type='submit' variant='contained' size='large' disabled={loading} sx={{ mb: 2 }}>
+              {loading ? <CircularProgress size={24} color='inherit' /> : 'Sign In'}
             </Button>
           </form>
 
           {/* Demo credentials */}
           <Box sx={{ mt: 3, p: 2, borderRadius: 1, bgcolor: 'background.default' }}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               Demo Credentials:
             </Typography>
-            <Typography variant="body2" sx={{ mt: 0.5 }}>
+            <Typography variant='body2' sx={{ mt: 0.5 }}>
               Email: admin@example.com
             </Typography>
-            <Typography variant="body2">
-              Password: admin123
-            </Typography>
+            <Typography variant='body2'>Password: admin123</Typography>
           </Box>
         </CardContent>
       </Card>
@@ -151,7 +139,7 @@ const LoginPage = () => {
 }
 
 // Use blank layout
-LoginPage.getLayout = (page) => <MinimalLayout>{page}</MinimalLayout>
+LoginPage.getLayout = page => <MinimalLayout>{page}</MinimalLayout>
 
 // Allow guest access
 LoginPage.guestGuard = true

@@ -58,7 +58,7 @@ const themeOptions = (settings, overrideMode) => {
   return deepmerge(mergedConfig, {
     palette: {
       primary: {
-        ...mergedConfig.palette[themeColor] || mergedConfig.palette.primary
+        ...(mergedConfig.palette[themeColor] || mergedConfig.palette.primary)
       }
     }
   })

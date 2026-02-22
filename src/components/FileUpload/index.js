@@ -72,17 +72,15 @@ const FileUpload = ({
   const onDrop = useCallback(
     (accepted, rejected) => {
       rejected.forEach(({ file, errors }) =>
-        errors.forEach((err) => {
-          if (err.code === 'file-too-large')
-            toast.error(`"${file.name}" exceeds ${maxFileMB} MB limit`)
-          else if (err.code === 'file-invalid-type')
-            toast.error(`"${file.name}" — unsupported file type`)
+        errors.forEach(err => {
+          if (err.code === 'file-too-large') toast.error(`"${file.name}" exceeds ${maxFileMB} MB limit`)
+          else if (err.code === 'file-invalid-type') toast.error(`"${file.name}" — unsupported file type`)
         })
       )
 
-      setFiles((prev) => [
+      setFiles(prev => [
         ...prev,
-        ...accepted.map((file) => ({
+        ...accepted.map(file => ({
           file,
           id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
           status: 'pending'
@@ -100,11 +98,11 @@ const FileUpload = ({
   })
 
   // ── Remove pending file ────────────────────────────────────────────────────
-  const removeFile = (id) => setFiles((prev) => prev.filter((f) => f.id !== id))
+  const removeFile = id => setFiles(prev => prev.filter(f => f.id !== id))
 
   // ── Upload ─────────────────────────────────────────────────────────────────
   const handleUpload = async () => {
-    const pending = files.filter((f) => f.status === 'pending')
+    const pending = files.filter(f => f.status === 'pending')
     if (!pending.length) return
 
     setUploading(true)
@@ -116,29 +114,21 @@ const FileUpload = ({
       formData.append('file', item.file)
 
       // Mark as uploading
-      setFiles((prev) =>
-        prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading' } : f))
-      )
+      setFiles(prev => prev.map(f => (f.id === item.id ? { ...f, status: 'uploading' } : f)))
 
       try {
         const { data } = await axios.post(uploadEndpoint, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
           onUploadProgress: ({ loaded, total }) => {
-            setProgress((p) => ({ ...p, [item.id]: Math.round((loaded / total) * 100) }))
+            setProgress(p => ({ ...p, [item.id]: Math.round((loaded / total) * 100) }))
           }
         })
 
-        setFiles((prev) =>
-          prev.map((f) => (f.id === item.id ? { ...f, status: 'done' } : f))
-        )
+        setFiles(prev => prev.map(f => (f.id === item.id ? { ...f, status: 'done' } : f)))
         results.push(data)
-        setUploaded((prev) => [...prev, data])
+        setUploaded(prev => [...prev, data])
       } catch (err) {
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === item.id ? { ...f, status: 'error', error: err.message } : f
-          )
-        )
+        setFiles(prev => prev.map(f => (f.id === item.id ? { ...f, status: 'error', error: err.message } : f)))
         toast.error(`Failed to upload "${item.file.name}"`)
       }
     }
@@ -161,11 +151,11 @@ const FileUpload = ({
     onClose?.()
   }
 
-  const pendingCount = files.filter((f) => f.status === 'pending').length
+  const pendingCount = files.filter(f => f.status === 'pending').length
   const hasFiles = files.length > 0
 
   // ── Status chip helper ─────────────────────────────────────────────────────
-  const statusChip = (status) => {
+  const statusChip = status => {
     const map = {
       pending: { label: 'Ready', color: 'default' },
       uploading: { label: 'Uploading', color: 'primary' },
@@ -173,22 +163,20 @@ const FileUpload = ({
       error: { label: 'Error', color: 'error' }
     }
     const cfg = map[status] ?? map.pending
-    return <Chip label={cfg.label} color={cfg.color} size="small" />
+    return <Chip label={cfg.label} color={cfg.color} size='small' />
   }
 
-  const formatBytes = (bytes) =>
-    bytes < 1024 * 1024
-      ? `${(bytes / 1024).toFixed(1)} KB`
-      : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  const formatBytes = bytes =>
+    bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant='h6' fontWeight={600}>
           {title}
         </Typography>
-        <IconButton size="small" onClick={handleClose} disabled={uploading}>
-          <Icon icon="tabler:x" />
+        <IconButton size='small' onClick={handleClose} disabled={uploading}>
+          <Icon icon='tabler:x' />
         </IconButton>
       </DialogTitle>
 
@@ -197,9 +185,7 @@ const FileUpload = ({
         <Box
           {...getRootProps()}
           sx={{
-            border: `2px dashed ${
-              isDragActive ? theme.palette.primary.main : theme.palette.divider
-            }`,
+            border: `2px dashed ${isDragActive ? theme.palette.primary.main : theme.palette.divider}`,
             borderRadius: 2,
             p: 4,
             textAlign: 'center',
@@ -211,11 +197,11 @@ const FileUpload = ({
           }}
         >
           <input {...getInputProps()} />
-          <Icon icon="tabler:cloud-upload" fontSize={40} color={theme.palette.primary.main} />
-          <Typography variant="body1" mt={1} fontWeight={500}>
+          <Icon icon='tabler:cloud-upload' fontSize={40} color={theme.palette.primary.main} />
+          <Typography variant='body1' mt={1} fontWeight={500}>
             {isDragActive ? 'Drop files here…' : 'Drag & drop files or click to browse'}
           </Typography>
-          <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+          <Typography variant='caption' color='text.secondary' display='block' mt={0.5}>
             Max {maxFileMB} MB per file — Images, PDF, Excel, CSV, JSON
           </Typography>
         </Box>
@@ -223,14 +209,14 @@ const FileUpload = ({
         {/* File list */}
         {hasFiles && (
           <List dense disablePadding>
-            {files.map((item) => (
+            {files.map(item => (
               <ListItem
                 key={item.id}
                 disableGutters
                 secondaryAction={
                   item.status === 'pending' && (
-                    <IconButton size="small" onClick={() => removeFile(item.id)}>
-                      <Icon icon="tabler:x" fontSize={16} />
+                    <IconButton size='small' onClick={() => removeFile(item.id)}>
+                      <Icon icon='tabler:x' fontSize={16} />
                     </IconButton>
                   )
                 }
@@ -242,8 +228,8 @@ const FileUpload = ({
                       item.file.type.startsWith('image/')
                         ? 'tabler:photo'
                         : item.file.type === 'application/pdf'
-                        ? 'tabler:file-type-pdf'
-                        : 'tabler:file'
+                          ? 'tabler:file-type-pdf'
+                          : 'tabler:file'
                     }
                     fontSize={20}
                   />
@@ -259,7 +245,7 @@ const FileUpload = ({
                 {item.status === 'uploading' && (
                   <Box sx={{ width: '100%', mt: 0.5 }}>
                     <LinearProgress
-                      variant="determinate"
+                      variant='determinate'
                       value={progress[item.id] ?? 0}
                       sx={{ height: 4, borderRadius: 2 }}
                     />
@@ -267,7 +253,7 @@ const FileUpload = ({
                 )}
 
                 {item.status === 'error' && (
-                  <Alert severity="error" sx={{ mt: 0.5, py: 0, fontSize: 12 }}>
+                  <Alert severity='error' sx={{ mt: 0.5, py: 0, fontSize: 12 }}>
                     {item.error}
                   </Alert>
                 )}
@@ -278,14 +264,14 @@ const FileUpload = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button variant="outlined" onClick={handleClose} disabled={uploading}>
+        <Button variant='outlined' onClick={handleClose} disabled={uploading}>
           Cancel
         </Button>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={handleUpload}
           disabled={uploading || pendingCount === 0}
-          startIcon={<Icon icon="tabler:upload" />}
+          startIcon={<Icon icon='tabler:upload' />}
         >
           {uploading ? 'Uploading…' : `Upload${pendingCount ? ` (${pendingCount})` : ''}`}
         </Button>

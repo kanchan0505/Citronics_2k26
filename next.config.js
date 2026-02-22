@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  transpilePackages: ['@mui/material', '@mui/system'],
+  // transpilePackages: ['@mui/material', '@mui/system'],
 
   images: {
     domains: ['localhost', 'res.cloudinary.com'],

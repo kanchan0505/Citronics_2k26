@@ -7,33 +7,33 @@ import CustomChip from 'src/components/mui/Chip'
  */
 const EVENT_STATUS = {
   published: { color: 'success', label: 'Published' },
-  draft:     { color: 'warning', label: 'Draft'     },
-  cancelled: { color: 'error',   label: 'Cancelled' },
-  completed: { color: 'info',    label: 'Completed' },
-  archived:  { color: 'secondary', label: 'Archived' }
+  draft: { color: 'warning', label: 'Draft' },
+  cancelled: { color: 'error', label: 'Cancelled' },
+  completed: { color: 'info', label: 'Completed' },
+  archived: { color: 'secondary', label: 'Archived' }
 }
 
 const TICKET_STATUS = {
   available: { color: 'success', label: 'Available' },
-  sold:      { color: 'error',   label: 'Sold Out'  },
-  reserved:  { color: 'warning', label: 'Reserved'  },
-  free:      { color: 'info',    label: 'Free'      }
+  sold: { color: 'error', label: 'Sold Out' },
+  reserved: { color: 'warning', label: 'Reserved' },
+  free: { color: 'info', label: 'Free' }
 }
 
 const REGISTRATION_STATUS = {
-  pending:   { color: 'warning', label: 'Pending'   },
+  pending: { color: 'warning', label: 'Pending' },
   confirmed: { color: 'success', label: 'Confirmed' },
-  cancelled: { color: 'error',   label: 'Cancelled' },
-  attended:  { color: 'info',    label: 'Attended'  },
-  waitlist:  { color: 'secondary', label: 'Waitlist' }
+  cancelled: { color: 'error', label: 'Cancelled' },
+  attended: { color: 'info', label: 'Attended' },
+  waitlist: { color: 'secondary', label: 'Waitlist' }
 }
 
 const PAYMENT_STATUS = {
-  paid:    { color: 'success', label: 'Paid'    },
+  paid: { color: 'success', label: 'Paid' },
   pending: { color: 'warning', label: 'Pending' },
-  failed:  { color: 'error',   label: 'Failed'  },
-  refunded:{ color: 'info',    label: 'Refunded' },
-  free:    { color: 'secondary', label: 'Free'  }
+  failed: { color: 'error', label: 'Failed' },
+  refunded: { color: 'info', label: 'Refunded' },
+  free: { color: 'secondary', label: 'Free' }
 }
 
 /**
@@ -54,27 +54,17 @@ const PAYMENT_STATUS = {
  */
 const StatusChip = ({ type = 'event', status, sx, ...rest }) => {
   const maps = {
-    event:        EVENT_STATUS,
-    ticket:       TICKET_STATUS,
+    event: EVENT_STATUS,
+    ticket: TICKET_STATUS,
     registration: REGISTRATION_STATUS,
-    payment:      PAYMENT_STATUS
+    payment: PAYMENT_STATUS
   }
 
   const map = maps[type] ?? {}
   const key = (status ?? '').toLowerCase()
   const cfg = map[key] ?? { color: 'secondary', label: status ?? '—' }
 
-  return (
-    <CustomChip
-      skin='light'
-      rounded
-      size='small'
-      color={cfg.color}
-      label={cfg.label}
-      sx={sx}
-      {...rest}
-    />
-  )
+  return <CustomChip skin='light' rounded size='small' color={cfg.color} label={cfg.label} sx={sx} {...rest} />
 }
 
 export { EVENT_STATUS, TICKET_STATUS, REGISTRATION_STATUS, PAYMENT_STATUS }

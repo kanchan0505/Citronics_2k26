@@ -19,12 +19,12 @@ import { styled } from '@mui/material/styles'
 const TextFieldStyled = styled(TextField)(({ theme }) => ({
   // ── Label: sits above the box, never floats ─────────────────────────────
   '& .MuiInputLabel-root': {
-    transform:     'none',
-    lineHeight:    1.154,
-    position:      'relative',
-    marginBottom:  theme.spacing(1),
-    fontSize:      theme.typography.body2.fontSize,
-    color:         `${theme.palette.text.primary} !important`,
+    transform: 'none',
+    lineHeight: 1.154,
+    position: 'relative',
+    marginBottom: theme.spacing(1),
+    fontSize: theme.typography.body2.fontSize,
+    color: `${theme.palette.text.primary} !important`,
     '&.Mui-error': { color: `${theme.palette.error.main} !important` }
   },
 
@@ -42,7 +42,7 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
     // remove the built-in underline lines
     '&:before, &:after': { display: 'none' },
     '&.MuiInputBase-sizeSmall': { borderRadius: 6 },
-    '&.Mui-error':   { borderColor: theme.palette.error.main },
+    '&.Mui-error': { borderColor: theme.palette.error.main },
     '&.Mui-disabled': {
       opacity: 0.6,
       borderColor: `rgba(${theme.palette.customColors.mainRgb}, 0.12)`
@@ -53,13 +53,13 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
       '& .MuiInputBase-input:not(.MuiInputBase-readOnly):not([readonly])::placeholder': {
         transform: 'translateX(4px)'
       },
-      '&.MuiInputBase-colorPrimary':   { borderColor: theme.palette.primary.main },
+      '&.MuiInputBase-colorPrimary': { borderColor: theme.palette.primary.main },
       '&.MuiInputBase-colorSecondary': { borderColor: theme.palette.secondary.main },
-      '&.MuiInputBase-colorInfo':      { borderColor: theme.palette.info.main },
-      '&.MuiInputBase-colorSuccess':   { borderColor: theme.palette.success.main },
-      '&.MuiInputBase-colorWarning':   { borderColor: theme.palette.warning.main },
-      '&.MuiInputBase-colorError':     { borderColor: theme.palette.error.main },
-      '&.Mui-error':                   { borderColor: theme.palette.error.main }
+      '&.MuiInputBase-colorInfo': { borderColor: theme.palette.info.main },
+      '&.MuiInputBase-colorSuccess': { borderColor: theme.palette.success.main },
+      '&.MuiInputBase-colorWarning': { borderColor: theme.palette.warning.main },
+      '&.MuiInputBase-colorError': { borderColor: theme.palette.error.main },
+      '&.Mui-error': { borderColor: theme.palette.error.main }
     }
   },
 
@@ -76,7 +76,7 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
     },
     // adornment spacing
     '&.MuiInputBase-inputAdornedStart:not(.MuiAutocomplete-input)': { paddingLeft: 0 },
-    '&.MuiInputBase-inputAdornedEnd:not(.MuiAutocomplete-input)':   { paddingRight: 0 }
+    '&.MuiInputBase-inputAdornedEnd:not(.MuiAutocomplete-input)': { paddingRight: 0 }
   },
 
   // ── Helper / error text ──────────────────────────────────────────────────
@@ -94,8 +94,8 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
 
   // ── Autocomplete inner padding ───────────────────────────────────────────
   '& .MuiAutocomplete-input': {
-    paddingLeft:   '6px  !important',
-    paddingTop:    '7px  !important',
+    paddingLeft: '6px  !important',
+    paddingTop: '7px  !important',
     paddingBottom: '7px  !important'
   }
 }))

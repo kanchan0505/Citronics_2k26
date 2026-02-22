@@ -10,7 +10,6 @@ import { dbOneOrNone, dbAny } from 'src/lib/database'
  *   getRecentRegistrations() → list queries (dbAny)
  */
 const dashboardService = {
-
   /**
    * Overview KPIs — single row with all headline numbers.
    * COALESCE guards against NULL when tables are empty.

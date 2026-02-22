@@ -19,34 +19,28 @@ import useBgColor from 'src/hooks/useBgColor'
 const CustomAvatar = forwardRef((props, ref) => {
   const { sx, src, skin, color, ...rest } = props
 
-  const theme    = useTheme()
+  const theme = useTheme()
   const bgColors = useBgColor()
 
   const getStyles = (skin, color) => {
-    if (skin === 'light')        return { ...bgColors[`${color}Light`] }
-    if (skin === 'light-static') return {
-      color:           bgColors[`${color}Light`].color,
-      backgroundColor: lighten(theme.palette[color].main, 0.88)
-    }
+    if (skin === 'light') return { ...bgColors[`${color}Light`] }
+    if (skin === 'light-static')
+      return {
+        color: bgColors[`${color}Light`].color,
+        backgroundColor: lighten(theme.palette[color].main, 0.88)
+      }
     return { ...bgColors[`${color}Filled`] } // 'filled' (default)
   }
 
   const colorStyles = !src && skin && color ? getStyles(skin, color) : {}
 
-  return (
-    <MuiAvatar
-      ref={ref}
-      {...rest}
-      src={src}
-      sx={{ ...colorStyles, ...sx }}
-    />
-  )
+  return <MuiAvatar ref={ref} {...rest} src={src} sx={{ ...colorStyles, ...sx }} />
 })
 
 CustomAvatar.displayName = 'CustomAvatar'
 
 CustomAvatar.defaultProps = {
-  skin:  'filled',
+  skin: 'filled',
   color: 'primary'
 }
 

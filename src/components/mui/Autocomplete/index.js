@@ -21,14 +21,14 @@ import CustomTextField from 'src/components/mui/TextField'
  * />
  */
 const StyledPaper = styled(Paper)(({ theme }) => ({
-  boxShadow:    theme.shadows[6],
+  boxShadow: theme.shadows[6],
   borderRadius: 10,
-  marginTop:    theme.spacing(0.5),
+  marginTop: theme.spacing(0.5),
   '& .MuiAutocomplete-listbox': {
     padding: theme.spacing(0.5, 0),
     '& .MuiAutocomplete-option': {
-      fontSize:  theme.typography.body2.fontSize,
-      padding:   theme.spacing(1.25, 2),
+      fontSize: theme.typography.body2.fontSize,
+      padding: theme.spacing(1.25, 2),
       '&[aria-selected="true"]': {
         backgroundColor: `rgba(${theme.palette.customColors.mainRgb}, 0.06)`
       },
@@ -39,23 +39,15 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   },
   '& .MuiAutocomplete-noOptions, & .MuiAutocomplete-loading': {
     fontSize: theme.typography.body2.fontSize,
-    color:    theme.palette.text.secondary,
-    padding:  theme.spacing(2)
+    color: theme.palette.text.secondary,
+    padding: theme.spacing(2)
   }
 }))
 
 const CustomAutocomplete = forwardRef((props, ref) => {
-  const {
-    label,
-    placeholder,
-    helperText,
-    error,
-    required,
-    renderInput,
-    ...rest
-  } = props
+  const { label, placeholder, helperText, error, required, renderInput, ...rest } = props
 
-  const defaultRenderInput = (params) => (
+  const defaultRenderInput = params => (
     <CustomTextField
       {...params}
       label={label}
@@ -67,12 +59,7 @@ const CustomAutocomplete = forwardRef((props, ref) => {
   )
 
   return (
-    <MuiAutocomplete
-      ref={ref}
-      PaperComponent={StyledPaper}
-      renderInput={renderInput ?? defaultRenderInput}
-      {...rest}
-    />
+    <MuiAutocomplete ref={ref} PaperComponent={StyledPaper} renderInput={renderInput ?? defaultRenderInput} {...rest} />
   )
 })
 
