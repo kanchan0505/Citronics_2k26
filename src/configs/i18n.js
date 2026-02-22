@@ -16,23 +16,24 @@ import speakersEn from '../../public/locales/en/speakers.json'
 import venuesEn from '../../public/locales/en/venues.json'
 import authEn from '../../public/locales/en/auth.json'
 
-if (!i18n.isInitialized) i18n.use(initReactI18next).init({
-  lng: 'en',
-  fallbackLng: 'en',
-  debug: process.env.NODE_ENV === 'development',
-  interpolation: { escapeValue: false },
-  resources: {
-    en: {
-      common: commonEn,
-      events: eventsEn,
-      tickets: ticketsEn,
-      speakers: speakersEn,
-      venues: venuesEn,
-      auth: authEn
-    }
-  },
-  ns: ['common', 'events', 'tickets', 'speakers', 'venues', 'auth'],
-  defaultNS: 'common'
-})
+if (!i18n.isInitialized)
+  i18n.use(initReactI18next).init({
+    lng: 'en',
+    fallbackLng: 'en',
+    debug: process.env.NODE_ENV === 'development',
+    interpolation: { escapeValue: false },
+    resources: {
+      en: {
+        common: commonEn,
+        events: eventsEn,
+        tickets: ticketsEn,
+        speakers: speakersEn,
+        venues: venuesEn,
+        auth: authEn
+      }
+    },
+    ns: ['common', 'events', 'tickets', 'speakers', 'venues', 'auth'],
+    defaultNS: 'common'
+  })
 
 export default i18n
