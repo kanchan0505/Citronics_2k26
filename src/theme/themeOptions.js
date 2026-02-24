@@ -5,18 +5,34 @@ import breakpoints from './breakpoints'
 import Overrides from './overrides'
 
 /**
+ * Themed background colors — lightest tint that matches each primary preset.
+ * Light mode gets a subtle warm tint; dark mode gets a deep-hued shade.
+ */
+const THEME_BACKGROUNDS = {
+  primary: { light: '#F4F3FE', dark: '#2B2C40' },
+  info:    { light: '#EDFBFD', dark: '#1E3A40' },
+  success: { light: '#EEFBF3', dark: '#1E3A2B' },
+  error:   { light: '#FEF2F2', dark: '#3A1E1E' },
+  warning: { light: '#FFF8F0', dark: '#3A301E' }
+}
+
+/**
  * Theme Options
  * Generates theme configuration based on settings
  */
 const themeOptions = (settings, overrideMode) => {
-  const { mode, themeColor = 'primary', skin = 'default' } = settings
+  const { mode, themeColor = 'primary', skin = 'default', fontSize = 14 } = settings
 
   const themeMode = mode === 'semi-dark' ? overrideMode : mode
+
+  // Resolve the background tint for the chosen color
+  const bgPreset = THEME_BACKGROUNDS[themeColor] || THEME_BACKGROUNDS.primary
+  const themedBg = themeMode === 'dark' ? bgPreset.dark : bgPreset.light
 
   const mergedConfig = {
     breakpoints: breakpoints(),
     palette: palette(themeMode),
-    typography,
+    typography: { ...typography, fontSize },
     shape: {
       borderRadius: 8
     },
@@ -59,6 +75,9 @@ const themeOptions = (settings, overrideMode) => {
     palette: {
       primary: {
         ...(mergedConfig.palette[themeColor] || mergedConfig.palette.primary)
+      },
+      background: {
+        default: themedBg
       }
     }
   })

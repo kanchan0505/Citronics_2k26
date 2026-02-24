@@ -26,6 +26,7 @@ import AclGuard from 'src/components/guards/AclGuard'
 import Spinner from 'src/components/Spinner'
 import ScrollToTop from 'src/components/ScrollToTop'
 import PWAPrompts from 'src/components/PWAPrompts'
+import ThemeCustomizer from 'src/components/ThemeCustomizer'
 
 // Context
 import { SettingsConsumer, SettingsProvider } from 'src/context/SettingsContext'
@@ -113,6 +114,7 @@ const App = props => {
                   </Guard>
 
                   {/* Global utilities */}
+                  <ThemeCustomizer />
                   <ScrollToTop />
                   <PWAPrompts />
                   <Toaster position={settings.toastPosition || themeConfig.toastPosition} />

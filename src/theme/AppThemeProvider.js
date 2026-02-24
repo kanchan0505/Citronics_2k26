@@ -11,8 +11,9 @@ import GlobalStyling from './globalStyles'
  * Wraps the application with MUI ThemeProvider
  */
 const AppThemeProvider = ({ settings, children }) => {
-  // Create theme from options
-  let theme = createTheme(themeOptions(settings, 'light'))
+  // Create theme from options — pass the user's chosen mode as override
+  const overrideMode = settings.mode === 'semi-dark' ? 'light' : settings.mode || 'light'
+  let theme = createTheme(themeOptions(settings, overrideMode))
 
   // Apply responsive font sizes if enabled
   if (themeConfig.responsiveFontSizes) {

@@ -5,6 +5,7 @@ import themeConfig from 'src/configs/themeConfig'
 const initialSettings = {
   themeColor: 'primary',
   mode: themeConfig.mode,
+  fontSize: 14,
   footer: themeConfig.footer,
   layout: themeConfig.layout,
   lastLayout: themeConfig.layout,
@@ -19,7 +20,6 @@ const initialSettings = {
 
 // Static settings (not persisted)
 const staticSettings = {
-  appBar: initialSettings.appBar,
   footer: initialSettings.footer,
   layout: initialSettings.layout,
   navHidden: initialSettings.navHidden,
@@ -56,7 +56,6 @@ const storeSettings = settings => {
   const initSettings = Object.assign({}, settings)
 
   // Remove static settings before storing
-  delete initSettings.appBar
   delete initSettings.footer
   delete initSettings.layout
   delete initSettings.navHidden

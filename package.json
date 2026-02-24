@@ -24,6 +24,7 @@
     "@mui/utils": "^6.3.0",
     "@reduxjs/toolkit": "^2.5.0",
     "@tabler/icons-react": "^3.26.0",
+    "@theme-toggles/react": "^4.1.0",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
