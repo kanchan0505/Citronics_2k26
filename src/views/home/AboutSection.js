@@ -100,7 +100,7 @@ export default function AboutSection({ highlights: HIGHLIGHTS = [] }) {
         position: 'relative'
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         {/* Section header */}
         <MotionBox
           initial={{ opacity: 0, y: 24 }}

@@ -146,6 +146,7 @@ const eventService = {
 
   /**
    * Single event by ID with full details + department info.
+   * Only returns publicly visible (published) events.
    */
   async getEventById(id) {
     return dbOneOrNone(`
@@ -170,7 +171,7 @@ const eventService = {
         d.name          AS "departmentName"
       FROM events e
       LEFT JOIN departments d ON d.id = e.department_id
-      WHERE e.id = $1
+      WHERE e.id = $1 AND e.status = 'published'
     `, [id])
   },
 

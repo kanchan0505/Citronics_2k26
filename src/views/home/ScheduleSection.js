@@ -14,7 +14,7 @@ const MotionBox = motion(Box)
 /**
  * Renders a single timeline entry for a scheduled session.
  * @param {object} props
- * @param {object} props.item - Schedule item data (time, title, speaker, paletteKey)
+ * @param {object} props.item - Schedule item data (time, event, dept, paletteKey)
  * @param {boolean} props.isLast - Whether this is the last item (hides the connector line)
  * @param {number} props.delay - Framer-motion animation delay in seconds
  */
@@ -158,7 +158,7 @@ export default function ScheduleSection({ scheduleDays: SCHEDULE_DAYS = [] }) {
         py: { xs: 10, md: 16 }
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         {/* Section header */}
         <MotionBox
           initial={{ opacity: 0, y: 24 }}

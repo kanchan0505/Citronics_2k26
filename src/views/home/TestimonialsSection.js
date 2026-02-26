@@ -101,7 +101,7 @@ export default function TestimonialsSection({ testimonials: TESTIMONIALS = [] })
         overflow: 'hidden'
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         <MotionBox
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}

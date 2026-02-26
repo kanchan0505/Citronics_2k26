@@ -52,21 +52,7 @@ function GridBackground() {
           pointerEvents: 'none'
         }}
       />
-      <Box
-        sx={{
-          position: 'absolute',
-          width: '50vw',
-          height: '50vw',
-          maxWidth: 700,
-          maxHeight: 700,
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${c.infoA10} 0%, transparent 70%)`,
-          bottom: '-15%',
-          right: '-10%',
-          filter: 'blur(80px)',
-          pointerEvents: 'none'
-        }}
-      />
+
     </Box>
   )
 }
@@ -220,9 +206,10 @@ function RotatingWord({ words: HERO_WORDS = [] }) {
 
   useEffect(() => {
     if (HERO_WORDS.length === 0) return
+    setIndex(0)
     const id = setInterval(() => setIndex(prev => (prev + 1) % HERO_WORDS.length), 2800)
     return () => clearInterval(id)
-  }, [])
+  }, [HERO_WORDS])
 
   return (
     <Box
@@ -419,7 +406,7 @@ export default function HeroSection({ heroWords: HERO_WORDS = [], eventStartDate
         }}
       />
 
-      <Container maxWidth='lg' sx={{ position: 'relative', zIndex: 2 }}>
+      <Container maxWidth='xl' sx={{ position: 'relative', zIndex: 2 }}>
         <MotionBox variants={stagger} initial='hidden' animate='visible'>
 
           {/* ── Row 1: "THE" + paragraph ─────────────────────────────── */}
@@ -518,19 +505,7 @@ export default function HeroSection({ heroWords: HERO_WORDS = [], eventStartDate
 
           {/* ── Hero image with starburst badges ─────────────────────── */}
           <MotionBox variants={fadeIn} sx={{ position: 'relative', mb: { xs: 5, md: 7 } }}>
-            {/* Glow behind image */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '110%', height: '110%',
-                background: `radial-gradient(ellipse, ${c.primaryA15} 0%, transparent 70%)`,
-                filter: 'blur(60px)',
-                pointerEvents: 'none',
-                zIndex: 0
-              }}
-            />
+
 
             {/* Image container with rounded corners */}
             <Box
@@ -565,8 +540,7 @@ export default function HeroSection({ heroWords: HERO_WORDS = [], eventStartDate
                 sx={{
                   position: 'absolute',
                   inset: 0,
-                  background: `linear-gradient(180deg, transparent 30%, ${heroOverlayEnd} 100%),
-                               linear-gradient(90deg, ${c.primaryA10} 0%, transparent 50%)`
+                  background: `linear-gradient(90deg, ${c.primaryA10} 0%, transparent 50%)`
                 }}
               />
             </Box>

@@ -190,6 +190,9 @@ function StatCard({ stat, index, started, layout }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, amount: 0.2 })
 
+  // Guard against null — default param only protects against undefined
+  const safeStats = STATS ?? []
+
   return (
     <Box
       id='stats'
@@ -200,7 +203,7 @@ function StatCard({ stat, index, started, layout }) {
         overflow: 'hidden'
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         {/* ── Heading ────────────────────────────────────────────────── */}
         <MotionBox
           initial={{ opacity: 0, y: 24 }}
@@ -295,7 +298,7 @@ function StatCard({ stat, index, started, layout }) {
             gridAutoRows: { xs: 'auto', md: 'minmax(160px, auto)' }
           }}
         >
-          {STATS.map((stat, i) => (
+          {safeStats.map((stat, i) => (
             <Box
               key={stat.label}
               sx={{

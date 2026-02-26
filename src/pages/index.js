@@ -1,13 +1,15 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import PublicNavbar from 'src/views/home/PublicNavbar'
 import HeroSection from 'src/views/home/HeroSection'
 import AboutSection from 'src/views/home/AboutSection'
 import UpcomingEventsScroller from 'src/views/home/UpcomingEventsScroller'
 import StatsSection from 'src/views/home/StatsSection'
-import ThisWeekEvents from 'src/views/home/ThisWeekEvents'
+import FeaturedEvents from 'src/views/home/FeaturedEvents'
 import EventsSection from 'src/views/home/EventsSection'
 import ScheduleSection from 'src/views/home/ScheduleSection'
 import TestimonialsSection from 'src/views/home/TestimonialsSection'
@@ -23,7 +25,7 @@ import { fetchHomeData } from 'src/store/slices/eventsSlice'
  */
 const Home = () => {
   const dispatch = useDispatch()
-  const { homeData, homeLoading } = useSelector(state => state.events)
+  const { homeData, homeLoading, error } = useSelector(state => state.events)
 
   useEffect(() => {
     dispatch(fetchHomeData())
@@ -34,6 +36,23 @@ const Home = () => {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress color='primary' />
+      </Box>
+    )
+  }
+
+  // Show error state when home data fetch fails
+  if (error && !homeData) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', gap: 2, px: 3 }}>
+        <Typography variant='h6' color='error' sx={{ fontWeight: 600, textAlign: 'center' }}>
+          Something went wrong
+        </Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ textAlign: 'center', maxWidth: 420 }}>
+          {typeof error === 'string' ? error : 'Failed to load page data. Please try again.'}
+        </Typography>
+        <Button variant='outlined' color='primary' onClick={() => dispatch(fetchHomeData())} sx={{ mt: 1 }}>
+          Retry
+        </Button>
       </Box>
     )
   }
@@ -57,7 +76,7 @@ const Home = () => {
         <UpcomingEventsScroller events={events} />
         <AboutSection highlights={highlights} />
         <StatsSection stats={stats} />
-        <ThisWeekEvents events={events} />
+        <FeaturedEvents events={events} />
         <EventsSection events={events} departments={departments} />
         <ScheduleSection scheduleDays={scheduleDays} />
         <TestimonialsSection testimonials={testimonials} />

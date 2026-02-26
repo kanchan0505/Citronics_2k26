@@ -70,7 +70,7 @@ function getImage(event) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       sx={{
-        borderRadius: '14px',
+        borderRadius: '15px',
         border: `1.5px solid ${alpha(accent, 0.35)}`,
         overflow: 'hidden',
         display: 'flex',
@@ -88,11 +88,11 @@ function getImage(event) {
       <Box
         sx={{
           position: 'relative',
-          mx: 2,
-          mt: 2,
-          borderRadius: '10px',
+          mx: 2.5,
+          mt: 2.5,
+          borderRadius: '15px',
           overflow: 'hidden',
-          aspectRatio: '4 / 5',
+          aspectRatio: '4 / 3',
           bgcolor: c.isDark
             ? alpha(c.bgPaper, 0.15)
             : alpha(c.grey[200], 0.6)
@@ -220,7 +220,7 @@ function getImage(event) {
             color: c.textPrimary,
             mb: 1.5,
             lineHeight: 1.25,
-            fontSize: { xs: '1rem', md: '1.1rem' }
+            fontSize: { xs: '1rem', md: '1.05rem' }
           }}
         >
           {event.title}
@@ -233,7 +233,7 @@ function getImage(event) {
             width: '100%',
             borderCollapse: 'collapse',
             '& td': {
-              py: 0.3,
+              py: 0.5,
               verticalAlign: 'top',
               fontSize: '0.82rem',
               lineHeight: 1.5
@@ -274,7 +274,7 @@ function getImage(event) {
 }
 
 /* ── Main Section ───────────────────────────────────────────────────────── */
-export default function ThisWeekEvents({ events = [] }) {
+export default function FeaturedEvents({ events = [] }) {
   const c = useAppPalette()
   const router = useRouter()
   const accent = c.primary
@@ -292,7 +292,7 @@ export default function ThisWeekEvents({ events = [] }) {
       aria-label='This Week Events'
       sx={{ py: { xs: 8, md: 12 } }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         {/* ── Header row ────────────────────────────────────────────── */}
         <Box
           sx={{
@@ -307,7 +307,7 @@ export default function ThisWeekEvents({ events = [] }) {
             <Box
               sx={{
                 width: 36,
-                height: 36,
+                height: 40,
                 borderRadius: '50%',
                 border: `2px solid ${accent}`,
                 display: 'flex',
@@ -372,7 +372,7 @@ export default function ThisWeekEvents({ events = [] }) {
               sm: 'repeat(2, 1fr)',
               md: 'repeat(3, 1fr)'
             },
-            gap: { xs: 3, md: 3.5 }
+            gap: { xs: 2.5, md: 3 }
           }}
         >
           {display.map((event, i) => (

@@ -347,7 +347,7 @@ function EventCardSkeleton() {
 export default function EventsPageView() {
   const c = useAppPalette()
   const dispatch = useDispatch()
-  const { events, pagination, eventsLoading, departments } = useSelector(state => state.events)
+  const { events, pagination, eventsLoading, departments, error: eventsError } = useSelector(state => state.events)
 
   const [activeDept, setActiveDept] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -366,7 +366,7 @@ export default function EventsPageView() {
 
   // Fetch events when filters/page changes
   useEffect(() => {
-    dispatch(
+    const promise = dispatch(
       fetchEvents({
         departmentId: activeDept === 'all' ? undefined : activeDept,
         search: debouncedSearch,
@@ -375,6 +375,7 @@ export default function EventsPageView() {
         limit: EVENTS_PER_PAGE
       })
     )
+    return () => promise.abort()
   }, [dispatch, activeDept, debouncedSearch, sortOrder, page])
 
   // Fetch departments on mount
@@ -413,7 +414,7 @@ export default function EventsPageView() {
 
   return (
     <Box component='section' aria-label='Events' sx={{ pt: { xs: 6, md: 8 } }}>
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
 
         {/* Page Header */}
         <MotionBox
@@ -535,6 +536,29 @@ export default function EventsPageView() {
           <AnimatePresence mode='wait'>
             {eventsLoading ? (
               Array.from({ length: EVENTS_PER_PAGE }).map((_, i) => <EventCardSkeleton key={`sk-${i}`} />)
+            ) : eventsError ? (
+              <MotionBox
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                sx={{ textAlign: 'center', py: 12, borderRadius: '16px', border: `1.5px dashed ${alpha(c.error, 0.3)}` }}
+              >
+                <Icon icon='tabler:alert-triangle' fontSize={44} style={{ color: c.error }} />
+                <Typography variant='body1' sx={{ color: 'error.main', mt: 2, fontWeight: 600 }}>
+                  Failed to load events
+                </Typography>
+                <Typography variant='body2' sx={{ color: 'text.secondary', mt: 0.5, mb: 2 }}>
+                  {typeof eventsError === 'string' ? eventsError : 'An unexpected error occurred. Please try again.'}
+                </Typography>
+                <Button
+                  variant='outlined'
+                  size='small'
+                  color='primary'
+                  onClick={() => dispatch(fetchEvents({ departmentId: activeDept === 'all' ? undefined : activeDept, search: debouncedSearch, sort: sortOrder, page, limit: EVENTS_PER_PAGE }))}
+                  sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
+                >
+                  Retry
+                </Button>
+              </MotionBox>
             ) : events.length > 0 ? (
               events.map((ev, i) => <EventCard key={ev.id} event={ev} index={i} />)
             ) : (

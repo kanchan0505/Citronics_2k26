@@ -17,6 +17,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { Classic } from '@theme-toggles/react'
 import '@theme-toggles/react/css/Classic.css'
 import { IconMenu2, IconX, IconBell } from '@tabler/icons-react'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import Icon from 'src/components/Icon'
@@ -110,6 +111,7 @@ const LogoDots = () => (
  */
 const Navbar = ({ navLinks, activeSection, onNavClick }) => {
   const c = useAppPalette()
+  const router = useRouter()
   const isMobile = useMediaQuery(c.theme.breakpoints.down('md'))
   const { settings, saveSettings } = useSettings()
   const { data: session } = useSession()
@@ -139,11 +141,12 @@ const Navbar = ({ navLinks, activeSection, onNavClick }) => {
   const handleLogout = () => { setProfileAnchor(null); signOut({ callbackUrl: '/login' }) }
 
   const handleAnchorClick = (e, href) => {
-    // If it's a page route (not an anchor), let the browser navigate
+    // If it's a page route (not an anchor), use Next.js router for reliable SPA navigation
     if (!href.startsWith('#')) {
-      // Don't preventDefault — allow normal navigation
+      e.preventDefault()
       setDrawerOpen(false)
       setMobileMenuOpen(false)
+      router.push(href)
       return
     }
     if (onNavClick) {
@@ -372,7 +375,7 @@ const Navbar = ({ navLinks, activeSection, onNavClick }) => {
                         />
                         <Button
                           component={Link}
-                          href='/login'
+                          href='/register'
                           size='medium'
                           sx={{
                             position: 'relative', zIndex: 1,
@@ -466,7 +469,7 @@ const Navbar = ({ navLinks, activeSection, onNavClick }) => {
                     <Button
                       fullWidth
                       component={Link}
-                      href='/login'
+                      href='/register'
                       sx={{
                         borderRadius: '9999px', textTransform: 'none', fontWeight: 700,
                         fontSize: '0.875rem', color: glass.btnText,

@@ -10,7 +10,7 @@ const NAV_LINKS = [
 
 /**
  * Fixed navigation bar for the public home page.
- * Highlights the active section based on IntersectionObserver scroll position.
+ * Highlights the active section based on window scroll event listeners.
  */
 export default function PublicNavbar() {
   const [activeSection, setActiveSection] = useState('hero')

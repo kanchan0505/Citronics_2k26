@@ -1,4 +1,3 @@
-import { useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
@@ -62,11 +61,16 @@ function ScrollerCard({ event }) {
     `linear-gradient(135deg, ${alpha(c.info, 0.7)} 0%, ${alpha(c.success, 0.4)} 100%)`,
     `linear-gradient(135deg, ${alpha(c.error, 0.6)} 0%, ${alpha(c.warning, 0.4)} 100%)`
   ]
-  const fallbackBg = gradients[(event.id || 0) % gradients.length]
+  const numericId = typeof event.id === 'number' ? event.id : (parseInt(event.id, 10) || 0)
+  const fallbackBg = gradients[Math.abs(numericId) % gradients.length]
 
   return (
     <Box
+      role='button'
+      tabIndex={0}
+      aria-label={`View event: ${title}`}
       onClick={() => router.push(`/events/${event.id}`)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/events/${event.id}`) } }}
       sx={{
         position: 'relative',
         width: { xs: 260, sm: 290, md: 320 },
@@ -188,80 +192,48 @@ function ScrollerCard({ event }) {
 
 /* ── Infinite auto-scrolling row ──────────────────────────────────────── */
 /**
- * Horizontally auto-scrolling row of event cards.
- * Triplicates the items array to achieve a seamless infinite loop.
+ * Horizontally auto-scrolling row using CSS transform animation (GPU-composited).
+ * Duplicates items for a seamless infinite loop.
  * @param {object} props
  * @param {Array} props.events - Event objects to display
  * @param {'left'|'right'} [props.direction='right'] - Scroll direction
- * @param {number} [props.speed=35] - Scroll speed in pixels per second
- */function ScrollRow({ events, direction = 'right', speed = 35 }) {
-  const scrollRef = useRef(null)
-  const animRef = useRef(null)
+ * @param {number} [props.duration=28] - Full-loop duration in seconds
+ */
+function ScrollRow({ events, direction = 'right', duration = 18 }) {
+  /* Two copies is all we need — animation goes 0 → -50% (or reverse) */
+  const items = [...events, ...events]
 
-  /* Duplicate items for seamless loop */
-  const items = [...events, ...events, ...events]
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el || events.length === 0) return
-
-    /* Wait for DOM to settle so scrollWidth is correct */
-    const raf = requestAnimationFrame(() => {
-      const oneSetWidth = el.scrollWidth / 3
-      if (direction === 'right') {
-        el.scrollLeft = 0
-      } else {
-        el.scrollLeft = oneSetWidth
-      }
-
-      let lastTime = performance.now()
-
-      const tick = (now) => {
-        const dt = (now - lastTime) / 1000
-        lastTime = now
-
-        const px = speed * dt
-
-        if (direction === 'right') {
-          el.scrollLeft += px
-          if (el.scrollLeft >= oneSetWidth) {
-            el.scrollLeft -= oneSetWidth
-          }
-        } else {
-          el.scrollLeft -= px
-          if (el.scrollLeft <= 0) {
-            el.scrollLeft += oneSetWidth
-          }
-        }
-
-        animRef.current = requestAnimationFrame(tick)
-      }
-
-      animRef.current = requestAnimationFrame(tick)
-    })
-
-    return () => {
-      cancelAnimationFrame(raf)
-      if (animRef.current) cancelAnimationFrame(animRef.current)
-    }
-  }, [events.length, direction, speed])
+  const animName = direction === 'right' ? 'marqueeRight' : 'marqueeLeft'
 
   return (
-    <Box
-      ref={scrollRef}
-      sx={{
-        display: 'flex',
-        gap: { xs: 1.5, md: 2 },
-        overflow: 'hidden',
-        py: 1,
-        '&::-webkit-scrollbar': { display: 'none' },
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
-      }}
-    >
-      {items.map((ev, i) => (
-        <ScrollerCard key={`${ev.id}-${i}`} event={ev} />
-      ))}
+    <Box sx={{ overflow: 'hidden', py: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: { xs: '12px', md: '16px' },
+          width: 'max-content',
+          willChange: 'transform',
+
+          /* Define both keyframes once; only one will be used per row */
+          '@keyframes marqueeLeft': {
+            '0%':   { transform: 'translateX(0)' },
+            '100%': { transform: 'translateX(-50%)' }
+          },
+          '@keyframes marqueeRight': {
+            '0%':   { transform: 'translateX(-50%)' },
+            '100%': { transform: 'translateX(0)' }
+          },
+
+          animation: `${animName} ${duration}s linear infinite`,
+
+          /* Pause on hover for accessibility / user interaction */
+          '&:hover': { animationPlayState: 'paused' }
+        }}
+      >
+        {items.map((ev, i) => (
+          <ScrollerCard key={`${ev.id}-${i}`} event={ev} />
+        ))}
+      </Box>
     </Box>
   )
 }
@@ -295,7 +267,7 @@ function ScrollerCard({ event }) {
       sx={{ py: { xs: 8, md: 12 } }}
     >
       {/* Section header */}
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -374,8 +346,8 @@ function ScrollerCard({ event }) {
         transition={{ duration: 0.6, delay: 0.15 }}
         sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, md: 2 } }}
       >
-        <ScrollRow events={topRow} direction='right' speed={30} />
-        <ScrollRow events={bottomRow} direction='left' speed={30} />
+        <ScrollRow events={topRow} direction='right' duration={18} />
+        <ScrollRow events={bottomRow} direction='left' duration={18} />
       </MotionBox>
     </Box>
   )

@@ -20,18 +20,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
-      departmentId,
-      search = '',
-      sort = 'newest',
-      page = '1',
-      limit = '14'
-    } = req.query
+    // Normalize query params to scalar strings (handles repeated params e.g. ?page=1&page=2)
+    const raw = req.query
+    const departmentId = Array.isArray(raw.departmentId) ? raw.departmentId[0] : raw.departmentId
+    const search = Array.isArray(raw.search) ? raw.search[0] : (raw.search || '')
+    const sort = Array.isArray(raw.sort) ? raw.sort[0] : (raw.sort || 'newest')
+    const pageRaw = Array.isArray(raw.page) ? raw.page[0] : (raw.page || '1')
+    const limitRaw = Array.isArray(raw.limit) ? raw.limit[0] : (raw.limit || '14')
 
-    const pageNum = Math.max(1, parseInt(page) || 1)
-    const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 14))
+    // Validate numeric fields
+    const parsedPage = parseInt(pageRaw, 10)
+    const parsedLimit = parseInt(limitRaw, 10)
+    const parsedDeptId = departmentId ? parseInt(departmentId, 10) : undefined
+
+    if (isNaN(parsedPage) || isNaN(parsedLimit) || (departmentId && isNaN(parsedDeptId))) {
+      return res.status(400).json({ success: false, message: 'Invalid numeric query parameter (page, limit, or departmentId)' })
+    }
+
+    if (!['newest', 'oldest', 'popular'].includes(sort)) {
+      return res.status(400).json({ success: false, message: 'Invalid sort parameter. Must be newest, oldest, or popular' })
+    }
+
+    const pageNum = Math.max(1, parsedPage)
+    const limitNum = Math.min(50, Math.max(1, parsedLimit))
     const offset = (pageNum - 1) * limitNum
-    const deptId = departmentId ? parseInt(departmentId) || null : null
+    const deptId = parsedDeptId || null
 
     const [events, total] = await Promise.all([
       eventService.getPublishedEvents({

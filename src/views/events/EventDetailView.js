@@ -143,7 +143,7 @@ function InfoSection({ label, value, children }) {
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Countdown Cell
  * ═════════════════════════════════════════════════════════════════════════ */
-function CountCell({ value, label }) {
+function CountCell({ value, label, textColor }) {
   return (
     <Box sx={{ textAlign: 'center', minWidth: 40 }}>
       <Typography
@@ -152,7 +152,7 @@ function CountCell({ value, label }) {
           fontWeight: 800,
           fontSize: { xs: '1.35rem', md: '1.6rem' },
           lineHeight: 1,
-          color: 'text.primary'
+          color: textColor || 'text.primary'
         }}
       >
         {String(value).padStart(2, '0')}
@@ -163,7 +163,7 @@ function CountCell({ value, label }) {
           fontWeight: 700,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          color: 'text.disabled',
+          color: textColor ? alpha(textColor, 0.65) : 'text.disabled',
           mt: 0.25
         }}
       >
@@ -192,7 +192,7 @@ export default function EventDetailView() {
   if (loading || !event) {
     if (error) {
       return (
-        <Container maxWidth='lg' sx={{ py: { xs: 10, md: 16 }, textAlign: 'center' }}>
+        <Container maxWidth='xl' sx={{ py: { xs: 10, md: 16 }, textAlign: 'center' }}>
           <Icon icon='tabler:alert-circle' fontSize={56} style={{ color: c.error }} />
           <Typography variant='h5' sx={{ mt: 3, fontWeight: 700 }}>Event Not Found</Typography>
           <Typography variant='body1' sx={{ color: 'text.secondary', mt: 1, mb: 4 }}>
@@ -378,12 +378,11 @@ export default function EventDetailView() {
               variant='h3'
               component='h1'
               sx={{
-                fontFamily: fontFamilyHeading,
-                fontWeight: 900,
-                letterSpacing: '-1px',
-                fontSize: { xs: '2rem', md: '2.6rem' },
-                lineHeight: 1.1,
-                textTransform: 'uppercase',
+                fontFamily: '"Playfair Display", "Georgia", "Times New Roman", serif',
+                fontWeight: 800,
+                letterSpacing: '-0.5px',
+                fontSize: { xs: '2.2rem', md: '3rem' },
+                lineHeight: 1.08,
                 mb: 1.5,
                 color: 'text.primary'
               }}
@@ -408,36 +407,74 @@ export default function EventDetailView() {
               </Typography>
             )}
 
-            {/* ── Info sections ── */}
-            {event.start_time && (
-              <InfoSection label='Date' value={formatDate(event.start_time)} />
-            )}
-
-            {(event.start_time || event.end_time) && (
-              <InfoSection
-                label='Time'
-                value={
-                  event.end_time
+            {/* ── Info card (single box, stacked rows) ── */}
+            {(() => {
+              const rows = []
+              if (event.start_time) rows.push({ label: 'Date', value: formatDate(event.start_time) })
+              if (event.start_time || event.end_time) {
+                rows.push({
+                  label: 'Time',
+                  value: event.end_time
                     ? `${formatTime(event.start_time)} — ${formatTime(event.end_time)}`
                     : formatTime(event.start_time)
-                }
-              />
-            )}
+                })
+              }
+              if (event.venue) rows.push({ label: 'Venue', value: event.venue })
+              if (event.prize) rows.push({ label: 'Prize Pool', value: event.prize })
+              if (event.ticket_price > 0) rows.push({ label: 'Entry Fee', value: `₹${parseFloat(event.ticket_price).toLocaleString('en-IN')}` })
 
-            {event.venue && (
-              <InfoSection label='Venue' value={event.venue} />
-            )}
+              if (rows.length === 0) return null
 
-            {event.prize && (
-              <InfoSection label='Prize Pool' value={event.prize} />
-            )}
-
-            {event.ticket_price > 0 && (
-              <InfoSection
-                label='Entry Fee'
-                value={`₹${parseFloat(event.ticket_price).toLocaleString('en-IN')}`}
-              />
-            )}
+              return (
+                <Box
+                  sx={{
+                    borderRadius: '14px',
+                    border: '1px solid',
+                    borderColor: c.dividerA30,
+                    background: 'transparent',
+                    mb: 2,
+                    overflow: 'hidden',
+                    maxWidth: { md: 420 }
+                  }}
+                >
+                  {rows.map((row, i) => (
+                    <Box
+                      key={row.label}
+                      sx={{
+                        px: 3,
+                        py: 2.25
+                      }}
+                    >
+                      <Typography
+                        variant='caption'
+                        sx={{
+                          color: 'text.disabled',
+                          fontWeight: 700,
+                          fontSize: '0.66rem',
+                          letterSpacing: '0.1em',
+                          textTransform: 'uppercase',
+                          display: 'block',
+                          mb: 0.5
+                        }}
+                      >
+                        {row.label}
+                      </Typography>
+                      <Typography
+                        variant='h6'
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: { xs: '1rem', md: '1.1rem' },
+                          color: 'text.primary',
+                          lineHeight: 1.3
+                        }}
+                      >
+                        {row.value}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )
+            })()}
 
             {/* ── Registration fill ── */}
             {event.seats > 0 && (
@@ -545,12 +582,12 @@ export default function EventDetailView() {
           left: 0,
           right: 0,
           zIndex: 100,
-          borderTop: '1px solid',
-          borderColor: c.dividerA30,
-          bgcolor: c.isDark ? alpha(c.bgPaper, 0.92) : alpha(c.bgDefault, 0.96),
+          borderTopLeftRadius: '20px',
+          borderTopRightRadius: '20px',
+          bgcolor: color,
           backdropFilter: 'blur(20px)',
           px: { xs: 2, md: 5 },
-          py: { xs: 1.25, md: 1.5 }
+          py: { xs: 2, md: 2.5 }
         }}
       >
         <Box
@@ -566,16 +603,16 @@ export default function EventDetailView() {
           {/* Countdown */}
           {!isOver ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 1.5 } }}>
-              <CountCell value={timeLeft.d} label='Days' />
-              <Typography sx={{ fontWeight: 800, color: 'text.disabled', fontSize: '1.1rem', pb: '18px' }}>:</Typography>
-              <CountCell value={timeLeft.h} label='Hrs' />
-              <Typography sx={{ fontWeight: 800, color: 'text.disabled', fontSize: '1.1rem', pb: '18px' }}>:</Typography>
-              <CountCell value={timeLeft.m} label='Min' />
-              <Typography sx={{ fontWeight: 800, color: 'text.disabled', fontSize: '1.1rem', pb: '18px' }}>:</Typography>
-              <CountCell value={timeLeft.s} label='Sec' />
+              <CountCell value={timeLeft.d} label='Days' textColor={c.bgPaper} />
+              <Typography sx={{ fontWeight: 800, color: c.bgPaper, fontSize: '1.1rem', pb: '18px' }}>:</Typography>
+              <CountCell value={timeLeft.h} label='Hrs' textColor={c.bgPaper} />
+              <Typography sx={{ fontWeight: 800, color: c.bgPaper, fontSize: '1.1rem', pb: '18px' }}>:</Typography>
+              <CountCell value={timeLeft.m} label='Min' textColor={c.bgPaper} />
+              <Typography sx={{ fontWeight: 800, color: c.bgPaper, fontSize: '1.1rem', pb: '18px' }}>:</Typography>
+              <CountCell value={timeLeft.s} label='Sec' textColor={c.bgPaper} />
             </Box>
           ) : (
-            <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: 'text.disabled' }}>
+            <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: c.bgPaper }}>
               Event Concluded
             </Typography>
           )}
@@ -592,14 +629,14 @@ export default function EventDetailView() {
               fontWeight: 700,
               fontSize: '0.82rem',
               textTransform: 'none',
-              borderColor: c.dividerA30,
-              color: 'text.secondary',
+              borderColor: c.bgPaper,
+              color: c.bgPaper,
               px: 2.5,
               height: 44,
               '&:hover': {
-                borderColor: alpha(color, 0.4),
-                color: 'text.primary',
-                bgcolor: alpha(color, 0.04)
+                borderColor: c.bgPaper,
+                color: c.bgPaper,
+                bgcolor: alpha(c.bgPaper, 0.12)
               }
             }}
           >
@@ -608,7 +645,7 @@ export default function EventDetailView() {
 
           {/* Register */}
           <Button
-            variant='contained'
+            variant='outlined'
             disableElevation
             disabled={spotsLeft <= 0}
             sx={{
@@ -619,16 +656,18 @@ export default function EventDetailView() {
               textTransform: 'none',
               px: { xs: 3, md: 5 },
               height: 44,
-              background:
-                spotsLeft <= 0
-                  ? undefined
-                  : `linear-gradient(135deg, ${color}, ${alpha(color, 0.75)})`,
-              boxShadow: spotsLeft <= 0 ? 'none' : `0 4px 20px ${alpha(color, 0.3)}`,
+              borderColor: spotsLeft <= 0 ? c.dividerA30 : c.bgPaper,
+              color: spotsLeft <= 0 ? c.textDisabled : color,
+              bgcolor: spotsLeft <= 0 ? 'transparent' : c.bgPaper,
               '&:hover': {
-                boxShadow: `0 6px 28px ${alpha(color, 0.42)}`,
-                transform: 'translateY(-1px)'
+                bgcolor: alpha(c.bgPaper, 0.88),
+                borderColor: c.bgPaper
               },
-              '&.Mui-disabled': { bgcolor: c.dividerA30, color: c.textDisabled },
+              '&.Mui-disabled': {
+                borderColor: c.dividerA30,
+                color: c.textDisabled,
+                bgcolor: 'transparent'
+              },
               transition: 'all 0.2s ease'
             }}
           >

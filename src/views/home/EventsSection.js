@@ -23,7 +23,8 @@ const MotionBox = motion(Box)
 function EventCard({ event, index }) {
   const c = useAppPalette()
   const color = c.theme.palette[event.paletteKey]?.main || c.primary
-  const fillPct = Math.round((event.registered / event.seats) * 100)
+  const rawPct = (Number(event.seats) > 0) ? (Number(event.registered) / Number(event.seats)) * 100 : 0
+  const fillPct = Math.min(100, Math.max(0, Math.round(rawPct) || 0))
   const almostFull = fillPct >= 80
 
   return (
@@ -212,7 +213,7 @@ export default function EventsSection({ events: EVENTS = [], departments: DEPART
         py: { xs: 10, md: 16 }
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth='xl'>
         {/* Section header */}
         <MotionBox
           initial={{ opacity: 0, y: 24 }}

@@ -26,11 +26,12 @@ export const fetchHomeData = createAsyncThunk(
  */
 export const fetchEvents = createAsyncThunk(
   'events/fetchEvents',
-  async (params = {}, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue, signal }) => {
     try {
-      const { data } = await axios.get('/api/events', { params })
+      const { data } = await axios.get('/api/events', { params, signal })
       return data
     } catch (err) {
+      if (axios.isCancel(err)) return rejectWithValue('Request cancelled')
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch events')
     }
   }
@@ -77,6 +78,7 @@ const initialState = {
   events: [],
   pagination: { page: 1, limit: 14, total: 0, totalPages: 0 },
   eventsLoading: false,
+  latestEventsRequestId: null,
 
   // Departments
   departments: [],
@@ -123,16 +125,21 @@ const eventsSlice = createSlice({
       })
 
       // ── fetchEvents ──
-      .addCase(fetchEvents.pending, state => {
+      .addCase(fetchEvents.pending, (state, action) => {
         state.eventsLoading = true
         state.error = null
+        state.latestEventsRequestId = action.meta.requestId
       })
       .addCase(fetchEvents.fulfilled, (state, action) => {
+        // Ignore stale responses from outdated requests
+        if (action.meta.requestId !== state.latestEventsRequestId) return
         state.eventsLoading = false
         state.events = action.payload.data || []
         state.pagination = action.payload.pagination || initialState.pagination
       })
       .addCase(fetchEvents.rejected, (state, action) => {
+        // Ignore stale rejections from outdated requests
+        if (action.meta.requestId !== state.latestEventsRequestId) return
         state.eventsLoading = false
         state.error = action.payload
       })
