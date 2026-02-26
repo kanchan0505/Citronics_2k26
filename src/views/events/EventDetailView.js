@@ -181,7 +181,7 @@ export default function EventDetailView() {
   const router = useRouter()
   const dispatch = useDispatch()
   const { id } = router.query
-  const { currentEvent: event, currentEventLoading: loading, error } = useSelector(state => state.events)
+  const { currentEvent: event, currentEventLoading: loading, currentEventError } = useSelector(state => state.events)
   const timeLeft = useCountdown(event?.start_time)
 
   useEffect(() => {
@@ -190,7 +190,7 @@ export default function EventDetailView() {
   }, [dispatch, id])
 
   if (loading || !event) {
-    if (error) {
+    if (currentEventError) {
       return (
         <Container maxWidth='xl' sx={{ py: { xs: 10, md: 16 }, textAlign: 'center' }}>
           <Icon icon='tabler:alert-circle' fontSize={56} style={{ color: c.error }} />
@@ -250,34 +250,27 @@ export default function EventDetailView() {
             gap: 2
           }}
         >
-          {/* Back link */}
-          <Box
+          {/* Back link (keyboard accessible) */}
+          <Button
             onClick={() => router.push('/events')}
-            role='button'
+            startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
             sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 0.75,
-              cursor: 'pointer',
+              justifyContent: 'flex-start',
               color: 'text.secondary',
               width: 'fit-content',
               alignSelf: 'flex-start',
               mb: 0.5,
+              p: 0,
+              minWidth: 0,
+              textTransform: 'uppercase',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
               '&:hover': { color: color }
             }}
           >
-            <Icon icon='tabler:arrow-left' fontSize={15} />
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}
-            >
-              All Events
-            </Typography>
-          </Box>
+            All Events
+          </Button>
 
           {/* Image */}
           <Box

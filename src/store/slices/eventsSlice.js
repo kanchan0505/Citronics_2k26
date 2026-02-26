@@ -88,8 +88,11 @@ const initialState = {
   currentEvent: null,
   currentEventLoading: false,
 
-  // Shared
-  error: null
+  // Errors (separate per domain to avoid cross-contamination)
+  homeError: null,
+  eventsError: null,
+  currentEventError: null,
+  departmentsError: null
 }
 
 const eventsSlice = createSlice({
@@ -97,7 +100,10 @@ const eventsSlice = createSlice({
   initialState,
   reducers: {
     clearError: state => {
-      state.error = null
+      state.homeError = null
+      state.eventsError = null
+      state.currentEventError = null
+      state.departmentsError = null
     },
     clearCurrentEvent: state => {
       state.currentEvent = null
@@ -109,7 +115,7 @@ const eventsSlice = createSlice({
       // ── fetchHomeData ──
       .addCase(fetchHomeData.pending, state => {
         state.homeLoading = true
-        state.error = null
+        state.homeError = null
       })
       .addCase(fetchHomeData.fulfilled, (state, action) => {
         state.homeLoading = false
@@ -121,13 +127,13 @@ const eventsSlice = createSlice({
       })
       .addCase(fetchHomeData.rejected, (state, action) => {
         state.homeLoading = false
-        state.error = action.payload
+        state.homeError = action.payload
       })
 
       // ── fetchEvents ──
       .addCase(fetchEvents.pending, (state, action) => {
         state.eventsLoading = true
-        state.error = null
+        state.eventsError = null
         state.latestEventsRequestId = action.meta.requestId
       })
       .addCase(fetchEvents.fulfilled, (state, action) => {
@@ -141,13 +147,13 @@ const eventsSlice = createSlice({
         // Ignore stale rejections from outdated requests
         if (action.meta.requestId !== state.latestEventsRequestId) return
         state.eventsLoading = false
-        state.error = action.payload
+        state.eventsError = action.payload
       })
 
       // ── fetchEventById ──
       .addCase(fetchEventById.pending, state => {
         state.currentEventLoading = true
-        state.error = null
+        state.currentEventError = null
       })
       .addCase(fetchEventById.fulfilled, (state, action) => {
         state.currentEventLoading = false
@@ -155,12 +161,13 @@ const eventsSlice = createSlice({
       })
       .addCase(fetchEventById.rejected, (state, action) => {
         state.currentEventLoading = false
-        state.error = action.payload
+        state.currentEventError = action.payload
       })
 
       // ── fetchDepartments ──
       .addCase(fetchDepartments.pending, state => {
         state.departmentsLoading = true
+        state.departmentsError = null
       })
       .addCase(fetchDepartments.fulfilled, (state, action) => {
         state.departmentsLoading = false
@@ -168,7 +175,7 @@ const eventsSlice = createSlice({
       })
       .addCase(fetchDepartments.rejected, (state, action) => {
         state.departmentsLoading = false
-        state.error = action.payload
+        state.departmentsError = action.payload
       })
   }
 })

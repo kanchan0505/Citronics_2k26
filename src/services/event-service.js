@@ -171,7 +171,9 @@ const eventService = {
         d.name          AS "departmentName"
       FROM events e
       LEFT JOIN departments d ON d.id = e.department_id
-      WHERE e.id = $1 AND e.status = 'published'
+      WHERE e.id = $1
+        AND e.status = 'published'
+        AND e.visibility = 'public'
     `, [id])
   },
 
