@@ -16,7 +16,7 @@ const path = require('path')
 
 // ── Resolve connection ─────────────────────────────────────────────────────────
 require('dotenv').config();
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
+// Do not log DATABASE_URL or any credentials to avoid leaking secrets in logs.
 // Support dotenv if available
 try { require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') }) } catch (_) {}
 
