@@ -76,9 +76,6 @@ const themeOptions = (settings, overrideMode) => {
       primary: {
         ...(mergedConfig.palette[themeColor] || mergedConfig.palette.primary)
       },
-      background: {
-        default: themedBg
-      }
     }
   })
 }

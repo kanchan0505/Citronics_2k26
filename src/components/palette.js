@@ -350,7 +350,7 @@ const palette = mode => {
     divider: 'rgba(219, 218, 222, 0.12)',
     background: {
       paper: '#2F3349',
-      default: '#25293C'
+      default: '#0c0c0c'
     },
     action: {
       active: 'rgba(219, 218, 222, 0.54)',

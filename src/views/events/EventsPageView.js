@@ -100,13 +100,13 @@ function EventCard({ event, index }) {
         flexDirection: { xs: 'column', md: 'row' },
         borderRadius: '16px',
         border: `1.5px solid ${alpha(accent, 0.22)}`,
-        background: c.isDark ? alpha(c.bgPaper, 0.45) : alpha(c.bgPaper, 0.85),
+        background: 'transparent',
         backdropFilter: 'blur(12px)',
         overflow: 'hidden',
         transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
         '&:hover': {
           borderColor: alpha(accent, 0.48),
-          boxShadow: `0 8px 40px ${alpha(accent, 0.1)}`
+          boxShadow: `0 8px 40px ${alpha(accent, 0.08)}`
         }
       }}
     >
@@ -118,7 +118,8 @@ function EventCard({ event, index }) {
           flexShrink: 0,
           position: 'relative',
           overflow: 'hidden',
-          bgcolor: alpha(accent, 0.06)
+          p: 2.4,
+          bgcolor: 'transparent'
         }}
       >
         {imageUrl ? (
@@ -131,7 +132,7 @@ function EventCard({ event, index }) {
               e.target.style.display = 'none'
               if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex'
             }}
-            sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '10px' }}
           />
         ) : null}
         <Box
@@ -252,9 +253,10 @@ function EventCard({ event, index }) {
               fontSize: '0.78rem',
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              bgcolor: accent,
-              color: c.primaryContrast,
-              '&:hover': { bgcolor: c.primaryDark, boxShadow: `0 4px 20px ${alpha(accent, 0.3)}` },
+              bgcolor: 'transparent',
+              color: accent,
+              border: `1px solid ${alpha(accent, 0.22)}`,
+              '&:hover': { bgcolor: alpha(accent, 0.06), boxShadow: `0 4px 20px ${alpha(accent, 0.08)}` },
               transition: 'all 0.2s ease'
             }}
           >
@@ -273,7 +275,7 @@ function EventCard({ event, index }) {
               letterSpacing: '0.03em',
               textTransform: 'none',
               color: 'text.secondary',
-              border: `1px solid ${c.dividerA30}`,
+              border: `1px solid ${alpha(accent, 0.18)}`,
               '&:hover': {
                 borderColor: alpha(accent, 0.35),
                 color: 'text.primary',
@@ -307,7 +309,7 @@ function EventCardSkeleton() {
         flexDirection: { xs: 'column', md: 'row' },
         borderRadius: '16px',
         border: `1.5px solid ${c.dividerA30}`,
-        background: c.isDark ? alpha(c.bgPaper, 0.35) : alpha(c.bgPaper, 0.7),
+        background: 'transparent',
         overflow: 'hidden'
       }}
     >
@@ -410,7 +412,7 @@ export default function EventsPageView() {
   const totalCount = pagination?.total || 0
 
   return (
-    <Box component='section' aria-label='Events'>
+    <Box component='section' aria-label='Events' sx={{ pt: { xs: 6, md: 8 } }}>
       <Container maxWidth='lg'>
 
         {/* Page Header */}

@@ -12,7 +12,7 @@ const EventDetailPage = () => {
   return (
     <Box component='main' sx={{ overflowX: 'hidden', bgcolor: 'background.default', minHeight: '100vh' }}>
       <PublicNavbar />
-      <Box sx={{ pt: { xs: 8, md: 10 } }}>
+      <Box sx={{ pt: { xs: 20, md: 14 } }}>
         <EventDetailView />
       </Box>
       <PublicFooter />
