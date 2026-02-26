@@ -54,13 +54,13 @@ const CHIP_SETS = [
   ],
   [
     { label: 'Where is the event?', icon: '📍' },
-    { label: 'Show schedule', icon: '🕐' },
     { label: 'Go home', icon: '🏠' },
+    { label: 'Show stats', icon: '📈' },
   ],
   [
     { label: 'Who are you?', icon: '🤔' },
-    { label: 'Show stats', icon: '📈' },
     { label: 'When is the event?', icon: '📆' },
+    { label: 'Upcoming events', icon: '🔮' },
   ]
 ]
 
@@ -165,7 +165,12 @@ const MessageBubble = ({ message, theme, index }) => {
               CITRO
             </Typography>
           )}
-          <Typography variant='body2' sx={{ lineHeight: 1.45, fontSize: '0.76rem' }}>
+          <Typography variant='body2' sx={{
+            lineHeight: 1.45, fontSize: '0.78rem',
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
+            whiteSpace: 'pre-wrap'
+          }}>
             {message.text}
           </Typography>
         </Box>
@@ -221,7 +226,8 @@ const CitroBotPanel = ({ isOpen, isListening, isProcessing, messages = [], onClo
             position: 'fixed',
             bottom: 106,
             right: 20,
-            width: 296,
+            width: 340,
+            maxWidth: 'calc(100vw - 32px)',
             zIndex: theme.zIndex.speedDial - 1
           }}
         >
@@ -433,7 +439,6 @@ const CitroBotPanel = ({ isOpen, isListening, isProcessing, messages = [], onClo
                                   border: `1px solid ${alpha(theme.palette.primary.main, isDark ? 0.12 : 0.08)}`,
                                   cursor: 'pointer',
                                   transition: 'all 0.2s ease',
-                                  whiteSpace: 'nowrap',
                                   userSelect: 'none',
                                   '&:hover': {
                                     bgcolor: alpha(theme.palette.primary.main, isDark ? 0.15 : 0.08),
@@ -525,7 +530,7 @@ const CitroBotPanel = ({ isOpen, isListening, isProcessing, messages = [], onClo
 
                   {/* ── Messages ── */}
                   <Box ref={scrollRef} sx={{
-                    maxHeight: 160, overflowY: 'auto',
+                    maxHeight: 240, overflowY: 'auto',
                     px: 1.4, pb: 1.2, pt: 0.4,
                     borderTop: `1px solid ${alpha(theme.palette.primary.main, isDark ? 0.08 : 0.06)}`,
                     display: 'flex', flexDirection: 'column', gap: 0.6,

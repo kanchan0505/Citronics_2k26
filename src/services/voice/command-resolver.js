@@ -28,7 +28,6 @@ export async function resolveCommand(intent, entities, context) {
     case 'NAV_HOME':
     case 'NAV_DASHBOARD':
     case 'NAV_EVENTS':
-    case 'NAV_SCHEDULE':
     case 'NAV_LOGIN':
     case 'NAV_REGISTER':
     case 'NAV_BACK':

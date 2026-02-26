@@ -50,14 +50,7 @@ const INTENTS = [
     ],
     action: { type: 'navigate', path: '/events' }
   },
-  {
-    id: 'NAV_SCHEDULE',
-    patterns: [
-      'show schedule', 'open schedule', 'schedule', 'event schedule',
-      'go to schedule', 'see schedule', 'timetable', 'show timetable'
-    ],
-    action: { type: 'navigate', path: '/schedule' }
-  },
+
   {
     id: 'NAV_LOGIN',
     patterns: ['login', 'log in', 'sign in', 'go to login'],
@@ -172,7 +165,7 @@ const INTENTS = [
     patterns: [
       'when is the event', 'event date', 'when is citronics',
       'date', 'when is it', 'when does it start', 'event time',
-      'what date', 'when is it happening', 'timing', 'schedule date'
+      'what date', 'when is it happening', 'timing'
     ],
     action: { type: 'reply' }
   },

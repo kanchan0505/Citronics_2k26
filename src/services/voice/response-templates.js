@@ -19,16 +19,14 @@ const PAGE_LABELS = {
   '/': 'the home page',
   '/dashboard': 'the dashboard',
   '/events': 'the events page',
-  '/schedule': 'the schedule page',
   '/login': 'the login page',
   '/register': 'the registration page'
 }
 
 const PAGE_HINTS = {
-  '/': "From here you can browse events, check the schedule, or ask me anything about Citronics.",
+  '/': "From here you can browse events, or ask me anything about Citronics.",
   '/dashboard': "Here you can see your stats, registrations, and manage your events.",
   '/events': "You can browse all events, search for specific ones, or register for any event you like.",
-  '/schedule': "Check event timings, plan your day, or ask me about upcoming sessions.",
   '/login': "Enter your credentials to sign in, or say 'register' to create an account.",
   '/register': "Fill in your details to create an account and start registering for events."
 }
@@ -46,10 +44,6 @@ const TEMPLATES = {
   NAV_EVENTS: {
     reply: 'Here are the events!',
     action: { type: 'navigate', path: '/events' }
-  },
-  NAV_SCHEDULE: {
-    reply: 'Opening the schedule.',
-    action: { type: 'navigate', path: '/schedule' }
   },
   NAV_LOGIN: {
     reply: 'Taking you to the login page.',
@@ -110,8 +104,8 @@ const TEMPLATES = {
     action: { type: 'navigate', path: '/events' }
   },
   INFO_EVENT_DATE: {
-    reply: "Each event has its own dates and timings. Check the schedule page for a timeline view, or browse events to see specific dates. Want me to open the schedule?",
-    action: { type: 'navigate', path: '/schedule' }
+    reply: "Each event has its own dates and timings. Browse the events page to see specific dates for each event. Want me to take you there?",
+    action: { type: 'navigate', path: '/events' }
   },
   INFO_HOW_TO_REGISTER: {
     reply: "Easy! Just browse the events page, pick an event you're interested in, and hit the register button. No account needed upfront — you can register at checkout. Want me to show you the events?",
@@ -140,7 +134,7 @@ const TEMPLATES = {
   CONTEXT_WHAT_CAN_I_DO: {
     reply: (ctx) => {
       const page = ctx.currentPage || '/'
-      const hint = PAGE_HINTS[page] || "You can navigate to events, check the schedule, or ask me anything about Citronics."
+      const hint = PAGE_HINTS[page] || "You can navigate to events, browse the dashboard, or ask me anything about Citronics."
       return hint
     },
     action: null
@@ -154,7 +148,7 @@ const TEMPLATES = {
         "Hello! Ready to explore Citronics? Try 'show events' or ask me anything!",
         "Hi! I'm Citro — ask me about events, navigate the site, or just say 'help'."
       ]
-      return greetings[Math.floor(Math.random() * greetings.length)]
+      return greetings[Date.now() % greetings.length]
     },
     action: null
   },
@@ -169,7 +163,7 @@ const TEMPLATES = {
         "You're welcome! I'm here whenever you need me.",
         'Anytime! Just tap the mic if you need something.'
       ]
-      return replies[Math.floor(Math.random() * replies.length)]
+      return replies[Date.now() % replies.length]
     },
     action: null
   },
@@ -184,7 +178,7 @@ const TEMPLATES = {
         'Bye for now! I\'ll be right here if you need anything.',
         'Take care! Come back anytime.'
       ]
-      return byes[Math.floor(Math.random() * byes.length)]
+      return byes[Date.now() % byes.length]
     },
     action: { type: 'close' }
   },

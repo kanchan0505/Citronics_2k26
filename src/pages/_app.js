@@ -27,7 +27,8 @@ import Spinner from 'src/components/Spinner'
 import ScrollToTop from 'src/components/ScrollToTop'
 import PWAPrompts from 'src/components/PWAPrompts'
 import ThemeCustomizer from 'src/components/ThemeCustomizer'
-import VoiceAssistant from 'src/components/VoiceAssistant'
+import dynamic from 'next/dynamic'
+const VoiceAssistant = dynamic(() => import('src/components/VoiceAssistant'), { ssr: false })
 
 // Context
 import { SettingsConsumer, SettingsProvider } from 'src/context/SettingsContext'
