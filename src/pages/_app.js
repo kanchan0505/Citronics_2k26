@@ -27,6 +27,7 @@ import Spinner from 'src/components/Spinner'
 import ScrollToTop from 'src/components/ScrollToTop'
 import PWAPrompts from 'src/components/PWAPrompts'
 import ThemeCustomizer from 'src/components/ThemeCustomizer'
+import VoiceAssistant from 'src/components/VoiceAssistant'
 
 // Context
 import { SettingsConsumer, SettingsProvider } from 'src/context/SettingsContext'
@@ -117,6 +118,7 @@ const App = props => {
                   <ThemeCustomizer />
                   <ScrollToTop />
                   <PWAPrompts />
+                  <VoiceAssistant />
                   <Toaster position={settings.toastPosition || themeConfig.toastPosition} />
                 </AppThemeProvider>
               )}
