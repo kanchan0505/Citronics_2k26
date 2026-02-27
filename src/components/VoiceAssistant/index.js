@@ -33,6 +33,8 @@ import {
   processVoiceCommand
 } from 'src/store/slices/voiceSlice'
 
+import { addToCart, removeFromCart, clearCart } from 'src/store/slices/cartSlice'
+
 // Sub-components — original
 import CitroPuppy from './CitroPuppy'
 import CitroPopup from './CitroPopup'
@@ -103,7 +105,7 @@ const VoiceAssistant = () => {
   })
 
   // ── Text-to-Speech (TTS) ─────────────────────────────────────────────────
-  const { speak } = useTextToSpeech({ rate: 1.0, pitch: 1.0, lang: 'en-US' })
+  const { speak } = useTextToSpeech({ rate: 0.92, pitch: 1.08, lang: 'en-US' })
 
   // ── Speak Citro's replies (selective — only when speakText is provided) ──
   useEffect(() => {
@@ -128,6 +130,34 @@ const VoiceAssistant = () => {
           } else if (pendingAction.path && router.pathname !== pendingAction.path) {
             await router.push(pendingAction.path)
           }
+          break
+
+        case 'add-to-cart':
+          // Add event to cart via Redux
+          if (pendingAction.cartItem) {
+            dispatch(addToCart(pendingAction.cartItem))
+          }
+          break
+
+        case 'add-to-cart-and-checkout':
+          // Add event to cart, then navigate to cart/checkout
+          if (pendingAction.cartItem) {
+            dispatch(addToCart(pendingAction.cartItem))
+          }
+          if (pendingAction.path && router.pathname !== pendingAction.path) {
+            await router.push(pendingAction.path)
+          }
+          break
+
+        case 'remove-from-cart':
+          // Remove specific event from cart
+          if (pendingAction.eventId) {
+            dispatch(removeFromCart({ eventId: pendingAction.eventId }))
+          }
+          break
+
+        case 'clear-cart':
+          dispatch(clearCart())
           break
 
         case 'close':
