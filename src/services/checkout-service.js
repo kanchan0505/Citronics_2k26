@@ -210,7 +210,10 @@ const checkoutService = {
       const bookings = []
       let grandTotal = 0
 
-      for (const item of items) {
+      // Sort by eventId to guarantee consistent lock ordering and prevent deadlocks
+      const sortedItems = [...items].sort((a, b) => a.eventId - b.eventId)
+
+      for (const item of sortedItems) {
         const { eventId, quantity } = item
 
         // Re-fetch event inside transaction

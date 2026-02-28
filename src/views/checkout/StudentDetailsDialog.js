@@ -152,6 +152,8 @@ export default function StudentDetailsDialog() {
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState('')
+  const [verifying, setVerifying] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
   const [phoneLookup, setPhoneLookup] = useState(null) // null | { exists, userId, name }
   const [lookingUpPhone, setLookingUpPhone] = useState(false)
   const phoneLookupTimer = useRef(null)
