@@ -6,7 +6,9 @@
  */
 
 const CACHE_VERSION = 'v1'
-const CACHE_NAME = `eventhub-${CACHE_VERSION}`
+const CACHE_NAME = `citronics-${CACHE_VERSION}`
+// NOTE: legacy 'eventhub-*' caches (pre-rebrand) are automatically removed
+// by the activate handler below — no manual migration needed.
 const OFFLINE_URL = '/offline.html'
 
 // Assets pre-cached on install (app shell)
@@ -48,7 +50,7 @@ self.addEventListener('activate', (event) => {
             .filter((name) => name !== CACHE_NAME)
             .map((name) => {
               console.log('[SW] Removing old cache:', name)
-              return caches.delete(name)
+              return caches.delete(name) // removes both old citronics-* and legacy eventhub-* caches
             })
         )
       )
@@ -164,7 +166,7 @@ async function syncPendingRegistrations() {
 // Minimal IDB helper (no library needed in SW scope)
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('eventhub-offline', 1)
+    const req = indexedDB.open('citronics-offline', 1)
     req.onupgradeneeded = (e) => {
       e.target.result.createObjectStore('pending-registrations', { keyPath: 'id' })
     }
