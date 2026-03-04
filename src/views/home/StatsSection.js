@@ -311,23 +311,49 @@ export default function StatsSection() {
       sx={{ py: { xs: 10, md: 14 }, position: 'relative', overflow: 'hidden' }}
     >
       <Container maxWidth='xl'>
-        {/* ── Section label ──────────────────────────────────────────── */}
+        {/* ── Section heading ────────────────────────────────────────── */}
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          sx={{ mb: { xs: 5, md: 8 } }}
+          sx={{ mb: { xs: 5, md: 8 }, textAlign: 'center' }}
         >
-          <Typography
-            variant='overline'
+          <Box
             sx={{
-              color: c.textSecondary,
-              letterSpacing: 3,
-              fontWeight: 600,
-              fontSize: '0.75rem'
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 0.5,
+              mb: 2,
+              borderRadius: '100px',
+              bgcolor: alpha(c.primary, 0.08),
+              border: `1px solid ${alpha(c.primary, 0.15)}`
             }}
           >
-            By the Numbers
+            <Icon icon='tabler:chart-bar' fontSize={14} style={{ color: c.primary }} />
+            <Typography variant='caption' sx={{ color: c.primary, fontWeight: 600, letterSpacing: 1.5 }}>
+              BY THE NUMBERS
+            </Typography>
+          </Box>
+
+          <Typography
+            variant='h3'
+            sx={{
+              fontWeight: 800,
+              mb: 2,
+              letterSpacing: '-0.5px',
+              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' }
+            }}
+          >
+            Citronics at a Glance
+          </Typography>
+
+          <Typography
+            variant='body1'
+            sx={{ color: c.textSecondary, maxWidth: 560, mx: 'auto', lineHeight: 1.7 }}
+          >
+            A snapshot of what makes Citronics one of the most anticipated tech fests — the events, the people, and the prizes.
           </Typography>
         </MotionBox>
 
