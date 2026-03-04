@@ -8,6 +8,145 @@ import { motion } from 'framer-motion'
 import Icon from 'src/components/Icon'
 import { useAppPalette } from 'src/components/palette'
 
+const MOCK_EVENTS = [
+  {
+    id: 3,
+    title: 'RoboSoc',
+    tagline: 'Battle of the Bots',
+    start_time: '2026-04-07T09:00:00',
+    end_time: '2026-04-07T13:00:00',
+    venue: 'Robotics Lab, Block A',
+    seats: 80,
+    registered: 65,
+    prize: '₹25,000',
+    tags: ['Robotics', 'Hardware'],
+    featured: true,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560131/roboSoc_yigjom.jpg'],
+    ticket_price: 0,
+    departmentId: 1,
+    departmentName: 'Robotics'
+  },
+  {
+    id: 5,
+    title: 'Line Follower',
+    tagline: 'Navigate the Track',
+    start_time: '2026-04-07T14:00:00',
+    end_time: '2026-04-07T17:00:00',
+    venue: 'Main Hall',
+    seats: 60,
+    registered: 45,
+    prize: '₹15,000',
+    tags: ['Robotics', 'Automation'],
+    featured: true,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560131/line-folower_rzoj1o.jpg'],
+    ticket_price: 0,
+    departmentId: 1,
+    departmentName: 'Robotics'
+  },
+  {
+    id: 13,
+    title: 'Chatbot Challenge',
+    tagline: 'Build the Smartest Bot',
+    start_time: '2026-04-08T10:00:00',
+    end_time: '2026-04-08T14:00:00',
+    venue: 'Computer Lab, Block B',
+    seats: 100,
+    registered: 78,
+    prize: '₹20,000',
+    tags: ['AI', 'Python'],
+    featured: true,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560130/Chatbot_s5qtbu.jpg'],
+    ticket_price: 0,
+    departmentId: 2,
+    departmentName: 'Computer Science'
+  },
+  {
+    id: 14,
+    title: 'UI/UX Design',
+    tagline: 'Design the Future',
+    start_time: '2026-04-08T14:00:00',
+    end_time: '2026-04-08T17:00:00',
+    venue: 'Seminar Hall',
+    seats: 50,
+    registered: 38,
+    prize: '₹10,000',
+    tags: ['Design', 'Figma'],
+    featured: false,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560130/ui-ux_ekpznc.jpg'],
+    ticket_price: 0,
+    departmentId: 2,
+    departmentName: 'Computer Science'
+  },
+  {
+    id: 6,
+    title: 'Robo Swim',
+    tagline: 'Underwater Robotics',
+    start_time: '2026-04-09T10:00:00',
+    end_time: '2026-04-09T13:00:00',
+    venue: 'Swimming Arena',
+    seats: 40,
+    registered: 22,
+    prize: '₹18,000',
+    tags: ['Robotics', 'Hardware'],
+    featured: false,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560131/robo-swim_ts1vdv.jpg'],
+    ticket_price: 0,
+    departmentId: 1,
+    departmentName: 'Robotics'
+  },
+  {
+    id: 22,
+    title: 'Master Chef',
+    tagline: 'Cook, Compete, Conquer',
+    start_time: '2026-04-09T11:00:00',
+    end_time: '2026-04-09T14:00:00',
+    venue: 'Food Court Area',
+    seats: 40,
+    registered: 30,
+    prize: '₹8,000',
+    tags: ['Cooking', 'Fun'],
+    featured: false,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560131/masterChef_i9fyii.jpg'],
+    ticket_price: 0,
+    departmentId: 5,
+    departmentName: 'General'
+  },
+  {
+    id: 28,
+    title: 'Ad Mad Show',
+    tagline: 'Sell It Like You Mean It',
+    start_time: '2026-04-09T15:00:00',
+    end_time: '2026-04-09T18:00:00',
+    venue: 'Open Stage',
+    seats: 60,
+    registered: 20,
+    prize: '₹12,000',
+    tags: ['Marketing', 'Creative'],
+    featured: false,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560129/add-mad_wqrh2e.jpg'],
+    ticket_price: 0,
+    departmentId: 4,
+    departmentName: 'Management'
+  },
+  {
+    id: 32,
+    title: 'Debate Competition',
+    tagline: 'Argue. Persuade. Win.',
+    start_time: '2026-04-08T09:00:00',
+    end_time: '2026-04-08T12:00:00',
+    venue: 'Conference Hall',
+    seats: 50,
+    registered: 34,
+    prize: '₹10,000',
+    tags: ['Debate', 'Oratory'],
+    featured: false,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560130/debateC_wnu353.jpg'],
+    ticket_price: 0,
+    departmentId: 4,
+    departmentName: 'Management'
+  }
+]
+
 const MotionBox = motion(Box)
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
@@ -244,11 +383,10 @@ function ScrollRow({ events, direction = 'right', duration = 18 }) {
  * Splits events into two rows scrolling in opposite directions.
  * @param {object} props
  * @param {Array} [props.events=[]] - Array of event objects from the home API
- */export default function UpcomingEventsScroller({ events = [] }) {
+ */export default function UpcomingEventsScroller() {
   const c = useAppPalette()
   const router = useRouter()
-
-  if (events.length === 0) return null
+  const events = MOCK_EVENTS
 
   /* Split events into two rows */
   const mid = Math.ceil(events.length / 2)

@@ -11,6 +11,54 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useAppPalette } from 'src/components/palette'
 import { addToCart, selectCartItems } from 'src/store/slices/cartSlice'
 
+const MOCK_EVENTS = [
+  {
+    id: 3,
+    title: 'RoboSoc',
+    tagline: 'Battle of the Bots',
+    start_time: '2026-04-07T09:00:00',
+    end_time: '2026-04-07T13:00:00',
+    venue: 'Robotics Lab, Block A',
+    seats: 80,
+    registered: 65,
+    prize: '₹25,000',
+    tags: ['Robotics', 'Hardware'],
+    featured: true,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560131/roboSoc_yigjom.jpg'],
+    ticket_price: 0
+  },
+  {
+    id: 13,
+    title: 'Chatbot Challenge',
+    tagline: 'Build the Smartest Bot',
+    start_time: '2026-04-08T10:00:00',
+    end_time: '2026-04-08T14:00:00',
+    venue: 'Computer Lab, Block B',
+    seats: 100,
+    registered: 78,
+    prize: '₹20,000',
+    tags: ['AI', 'Python'],
+    featured: true,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560130/Chatbot_s5qtbu.jpg'],
+    ticket_price: 0
+  },
+  {
+    id: 5,
+    title: 'Line Follower',
+    tagline: 'Navigate the Track',
+    start_time: '2026-04-07T14:00:00',
+    end_time: '2026-04-07T17:00:00',
+    venue: 'Main Hall',
+    seats: 60,
+    registered: 45,
+    prize: '₹15,000',
+    tags: ['Robotics', 'Automation'],
+    featured: true,
+    images: ['https://res.cloudinary.com/djjboqxal/image/upload/v1772560131/line-folower_rzoj1o.jpg'],
+    ticket_price: 0
+  }
+]
+
 const MotionBox = motion(Box)
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -385,17 +433,12 @@ function getImage(event) {
 }
 
 /* ── Main Section ───────────────────────────────────────────────────────── */
-export default function FeaturedEvents({ events = [] }) {
+export default function FeaturedEvents() {
   const c = useAppPalette()
   const router = useRouter()
   const accent = c.primary
 
-  // Pick first 3 events (preferring featured ones)
-  const featured = events.filter(e => e.featured)
-  const rest = events.filter(e => !e.featured)
-  const display = [...featured, ...rest].slice(0, 3)
-
-  if (display.length === 0) return null
+  const display = MOCK_EVENTS.slice(0, 3)
 
   return (
     <Box

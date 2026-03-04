@@ -270,7 +270,7 @@ function StarburstBadge({ text, size = 120, color }) {
 }
 
 /* ═══════════ HERO SECTION ═══════════════════════════════════════ */
-export default function HeroSection({ eventStartDate }) {
+export default function HeroSection() {
   const c = useAppPalette()
   const isDark = c.isDark
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -286,7 +286,7 @@ export default function HeroSection({ eventStartDate }) {
 
   useEffect(() => {
     const tick = () => {
-      const targetDate = eventStartDate ? new Date(eventStartDate) : new Date('2026-04-07T09:00:00')
+      const targetDate = new Date('2026-04-07T09:00:00')
       const diff = targetDate - Date.now()
       if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
       setTimeLeft({
