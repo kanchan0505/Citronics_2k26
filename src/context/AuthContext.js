@@ -4,6 +4,9 @@ import { createContext, useEffect, useState, useContext } from 'react'
 // ** Next Auth
 import { useSession, signIn, signOut } from 'next-auth/react'
 
+// ** ACL
+import { isAdminRole } from 'src/configs/acl'
+
 // ** Create Auth Context
 const AuthContext = createContext()
 
@@ -31,7 +34,9 @@ const AuthProvider = ({ children }) => {
    * @param {Object} credentials - User credentials
    */
   const handleLogin = credentials => {
-    signIn('credentials', { ...credentials, callbackUrl: '/' })
+    const role = session?.user?.role
+    const callbackUrl = isAdminRole(role) ? '/admin/dashboard' : '/'
+    signIn('credentials', { ...credentials, callbackUrl })
   }
 
   /**
