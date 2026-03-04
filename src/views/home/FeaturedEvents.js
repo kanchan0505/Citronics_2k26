@@ -390,10 +390,7 @@ export default function FeaturedEvents({ events = [] }) {
   const router = useRouter()
   const accent = c.primary
 
-  // Pick first 3 events (preferring featured ones)
-  const featured = events.filter(e => e.featured)
-  const rest = events.filter(e => !e.featured)
-  const display = [...featured, ...rest].slice(0, 3)
+  const display = events.slice(0, 3)
 
   if (display.length === 0) return null
 

@@ -4,8 +4,7 @@ import eventService from 'src/services/event-service'
  * /api/home
  * GET — All data needed for the public home page in a single request.
  *
- * Returns: departments, featured events, schedule, stats, sponsors,
- *          testimonials, highlights, hero words, event start date.
+ * Returns: featuredEvents (up to 3), upcomingEvents (up to 10, newest first)
  *
  * Public endpoint — no authentication required.
  */
@@ -16,16 +15,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [departments, events] = await Promise.all([
-      eventService.getAllDepartments(),
-      eventService.getPublishedEvents({ limit: 50 })
+    const [featuredEvents, upcomingEvents] = await Promise.all([
+      eventService.getFeaturedEvents(3),
+      eventService.getPublishedEvents({ limit: 10, sort: 'newest' })
     ])
 
     return res.status(200).json({
       success: true,
       data: {
-        departments,
-        events
+        featuredEvents,
+        upcomingEvents
       }
     })
   } catch (error) {

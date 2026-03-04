@@ -10,7 +10,7 @@ import {
   IconHome,
   IconCalendarEvent,
   IconShoppingCart,
-  IconInfoCircle,
+  IconLogin,
   IconLayoutDashboard
 } from '@tabler/icons-react'
 import { selectCartEventCount } from 'src/store/slices/cartSlice'
@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   { label: 'Home', href: '/', icon: IconHome, matchExact: true },
   { label: 'Events', href: '/events', icon: IconCalendarEvent },
   { label: 'Cart', href: '/cart', icon: IconShoppingCart, showBadge: true },
-  { label: 'About', href: '/#about', icon: IconInfoCircle, isAnchor: true },
+  { label: 'Login', href: '/login', icon: IconLogin, guestOnly: true },
   { label: 'Dashboard', href: '/dashboard', icon: IconLayoutDashboard, authOnly: true }
 ]
 

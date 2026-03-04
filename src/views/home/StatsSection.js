@@ -1,314 +1,439 @@
-﻿import { useRef, useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import { alpha } from '@mui/material/styles'
-import { motion, useInView } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Icon from 'src/components/Icon'
 import { useAppPalette } from 'src/components/palette'
 
 const MotionBox = motion(Box)
+const MotionTypography = motion(Typography)
 
-/* ── Animated counter hook ──────────────────────────────────────────────── */
-function useCounter(target, duration = 1800, started = false) {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    if (!started) return
-    let start = null
-    const step = ts => {
-      if (!start) start = ts
-      const progress = Math.min((ts - start) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.floor(eased * target))
-      if (progress < 1) requestAnimationFrame(step)
-      else setCount(target)
-    }
-    requestAnimationFrame(step)
-  }, [started, target, duration])
-  return count
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   Animated visual mini-components for each bento card
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Bento-grid tile layout map ─────────────────────────────────────────── */
-// Defines grid placement for each of the 6 cards in the bento grid
-// Layout mirrors the Nassummit reference: mixed sizes, asymmetric, dynamic
-const BENTO_LAYOUT = [
-  // Card 0 — tall left (Events)
-  {
-    gridColumn: { xs: 'span 6', md: 'span 4' },
-    gridRow: { xs: 'auto', md: 'span 2' },
-    featured: true
-  },
-  // Card 1 — top center (Participants)
-  {
-    gridColumn: { xs: 'span 6', md: 'span 4' },
-    gridRow: 'auto',
-    featured: false
-  },
-  // Card 2 — top right (Departments)
-  {
-    gridColumn: { xs: 'span 6', md: 'span 4' },
-    gridRow: { xs: 'auto', md: 'span 2' },
-    featured: true
-  },
-  // Card 3 — mid center (Prize Pool)
-  {
-    gridColumn: { xs: 'span 6', md: 'span 4' },
-    gridRow: 'auto',
-    featured: false
-  },
-  // Card 4 — bottom left (Workshops)
-  {
-    gridColumn: { xs: 'span 6', md: 'span 4' },
-    gridRow: 'auto',
-    featured: false
-  },
-  // Card 5 — bottom right (Sponsors)
-  {
-    gridColumn: { xs: 'span 6', md: 'span 4' },
-    gridRow: 'auto',
-    featured: false
-  }
-]
-
-/* ── Single stat card ───────────────────────────────────────────────────── */
-function StatCard({ stat, index, started, layout }) {
+/* ── 1. Events counter — pulsing "30+" that scales ────────────────────── */
+function EventsVisual() {
   const c = useAppPalette()
-  const count = useCounter(stat.value, 1600 + index * 100, started)
-  const color = c.theme.palette[stat.paletteKey]?.main || c.primary
-  const isFeatured = layout?.featured
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScale(prev => (prev === 1 ? 1.35 : 1))
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
-    <MotionBox
-      initial={{ opacity: 0, y: 40, scale: 0.96 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.55, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+      <MotionBox
+        animate={{ scale }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        sx={{ textAlign: 'center' }}
+      >
+        <Typography
+          sx={{
+            fontFamily: 'serif',
+            fontSize: { xs: '3.5rem', md: '5rem' },
+            fontWeight: 500,
+            color: c.textPrimary,
+            lineHeight: 1
+          }}
+        >
+          30+
+        </Typography>
+      </MotionBox>
+    </Box>
+  )
+}
+
+/* ── 2. Departments — animated layout blocks ──────────────────────────── */
+function DepartmentsVisual() {
+  const c = useAppPalette()
+  const [layout, setLayout] = useState(0)
+  const layouts = [2, 3, 5]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLayout(prev => (prev + 1) % 3)
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <MotionBox
+        layout
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${layouts[layout]}, 1fr)`,
+          gap: '6px',
+          width: '100%',
+          maxWidth: 160
+        }}
+      >
+        {Array.from({ length: layouts[layout] }).map((_, i) => (
+          <MotionBox
+            key={i}
+            layout
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            sx={{
+              height: 24,
+              borderRadius: '6px',
+              bgcolor: alpha(c.textPrimary, 0.15)
+            }}
+          />
+        ))}
+      </MotionBox>
+    </Box>
+  )
+}
+
+/* ── 3. Participants — speed-indicator style load ─────────────────────── */
+function ParticipantsVisual() {
+  const c = useAppPalette()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 600)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <Box
       sx={{
-        position: 'relative',
-        p: { xs: 3, md: isFeatured ? 5 : 3.5 },
-        borderRadius: '20px',
-        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        textAlign: 'center',
+        height: '100%',
+        gap: 2
+      }}
+    >
+      <Box sx={{ height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative', width: '100%' }}>
+        <AnimatePresence mode='wait'>
+          {loading ? (
+            <MotionBox
+              key='loader'
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 1, repeat: Infinity }}
+              sx={{ height: 36, width: 100, bgcolor: alpha(c.textPrimary, 0.1), borderRadius: 1 }}
+            />
+          ) : (
+            <MotionTypography
+              key='text'
+              initial={{ y: 20, opacity: 0, filter: 'blur(5px)' }}
+              animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+              sx={{ fontSize: { xs: '1.8rem', md: '2.2rem' }, fontWeight: 500, color: c.textPrimary }}
+            >
+              2000+
+            </MotionTypography>
+          )}
+        </AnimatePresence>
+      </Box>
+      <Typography variant='caption' sx={{ color: c.textSecondary }}>
+        Registered
+      </Typography>
+      <Box sx={{ width: '100%', maxWidth: 120, height: 6, bgcolor: alpha(c.textPrimary, 0.08), borderRadius: 3, overflow: 'hidden' }}>
+        <MotionBox
+          initial={{ width: 0 }}
+          animate={{ width: loading ? 0 : '100%' }}
+          transition={{ type: 'spring', stiffness: 100, damping: 15, mass: 1 }}
+          sx={{ height: '100%', bgcolor: c.textPrimary, borderRadius: 3 }}
+        />
+      </Box>
+    </Box>
+  )
+}
+
+/* ── 4. Prize Pool — trophy shields activating ────────────────────────── */
+function PrizeVisual() {
+  const c = useAppPalette()
+  const [shields, setShields] = useState([
+    { id: 1, active: false },
+    { id: 2, active: false },
+    { id: 3, active: false }
+  ])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShields(prev => {
+        const nextIndex = prev.findIndex(s => !s.active)
+        if (nextIndex === -1) return prev.map(() => ({ id: Math.random(), active: false }))
+        return prev.map((s, i) => (i === nextIndex ? { ...s, active: true } : s))
+      })
+    }, 800)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 1 }}>
+      {shields.map(shield => (
+        <MotionBox
+          key={shield.id}
+          animate={{ scale: shield.active ? 1.1 : 1 }}
+          transition={{ duration: 0.3 }}
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: shield.active ? alpha(c.textPrimary, 0.15) : alpha(c.textPrimary, 0.04)
+          }}
+        >
+          <Icon
+            icon='tabler:trophy'
+            fontSize={22}
+            style={{ color: shield.active ? c.textPrimary : c.textDisabled }}
+          />
+        </MotionBox>
+      ))}
+    </Box>
+  )
+}
+
+/* ── 5. Workshops — expanding pulse rings ─────────────────────────────── */
+function WorkshopsVisual() {
+  const c = useAppPalette()
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative' }}>
+      <Icon icon='tabler:tools' fontSize={48} style={{ color: alpha(c.textPrimary, 0.8), zIndex: 10, position: 'relative' }} />
+      {[0, 1, 2, 3, 4].map(pulse => (
+        <MotionBox
+          key={pulse}
+          initial={{ scale: 0.5, opacity: 1 }}
+          animate={{ scale: 3, opacity: 0 }}
+          transition={{ duration: 3, repeat: Infinity, delay: pulse * 0.8, ease: 'easeOut' }}
+          sx={{
+            position: 'absolute',
+            width: 48,
+            height: 48,
+            border: `2px solid ${alpha(c.textPrimary, 0.2)}`,
+            borderRadius: '50%'
+          }}
+        />
+      ))}
+    </Box>
+  )
+}
+
+/* ── 6. Sponsors — static icon (mobile-ready feel) ───────────────────── */
+function SponsorsVisual() {
+  const c = useAppPalette()
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+      <Icon icon='tabler:heart-handshake' fontSize={64} style={{ color: c.textPrimary }} />
+    </Box>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Card wrapper — shared glass tile used by every bento cell
+   ═══════════════════════════════════════════════════════════════════════════ */
+function BentoCard({ index, gridColumn, gridRow, title, description, icon, children }) {
+  const c = useAppPalette()
+  const isTall = typeof gridRow === 'object' || (typeof gridRow === 'string' && gridRow.includes('2'))
+
+  return (
+    <MotionBox
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{
+        scale: isTall ? 1.02 : 0.98,
+        ...(isTall && { boxShadow: `0 25px 50px ${alpha(c.textPrimary, 0.08)}` })
+      }}
+      sx={{
+        gridColumn,
+        gridRow,
+        bgcolor: c.isDark ? alpha(c.bgPaper, 0.06) : alpha(c.bgPaper, 0.85),
+        border: `1px solid ${c.dividerA30}`,
+        borderRadius: '16px',
+        p: { xs: 3, md: isTall ? 4 : 3.5 },
+        display: 'flex',
+        flexDirection: 'column',
         overflow: 'hidden',
-        cursor: 'default',
-        transition: 'all 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-        // Glass background with theme-aware tint
-        background: isFeatured
-          ? `linear-gradient(145deg, ${alpha(color, 0.12)}, ${alpha(color, 0.04)})`
-          : alpha(c.bgPaper, c.isDark ? 0.06 : 0.85),
-        border: `1px solid ${alpha(color, isFeatured ? 0.2 : 0.1)}`,
-        backdropFilter: 'blur(20px)',
+        cursor: 'pointer',
+        transition: 'border-color 0.3s ease',
         '&:hover': {
-          transform: 'translateY(-6px)',
-          border: `1px solid ${alpha(color, 0.35)}`,
-          boxShadow: `0 24px 64px ${alpha(color, 0.12)}, 0 0 0 1px ${alpha(color, 0.05)} inset`
+          borderColor: c.dividerA50
         }
       }}
     >
-      {/* Decorative radial glow — only on featured */}
-      {isFeatured && (
-        <Box
-          sx={{
-            position: 'absolute',
-            width: 200,
-            height: 200,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(color, 0.1)}, transparent 70%)`,
-            top: -60,
-            right: -60,
-            pointerEvents: 'none'
-          }}
-        />
-      )}
-
-      {/* Icon */}
-      <Box
-        sx={{
-          width: isFeatured ? 64 : 52,
-          height: isFeatured ? 64 : 52,
-          borderRadius: '16px',
-          background: alpha(color, 0.12),
-          border: `1px solid ${alpha(color, 0.18)}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: isFeatured ? 3 : 2,
-          transition: 'transform 0.3s ease',
-          '&:hover': { transform: 'scale(1.08) rotate(-3deg)' }
-        }}
-      >
-        <Icon icon={stat.icon} fontSize={isFeatured ? 30 : 24} style={{ color }} />
+      {/* Animated visual */}
+      <Box sx={{ flex: 1, minHeight: { xs: 100, md: isTall ? 'auto' : 80 } }}>
+        {children}
       </Box>
 
-      {/* Value */}
-      <Typography
-        sx={{
-          fontWeight: 900,
-          fontSize: isFeatured
-            ? { xs: '2.4rem', md: '3.2rem' }
-            : { xs: '1.8rem', md: '2.2rem' },
-          lineHeight: 1.1,
-          mb: 0.5,
-          color: c.textPrimary,
-          fontVariantNumeric: 'tabular-nums',
-          letterSpacing: '-1px'
-        }}
-      >
-        {count.toLocaleString()}
-        <Box component='span' sx={{ color, fontSize: '0.65em', ml: 0.25 }}>
-          {stat.suffix}
+      {/* Label area */}
+      <Box sx={{ mt: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {icon && <Icon icon={icon} fontSize={20} style={{ color: c.textPrimary }} />}
+          <Typography
+            sx={{
+              fontFamily: 'serif',
+              fontSize: '1.15rem',
+              fontWeight: 500,
+              color: c.textPrimary
+            }}
+          >
+            {title}
+          </Typography>
         </Box>
-      </Typography>
-
-      {/* Label */}
-      <Typography
-        sx={{
-          color: c.textSecondary,
-          fontWeight: 600,
-          fontSize: isFeatured ? '0.95rem' : '0.8rem',
-          textTransform: 'uppercase',
-          letterSpacing: 1.5
-        }}
-      >
-        {stat.label}
-      </Typography>
+        <Typography variant='body2' sx={{ color: c.textSecondary, mt: 0.5, fontSize: '0.82rem' }}>
+          {description}
+        </Typography>
+      </Box>
     </MotionBox>
   )
 }
 
-/* ── Stats Section ──────────────────────────────────────────────────────── *//**
- * Bento-grid stats section showing animated KPI tiles.
- * Starts counter animations when the section scrolls into view.
- * @param {object} props
- * @param {Array} [props.stats=[]] - Array of stat objects from the home API
- */export default function StatsSection({ stats: STATS = [] }) {
+/* ═══════════════════════════════════════════════════════════════════════════
+   Stats Section — Bento Grid (21st.dev style)
+   ═══════════════════════════════════════════════════════════════════════════ */
+export default function StatsSection() {
   const c = useAppPalette()
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.2 })
-
-  // Guard against null — default param only protects against undefined
-  const safeStats = STATS ?? []
 
   return (
     <Box
       id='stats'
-      ref={ref}
-      sx={{
-        py: { xs: 10, md: 14 },
-        position: 'relative',
-        overflow: 'hidden'
-      }}
+      component='section'
+      sx={{ py: { xs: 10, md: 14 }, position: 'relative', overflow: 'hidden' }}
     >
       <Container maxWidth='xl'>
-        {/* ── Heading ────────────────────────────────────────────────── */}
+        {/* ── Section heading ────────────────────────────────────────── */}
         <MotionBox
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          sx={{ textAlign: 'center', mb: { xs: 6, md: 8 } }}
+          sx={{ mb: { xs: 5, md: 8 }, textAlign: 'center' }}
         >
           <Box
             sx={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 1,
-              px: 2.5,
-              py: 0.75,
+              px: 2,
+              py: 0.5,
+              mb: 2,
               borderRadius: '100px',
-              background: c.primaryA8,
-              border: `1px solid ${c.primaryA15}`,
-              mb: 3
+              bgcolor: alpha(c.primary, 0.08),
+              border: `1px solid ${alpha(c.primary, 0.15)}`
             }}
           >
-            <Icon icon='tabler:chart-dots-3' fontSize={14} style={{ color: c.primary }} />
-            <Typography
-              variant='caption'
-              sx={{ color: c.primary, fontWeight: 700, letterSpacing: 2, fontSize: '0.7rem' }}
-            >
+            <Icon icon='tabler:chart-bar' fontSize={14} style={{ color: c.primary }} />
+            <Typography variant='caption' sx={{ color: c.primary, fontWeight: 600, letterSpacing: 1.5 }}>
               BY THE NUMBERS
             </Typography>
           </Box>
 
           <Typography
-            component='h2'
+            variant='h3'
             sx={{
-              fontWeight: 400,
-              mb: 1,
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
-              color: c.textSecondary
+              fontWeight: 800,
+              mb: 2,
+              letterSpacing: '-0.5px',
+              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' }
             }}
           >
-            The Biggest Tech Fest
-          </Typography>
-
-          <Typography
-            component='h3'
-            sx={{
-              fontWeight: 900,
-              mb: 2.5,
-              letterSpacing: '-1.5px',
-              textTransform: 'uppercase',
-              lineHeight: 1.05,
-              fontSize: { xs: '2.2rem', sm: '3rem', md: '4rem', lg: '4.5rem' }
-            }}
-          >
-            <Box component='span' sx={{ fontWeight: 900, display: 'block' }}>
-              Citronics
-            </Box>
-            <Box
-              component='span'
-              sx={{
-                fontWeight: 900,
-                color: c.primary,
-                display: 'block'
-              }}
-            >
-              At a Glance
-            </Box>
+            Citronics at a Glance
           </Typography>
 
           <Typography
             variant='body1'
-            sx={{
-              color: c.textSecondary,
-              maxWidth: 540,
-              mx: 'auto',
-              lineHeight: 1.8,
-              fontSize: { xs: '0.95rem', md: '1.1rem' }
-            }}
+            sx={{ color: c.textSecondary, maxWidth: 560, mx: 'auto', lineHeight: 1.7 }}
           >
-            Three days of knowledge, competition, and celebration.{' '}
-            Built by students, for students.
+            A snapshot of what makes Citronics one of the most anticipated tech fests — the events, the people, and the prizes.
           </Typography>
         </MotionBox>
 
-        {/* ── Bento grid ─────────────────────────────────────────────── */}
+        {/* ── Bento Grid ─────────────────────────────────────────────── */}
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(6, 1fr)', md: 'repeat(12, 1fr)' },
-            gap: { xs: 2, md: 2.5 },
-            gridAutoRows: { xs: 'auto', md: 'minmax(160px, auto)' }
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(6, 1fr)' },
+            gap: 2,
+            gridAutoRows: { xs: 'auto', md: '200px' }
           }}
         >
-          {safeStats.map((stat, i) => (
-            <Box
-              key={stat.label}
-              sx={{
-                gridColumn: BENTO_LAYOUT[i]?.gridColumn || 'span 6',
-                gridRow: BENTO_LAYOUT[i]?.gridRow || 'auto'
-              }}
-            >
-              <StatCard stat={stat} index={i} started={inView} layout={BENTO_LAYOUT[i]} />
-            </Box>
-          ))}
+          {/* Card 1 — Events (tall 2×2) */}
+          <BentoCard
+            index={0}
+            gridColumn={{ xs: '1', md: 'span 2' }}
+            gridRow={{ xs: 'auto', md: 'span 2' }}
+            title='Events'
+            description='30+ technical and non-technical competitions spanning three action-packed days.'
+          >
+            <EventsVisual />
+          </BentoCard>
+
+          {/* Card 2 — Departments (standard 2×1) */}
+          <BentoCard
+            index={1}
+            gridColumn={{ xs: '1', md: 'span 2' }}
+            gridRow='auto'
+            title='Departments'
+            description='14 departments driving innovation.'
+          >
+            <DepartmentsVisual />
+          </BentoCard>
+
+          {/* Card 3 — Workshops (tall 2×2) */}
+          <BentoCard
+            index={2}
+            gridColumn={{ xs: '1', md: 'span 2' }}
+            gridRow={{ xs: 'auto', md: 'span 2' }}
+            title='Workshops'
+            description='Hands-on learning sessions with industry professionals and cutting-edge tech.'
+            icon='tabler:tools'
+          >
+            <WorkshopsVisual />
+          </BentoCard>
+
+          {/* Card 4 — Participants (standard 2×1) */}
+          <BentoCard
+            index={3}
+            gridColumn={{ xs: '1', md: 'span 2' }}
+            gridRow='auto'
+            title='Participants'
+            description='Students from across the country.'
+          >
+            <ParticipantsVisual />
+          </BentoCard>
+
+          {/* Card 5 — Prize Pool (wide 3×1) */}
+          <BentoCard
+            index={4}
+            gridColumn={{ xs: '1', md: 'span 3' }}
+            gridRow='auto'
+            title='Prize Pool'
+            description='₹2 Lakh+ in prizes, trophies, medals, and certificates for winners.'
+            icon='tabler:trophy'
+          >
+            <PrizeVisual />
+          </BentoCard>
+
+          {/* Card 6 — Sponsors (wide 3×1) */}
+          <BentoCard
+            index={5}
+            gridColumn={{ xs: '1', md: 'span 3' }}
+            gridRow='auto'
+            title='Sponsors & Partners'
+            description='Backed by leading tech companies and academic institutions.'
+            icon='tabler:heart-handshake'
+          >
+            <SponsorsVisual />
+          </BentoCard>
         </Box>
       </Container>
     </Box>

@@ -5,7 +5,20 @@ import { useAppPalette } from 'src/components/palette'
 
 const MotionBox = motion(Box)
 
-export default function SponsorsSection({ sponsors: SPONSORS = [] }) {
+const SPONSORS = [
+  { name: 'JetBrains', tier: 'Platinum' },
+  { name: 'Postman', tier: 'Gold' },
+  { name: 'GitHub', tier: 'Gold' },
+  { name: 'Cloudinary', tier: 'Silver' },
+  { name: 'Vercel', tier: 'Silver' },
+  { name: 'Figma', tier: 'Bronze' },
+  { name: 'AWS', tier: 'Platinum' },
+  { name: 'MongoDB', tier: 'Gold' },
+  { name: 'Notion', tier: 'Bronze' },
+  { name: 'Razorpay', tier: 'Silver' }
+]
+
+export default function SponsorsSection() {
   const c = useAppPalette()
 
   return (

@@ -154,7 +154,15 @@ const Navbar = ({ navLinks, activeSection, onNavClick }) => {
   const handleThemeToggle = () => saveSettings({ ...settings, mode: isDark ? 'light' : 'dark' })
   const handleProfileOpen = e => setProfileAnchor(e.currentTarget)
   const handleProfileClose = () => setProfileAnchor(null)
-  const handleLogout = () => { setProfileAnchor(null); signOut({ callbackUrl: '/login' }) }
+  const handleLogout = async () => {
+    setProfileAnchor(null)
+    try {
+      const result = await signOut({ redirect: false })
+      router.push(result?.url || '/login')
+    } catch {
+      router.push('/login')
+    }
+  }
 
   const handleAnchorClick = (e, href) => {
     // If it's a page route (not an anchor), use Next.js router for reliable SPA navigation
@@ -391,9 +399,25 @@ const Navbar = ({ navLinks, activeSection, onNavClick }) => {
                 <>
                   {!isMobile && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                     
-
-                     
+                      <Button
+                        component={Link}
+                        href='/login'
+                        variant='outlined'
+                        size='small'
+                        sx={{
+                          borderRadius: '9999px',
+                          fontWeight: 600,
+                          fontSize: '0.85rem',
+                          textTransform: 'none',
+                          px: 2.5,
+                          py: 0.75,
+                          color: c.white,
+                          borderColor: c.whiteA40,
+                          '&:hover': { borderColor: c.white, bgcolor: c.whiteA10 }
+                        }}
+                      >
+                        Login
+                      </Button>
                     </Box>
                   )}
                 </>

@@ -184,9 +184,6 @@ const initialState = {
   initiatingPayment: false,
   verifyingPayment: false,
 
-  // Student details dialog
-  showStudentDialog: false,
-
   // Loading states
   validating: false,
   registering: false,
@@ -215,20 +212,9 @@ const checkoutSlice = createSlice({
       state.error = null
     },
 
-    /** Open the student details dialog */
-    openStudentDialog(state) {
-      state.showStudentDialog = true
-    },
-
-    /** Close the student details dialog */
-    closeStudentDialog(state) {
-      state.showStudentDialog = false
-    },
-
     /** Set existing userId (e.g., when EMAIL_EXISTS and user continues) */
     setExistingUser(state, action) {
       state.userId = action.payload.userId
-      state.showStudentDialog = false
     },
 
     /** Reset checkout to initial state */
@@ -266,7 +252,6 @@ const checkoutSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.registering = false
         state.userId = action.payload.userId
-        state.showStudentDialog = false
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.registering = false
@@ -349,7 +334,6 @@ export const selectCheckoutGrandTotal = state => state.checkout.grandTotal
 export const selectCheckoutError = state => state.checkout.error
 export const selectCheckoutUserId = state => state.checkout.userId
 export const selectCheckoutBookings = state => state.checkout.bookings
-export const selectShowStudentDialog = state => state.checkout.showStudentDialog
 export const selectPaymentOrderId = state => state.checkout.paymentOrderId
 export const selectPaymentSdkPayload = state => state.checkout.paymentSdkPayload
 export const selectPaymentStatus = state => state.checkout.paymentStatus
@@ -357,8 +341,6 @@ export const selectTickets = state => state.checkout.tickets
 
 export const {
   setCheckoutItems,
-  openStudentDialog,
-  closeStudentDialog,
   setExistingUser,
   resetCheckout
 } = checkoutSlice.actions
