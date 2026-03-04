@@ -11,7 +11,7 @@ import UpcomingEventsScroller from 'src/views/home/UpcomingEventsScroller'
 import StatsSection from 'src/views/home/StatsSection'
 import FeaturedEvents from 'src/views/home/FeaturedEvents'
 //import EventsSection from 'src/views/home/EventsSection'
-import ScheduleSection from 'src/views/home/ScheduleSection'
+//import ScheduleSection from 'src/views/home/ScheduleSection'
 import TestimonialsSection from 'src/views/home/TestimonialsSection'
 import SponsorsSection from 'src/views/home/SponsorsSection'
 //import CTABanner from 'src/views/home/CTABanner'
@@ -78,7 +78,7 @@ const Home = () => {
         <StatsSection />
         <FeaturedEvents events={events} />
         {/*<EventsSection events={events} departments={departments} />*/}
-        <ScheduleSection scheduleDays={scheduleDays} />
+        {/*<ScheduleSection scheduleDays={scheduleDays} />*/}
         <TestimonialsSection />
         <SponsorsSection sponsors={sponsors} />
         {/*<CTABanner />*/}

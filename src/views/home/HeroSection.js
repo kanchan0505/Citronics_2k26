@@ -504,11 +504,7 @@ export default function HeroSection({ eventStartDate }) {
             <Button
               variant='contained'
               size='large'
-              href='#events'
-              onClick={e => {
-                e.preventDefault()
-                document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' })
-              }}
+              href='/events'
               endIcon={<Icon icon='tabler:arrow-right' />}
               sx={{
                 px: 4,
@@ -531,12 +527,8 @@ export default function HeroSection({ eventStartDate }) {
             <Button
               variant='outlined'
               size='large'
-              href='#schedule'
-              onClick={e => {
-                e.preventDefault()
-                document.getElementById('schedule')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              startIcon={<Icon icon='tabler:calendar' />}
+              href='/about'
+              startIcon={<Icon icon='tabler:info-circle' />}
               sx={{
                 px: 4,
                 py: 1.8,
@@ -555,7 +547,7 @@ export default function HeroSection({ eventStartDate }) {
                 transition: 'all 0.3s ease'
               }}
             >
-              View Schedule
+              About Us
             </Button>
           </MotionBox>
 

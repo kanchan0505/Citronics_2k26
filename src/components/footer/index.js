@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Divider from '@mui/material/Divider'
+import Tooltip from '@mui/material/Tooltip'
 import Link from 'next/link'
 import { alpha } from '@mui/material/styles'
 import Icon from 'src/components/Icon'
@@ -24,9 +25,15 @@ const LINK_COLUMN_2 = [
 ]
 
 const SOCIAL_LINKS = [
-  { icon: 'tabler:brand-facebook', href: '#', label: 'Facebook' },
-  { icon: 'tabler:brand-x', href: '#', label: 'X (Twitter)' },
-  { icon: 'tabler:brand-instagram', href: '#', label: 'Instagram' }
+  { icon: 'tabler:brand-facebook', href: '#', label: 'Facebook', tooltip: 'Facebook' },
+  { icon: 'tabler:brand-x', href: '#', label: 'X (Twitter)', tooltip: 'X (Twitter)' },
+  { icon: 'tabler:brand-instagram', href: '#', label: 'Instagram', tooltip: 'Instagram' },
+  {
+    icon: 'tabler:brand-github',
+    href: 'https://github.com/NexEvent/Citronics_2k26',
+    label: 'GitHub',
+    tooltip: '⭐ Star us on GitHub'
+  }
 ]
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -215,31 +222,32 @@ export default function Footer() {
             }}
           >
             {SOCIAL_LINKS.map(s => (
-              <IconButton
-                key={s.label}
-                component='a'
-                href={s.href}
-                target='_blank'
-                rel='noopener noreferrer'
-                aria-label={s.label}
-                size='small'
-                sx={{
-                  color: c.isDark ? c.whiteA65 : c.textSecondary,
-                  border: `1px solid ${c.isDark ? c.whiteA15 : c.primaryA12}`,
-                  width: 36,
-                  height: 36,
-                  transition: 'all 0.25s ease',
-                  '&:hover': {
-                    color: c.primary,
-                    borderColor: c.primaryA50,
-                    bgcolor: c.primaryA8,
-                    transform: 'translateY(-2px)',
-                    boxShadow: `0 4px 14px ${c.primaryA20}`
-                  }
-                }}
-              >
-                <Icon icon={s.icon} fontSize={17} />
-              </IconButton>
+              <Tooltip key={s.label} title={s.tooltip || s.label} arrow placement='top'>
+                <IconButton
+                  component='a'
+                  href={s.href}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label={s.tooltip || s.label}
+                  size='small'
+                  sx={{
+                    color: c.isDark ? c.whiteA65 : c.textSecondary,
+                    border: `1px solid ${c.isDark ? c.whiteA15 : c.primaryA12}`,
+                    width: 36,
+                    height: 36,
+                    transition: 'all 0.25s ease',
+                    '&:hover': {
+                      color: s.label === 'GitHub' ? c.textPrimary : c.primary,
+                      borderColor: s.label === 'GitHub' ? c.divider : c.primaryA50,
+                      bgcolor: c.primaryA8,
+                      transform: 'translateY(-2px)',
+                      boxShadow: `0 4px 14px ${c.primaryA20}`
+                    }
+                  }}
+                >
+                  <Icon icon={s.icon} fontSize={17} />
+                </IconButton>
+              </Tooltip>
             ))}
           </Box>
 

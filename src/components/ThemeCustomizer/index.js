@@ -61,17 +61,24 @@ const TriggerButton = styled(IconButton)(({ theme }) => ({
   top: '50%',
   transform: 'translateY(-50%)',
   zIndex: theme.zIndex.drawer - 1,
-  width: 44,
-  height: 44,
+  width: 40,
+  height: 40,
   borderRadius: '8px 0 0 8px',
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  boxShadow: `-4px 0 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+  backgroundColor: alpha(theme.palette.primary.main, 0.15),
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  color: alpha(theme.palette.primary.main, 0.8),
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+  borderRight: 'none',
+  boxShadow: `-3px 0 12px ${alpha(theme.palette.primary.main, 0.08)}`,
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    backgroundColor: theme.palette.primary.dark,
-    width: 52,
-    boxShadow: `-6px 0 24px ${alpha(theme.palette.primary.main, 0.55)}`
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    width: 40,
+    border: `1px solid ${alpha(theme.palette.primary.main, 0.4)}`,
+    borderRight: 'none',
+    boxShadow: `-6px 0 24px ${alpha(theme.palette.primary.main, 0.45)}`
   }
 }))
 

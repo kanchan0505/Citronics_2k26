@@ -166,7 +166,7 @@ const paymentService = {
         FROM users u WHERE u.id = $1
       `, [userId])
 
-      const sessionPayload = {
+      const orderPayload = {
         order_id: juspayOrderId,
         amount: grandTotal,
         payment_page_client_id: paymentPageClientId,
@@ -178,7 +178,7 @@ const paymentService = {
         currency: 'INR'
       }
 
-      const sessionResponse = await juspay.orderSession.create(sessionPayload)
+      const sessionResponse = await juspay.order.create(orderPayload)
 
       // Remove internal http field
       if (sessionResponse?.http) delete sessionResponse.http
