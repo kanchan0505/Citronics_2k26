@@ -20,7 +20,7 @@ import Icon from 'src/components/Icon'
 import { fetchEvents, fetchDepartments } from 'src/store/slices/eventsSlice'
 import { addToCart, selectCartItems } from 'src/store/slices/cartSlice'
 import { useSession } from 'next-auth/react'
-import { setCheckoutItems, setExistingUser, openStudentDialog } from 'src/store/slices/checkoutSlice'
+import { setCheckoutItems, setExistingUser } from 'src/store/slices/checkoutSlice'
 
 const MotionBox = motion(Box)
 
@@ -311,7 +311,7 @@ function EventCard({ event, index }) {
                 dispatch(setExistingUser({ userId: session.user.id }))
                 router.push('/checkout')
               } else {
-                dispatch(openStudentDialog())
+                router.push('/login?returnUrl=/checkout')
               }
             }}
             sx={{

@@ -23,7 +23,7 @@ import {
   validateCart
 } from 'src/store/slices/cartSlice'
 import { useSession } from 'next-auth/react'
-import { setCheckoutItems, setExistingUser, openStudentDialog } from 'src/store/slices/checkoutSlice'
+import { setCheckoutItems, setExistingUser } from 'src/store/slices/checkoutSlice'
 
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
 
@@ -540,7 +540,7 @@ export default function CartView() {
                 dispatch(setExistingUser({ userId: session.user.id }))
                 router.push('/checkout')
               } else {
-                dispatch(openStudentDialog())
+                router.push('/login?returnUrl=/checkout')
               }
             }}
             sx={{

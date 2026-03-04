@@ -12,7 +12,8 @@ const GuestGuard = ({ children, fallback }) => {
 
   useEffect(() => {
     if (status !== 'loading' && session) {
-      router.push('/')
+      const returnUrl = router.query.returnUrl
+      router.push(returnUrl && returnUrl.startsWith('/') ? returnUrl : '/')
     }
   }, [session, status, router])
 

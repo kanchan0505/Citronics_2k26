@@ -383,7 +383,7 @@ export default function StatsSection() {
             gridColumn={{ xs: '1', md: 'span 2' }}
             gridRow='auto'
             title='Departments'
-            description='5 departments driving innovation.'
+            description='14 departments driving innovation.'
           >
             <DepartmentsVisual />
           </BentoCard>
