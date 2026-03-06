@@ -21,6 +21,28 @@ export const lookupPhone = createAsyncThunk(
 )
 
 /**
+ * Look up an existing user by phone number OR email address.
+ * Detects the input type and sends the correct query parameter.
+ * Returns { exists, data: { maskedName } } on success.
+ */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+export const lookupIdentifier = createAsyncThunk(
+  'checkout/lookupIdentifier',
+  async (identifier, { rejectWithValue }) => {
+    try {
+      const v = identifier.trim()
+      const params = EMAIL_RE.test(v)
+        ? { email: v }
+        : { phone: v.replace(/[\s\-+()]/g, '').slice(-10) }
+      const { data } = await axios.get('/api/checkout', { params })
+      return data
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Lookup failed')
+    }
+  }
+)
+
+/**
  * Validate checkout items against the database.
  * Sends ONLY eventId + quantity — backend computes everything else.
  *
@@ -71,16 +93,16 @@ export const registerUser = createAsyncThunk(
 )
 
 /**
- * Verify an existing user's identity by phone + password.
- * Only called when phone lookup confirms the number is registered.
+ * Verify an existing user's identity by phone or email + password.
+ * Accepts { identifier, password } (new) or { phone, password } (legacy).
  * Returns userId on success — never exposes userId without proof-of-ownership.
  */
 export const verifyUser = createAsyncThunk(
   'checkout/verifyUser',
-  async ({ phone, password }, { rejectWithValue }) => {
+  async ({ identifier, phone, password }, { rejectWithValue }) => {
     try {
-      const clean = phone.trim().replace(/[\s\-+()]/g, '').slice(-10)
-      const { data } = await axios.post('/api/checkout/verify', { phone: clean, password })
+      const id = (identifier || phone || '').trim()
+      const { data } = await axios.post('/api/checkout/verify', { identifier: id, password })
       if (!data.success) return rejectWithValue(data.message || 'Verification failed')
       return data.data
     } catch (err) {
