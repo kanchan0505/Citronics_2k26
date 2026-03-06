@@ -5,7 +5,7 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import Divider from '@mui/material/Divider'
 import LinearProgress from '@mui/material/LinearProgress'
 import Skeleton from '@mui/material/Skeleton'
@@ -364,7 +364,7 @@ export default function EventDetailView() {
           >
             {/* Department chip */}
             {event.departmentName && (
-              <Chip
+              <CustomChip
                 icon={<Icon icon='tabler:building' fontSize={13} />}
                 label={event.departmentName}
                 size='small'
@@ -660,7 +660,7 @@ export default function EventDetailView() {
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {event.tags.map(tag => (
-                    <Chip
+                    <CustomChip
                       key={tag}
                       label={tag}
                       size='small'

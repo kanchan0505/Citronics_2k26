@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import Avatar from '@mui/material/Avatar'
 import LinearProgress from '@mui/material/LinearProgress'
 import Divider from '@mui/material/Divider'
@@ -136,7 +136,7 @@ const EventRow = ({ event, onView }) => {
           </Box>
         )}
       </Box>
-      <Chip
+      <CustomChip
         label={event.status ?? 'draft'}
         size='small'
         color={statusColors[event.status] ?? 'default'}

@@ -6,7 +6,7 @@ import { signIn } from 'next-auth/react'
 // MUI
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
+import CustomTextField from 'src/components/mui/TextField'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -16,97 +16,12 @@ import Collapse from '@mui/material/Collapse'
 import { alpha } from '@mui/material/styles'
 
 // Icons
-import { IconEye, IconEyeOff, IconInfoCircle, IconPhone, IconUser, IconMail, IconLock, IconBuilding, IconMapPin, IconUserCheck, IconCircleCheckFilled } from '@tabler/icons-react'
+import Icon from 'src/components/Icon'
 
 // Config & helpers
 import themeConfig from 'src/configs/themeConfig'
 import { useAppPalette } from 'src/components/palette'
-import { lookupPhone, registerUser, verifyUser, setExistingUser } from 'src/store/slices/checkoutSlice'
-
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Animated character sub-components (adapted from 21st.dev)
- * ═════════════════════════════════════════════════════════════════════════ */
-
-const EyeBall = ({ size = 48, pupilSize = 16, maxDistance = 10, eyeColor = 'white', pupilColor = 'black', isBlinking = false, forceLookX, forceLookY }) => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const eyeRef = useRef(null)
-
-  useEffect(() => {
-    const handler = e => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener('mousemove', handler)
-    return () => window.removeEventListener('mousemove', handler)
-  }, [])
-
-  const getPupilPos = () => {
-    if (!eyeRef.current) return { x: 0, y: 0 }
-    if (forceLookX !== undefined && forceLookY !== undefined) return { x: forceLookX, y: forceLookY }
-    const rect = eyeRef.current.getBoundingClientRect()
-    const dx = mousePos.x - (rect.left + rect.width / 2)
-    const dy = mousePos.y - (rect.top + rect.height / 2)
-    const dist = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance)
-    const angle = Math.atan2(dy, dx)
-    return { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist }
-  }
-
-  const pos = getPupilPos()
-
-  return (
-    <div
-      ref={eyeRef}
-      style={{
-        width: size, height: isBlinking ? 2 : size,
-        backgroundColor: eyeColor, borderRadius: '50%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        overflow: 'hidden', transition: 'height 0.15s ease'
-      }}
-    >
-      {!isBlinking && (
-        <div style={{
-          width: pupilSize, height: pupilSize,
-          backgroundColor: pupilColor, borderRadius: '50%',
-          transform: `translate(${pos.x}px, ${pos.y}px)`,
-          transition: 'transform 0.1s ease-out'
-        }} />
-      )}
-    </div>
-  )
-}
-
-const Pupil = ({ size = 12, maxDistance = 5, pupilColor = '#2D2D2D', forceLookX, forceLookY }) => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const ref = useRef(null)
-
-  useEffect(() => {
-    const handler = e => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener('mousemove', handler)
-    return () => window.removeEventListener('mousemove', handler)
-  }, [])
-
-  const getPos = () => {
-    if (!ref.current) return { x: 0, y: 0 }
-    if (forceLookX !== undefined && forceLookY !== undefined) return { x: forceLookX, y: forceLookY }
-    const rect = ref.current.getBoundingClientRect()
-    const dx = mousePos.x - (rect.left + rect.width / 2)
-    const dy = mousePos.y - (rect.top + rect.height / 2)
-    const dist = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance)
-    const angle = Math.atan2(dy, dx)
-    return { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist }
-  }
-
-  const pos = getPos()
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        width: size, height: size,
-        backgroundColor: pupilColor, borderRadius: '50%',
-        transform: `translate(${pos.x}px, ${pos.y}px)`,
-        transition: 'transform 0.1s ease-out'
-      }}
-    />
-  )
-}
+import { lookupIdentifier, registerUser, verifyUser, setExistingUser } from 'src/store/slices/checkoutSlice'
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Validation helpers
@@ -127,6 +42,10 @@ function validateField(name, value) {
       if (!EMAIL_RE.test(v)) return 'Enter a valid email address'
       return ''
     case 'phone':
+      if (!v) return 'Phone or email is required'
+      if (!EMAIL_RE.test(v) && !PHONE_RE.test(v.replace(/[\s\-+()]/g, '').slice(-10))) return 'Enter a valid phone number or email address'
+      return ''
+    case 'registrationPhone':
       if (!v) return 'Phone number is required'
       if (!PHONE_RE.test(v.replace(/[\s\-+()]/g, '').slice(-10))) return 'Enter a valid 10-digit phone number'
       return ''
@@ -183,101 +102,12 @@ const LoginPage = () => {
   const [lookingUpPhone, setLookingUpPhone] = useState(false)
   const phoneLookupTimer = useRef(null)
 
-  const isExistingUser = mode === 'login' || phoneLookup?.exists
+  // ── Email lookup state ──
+  const [emailLookup, setEmailLookup] = useState(null)
+  const [lookingUpEmail, setLookingUpEmail] = useState(false)
+  const emailLookupTimer = useRef(null)
 
-  // ── Character animation state ──
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const [isPurpleBlinking, setIsPurpleBlinking] = useState(false)
-  const [isBlackBlinking, setIsBlackBlinking] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
-  const [isLookingAtEachOther, setIsLookingAtEachOther] = useState(false)
-  const [isPurplePeeking, setIsPurplePeeking] = useState(false)
-  const purpleRef = useRef(null)
-  const blackRef = useRef(null)
-  const yellowRef = useRef(null)
-  const orangeRef = useRef(null)
-
-  // Mouse tracking for body sway
-  useEffect(() => {
-    const handler = e => setMousePos({ x: e.clientX, y: e.clientY })
-    window.addEventListener('mousemove', handler)
-    return () => window.removeEventListener('mousemove', handler)
-  }, [])
-
-  // Purple blink — track all timeouts via ref to avoid leaks on unmount
-  const purpleBlinkTimers = useRef([])
-  useEffect(() => {
-    const timers = purpleBlinkTimers.current
-    const schedule = () => {
-      const t1 = setTimeout(() => {
-        setIsPurpleBlinking(true)
-        const t2 = setTimeout(() => { setIsPurpleBlinking(false); schedule() }, 150)
-        timers.push(t2)
-      }, Math.random() * 4000 + 3000)
-      timers.push(t1)
-    }
-    schedule()
-    return () => { timers.forEach(clearTimeout); timers.length = 0 }
-  }, [])
-
-  // Black blink — same pattern
-  const blackBlinkTimers = useRef([])
-  useEffect(() => {
-    const timers = blackBlinkTimers.current
-    const schedule = () => {
-      const t1 = setTimeout(() => {
-        setIsBlackBlinking(true)
-        const t2 = setTimeout(() => { setIsBlackBlinking(false); schedule() }, 150)
-        timers.push(t2)
-      }, Math.random() * 4000 + 3000)
-      timers.push(t1)
-    }
-    schedule()
-    return () => { timers.forEach(clearTimeout); timers.length = 0 }
-  }, [])
-
-  // Look at each other briefly when user starts typing
-  useEffect(() => {
-    if (isTyping) {
-      setIsLookingAtEachOther(true)
-      const t = setTimeout(() => setIsLookingAtEachOther(false), 800)
-      return () => clearTimeout(t)
-    } else {
-      setIsLookingAtEachOther(false)
-    }
-  }, [isTyping])
-
-  // Purple peeks when password is revealed
-  useEffect(() => {
-    if (form.password.length > 0 && showPassword) {
-      const t = setTimeout(() => {
-        setIsPurplePeeking(true)
-        setTimeout(() => setIsPurplePeeking(false), 800)
-      }, Math.random() * 3000 + 2000)
-      return () => clearTimeout(t)
-    } else {
-      setIsPurplePeeking(false)
-    }
-  }, [form.password, showPassword, isPurplePeeking])
-
-  const calcPos = ref => {
-    if (!ref.current) return { faceX: 0, faceY: 0, bodySkew: 0 }
-    const rect = ref.current.getBoundingClientRect()
-    const dx = mousePos.x - (rect.left + rect.width / 2)
-    const dy = mousePos.y - (rect.top + rect.height / 3)
-    return {
-      faceX: Math.max(-15, Math.min(15, dx / 20)),
-      faceY: Math.max(-10, Math.min(10, dy / 30)),
-      bodySkew: Math.max(-6, Math.min(6, -dx / 120))
-    }
-  }
-
-  const purplePos = calcPos(purpleRef)
-  const blackPos  = calcPos(blackRef)
-  const yellowPos = calcPos(yellowRef)
-  const orangePos = calcPos(orangeRef)
-  const passwordVisible = form.password.length > 0 && showPassword
-  const passwordHidden  = form.password.length > 0 && !showPassword
+  const isExistingUser = mode === 'login' || phoneLookup?.exists || emailLookup?.exists
 
   // ── Live phone lookup (only in register mode) ──
   useEffect(() => {
@@ -285,15 +115,16 @@ const LoginPage = () => {
     setPhoneLookup(null)
     if (phoneLookupTimer.current) clearTimeout(phoneLookupTimer.current)
 
-    const cleaned = form.phone.trim().replace(/[\s\-+()]/g, '').slice(-10)
-    if (!PHONE_RE.test(cleaned)) return
+    const v = form.phone.trim()
+    const isPhone = PHONE_RE.test(v.replace(/[\s\-+()]/g, '').slice(-10))
+    if (!isPhone) return
 
     phoneLookupTimer.current = setTimeout(async () => {
       setLookingUpPhone(true)
       try {
-        const result = await dispatch(lookupPhone(form.phone))
-        if (lookupPhone.fulfilled.match(result) && result.payload.exists) {
-          setPhoneLookup({ exists: true, name: result.payload.data?.name || '' })
+        const result = await dispatch(lookupIdentifier(v))
+        if (lookupIdentifier.fulfilled.match(result) && result.payload.exists) {
+          setPhoneLookup({ exists: true, name: result.payload.data?.maskedName || '' })
         } else {
           setPhoneLookup({ exists: false })
         }
@@ -302,9 +133,36 @@ const LoginPage = () => {
     }, 600)
 
     return () => clearTimeout(phoneLookupTimer.current)
-  }, [form.phone, mode]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [form.phone, mode, dispatch])  
 
-  // ── Handlers ──
+  // ── Live email lookup (only in register mode) ──
+  useEffect(() => {
+    if (mode === 'login' || isExistingUser) return
+    setEmailLookup(null)
+    if (emailLookupTimer.current) clearTimeout(emailLookupTimer.current)
+
+    const v = form.email.trim()
+    if (!EMAIL_RE.test(v)) return
+
+    emailLookupTimer.current = setTimeout(async () => {
+      setLookingUpEmail(true)
+      try {
+        const result = await dispatch(lookupIdentifier(v))
+        if (lookupIdentifier.fulfilled.match(result)) {
+          if (result.payload.exists) {
+            // Pre-fill the login identifier field with the email and switch to sign-in view
+            setForm(prev => ({ ...prev, phone: form.email.trim() }))
+            setEmailLookup({ exists: true, name: result.payload.data?.maskedName || '' })
+          } else {
+            setEmailLookup({ exists: false })
+          }
+        }
+      } catch { /* ignore */ }
+      setLookingUpEmail(false)
+    }, 600)
+
+    return () => clearTimeout(emailLookupTimer.current)
+  }, [form.email, mode, isExistingUser, dispatch])  
   const handleChange = e => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
@@ -314,13 +172,21 @@ const LoginPage = () => {
 
   const validateAll = () => {
     const newErrors = {}
-    const fields = isExistingUser
-      ? (mode === 'login' ? ['phone', 'password'] : ['phone', 'password'])
-      : ['name', 'email', 'phone', 'password', 'college', 'city']
     let hasError = false
-    for (const field of fields) {
-      const err = validateField(field, form[field])
+    const touch = (field, validationKey) => {
+      const err = validateField(validationKey || field, form[field])
       if (err) { newErrors[field] = err; hasError = true }
+    }
+    if (isExistingUser) {
+      touch('phone')       // login: identifier (phone or email)
+      touch('password')
+    } else {
+      touch('phone', 'registrationPhone') // register: phone-only
+      touch('name')
+      touch('email')
+      touch('password')
+      touch('college')
+      touch('city')
     }
     setErrors(newErrors)
     return !hasError
@@ -332,15 +198,15 @@ const LoginPage = () => {
 
     setServerError('')
     setLoading(true)
-    const cleaned = form.phone.trim().replace(/[\s\-+()]/g, '').slice(-10)
+    const identifier = form.phone.trim()
 
     try {
       // ── Existing user path — verify password then sign in ──
       if (isExistingUser) {
-        const result = await dispatch(verifyUser({ phone: cleaned, password: form.password }))
+        const result = await dispatch(verifyUser({ identifier, password: form.password }))
         if (verifyUser.fulfilled.match(result)) {
           const signInResult = await signIn('credentials', {
-            email: cleaned,
+            email: identifier,
             password: form.password,
             redirect: false
           })
@@ -358,10 +224,11 @@ const LoginPage = () => {
       }
 
       // ── New user path — register then sign in ──
+      const phoneForReg = form.phone.trim().replace(/[\s\-+()]/g, '').slice(-10)
       const result = await dispatch(registerUser({
         name: form.name.trim(),
         email: form.email.trim(),
-        phone: form.phone.trim(),
+        phone: phoneForReg,
         password: form.password,
         college: form.college.trim(),
         city: form.city.trim()
@@ -401,18 +268,6 @@ const LoginPage = () => {
     setLoading(false)
   }
 
-  // ── Shared TextField sx ──
-  const fieldSx = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '10px',
-      fontSize: '0.9rem',
-      '& fieldset': { borderColor: alpha(c.divider, 0.5), transition: 'border-color 0.2s ease' },
-      '&:hover fieldset': { borderColor: alpha(c.primary, 0.4) },
-      '&.Mui-focused fieldset': { borderColor: c.primary, borderWidth: '1.5px' }
-    },
-    '& .MuiInputLabel-root': { fontSize: '0.85rem', fontWeight: 500 }
-  }
-
   return (
     <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'stretch' }}>
         {/* ══ LEFT — brand + animated characters (desktop only) ══ */}
@@ -437,50 +292,79 @@ const LoginPage = () => {
               sx={{ height: 34, width: 'auto', filter: 'brightness(0) invert(1)' }} />
           </Box>
 
-          {/* Characters stage */}
-          <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', height: 420 }}>
-            <div style={{ position: 'relative', width: 420, height: 360 }}>
-
-              {/* Purple tall rectangle — back */}
-              <div ref={purpleRef} style={{ position: 'absolute', bottom: 0, left: 50, width: 160, height: passwordVisible ? 420 : (isTyping || passwordHidden) ? 400 : 360, backgroundColor: '#6C3FF5', borderRadius: '10px 10px 0 0', zIndex: 1, transition: 'all 0.7s ease-in-out', transform: passwordVisible ? 'skewX(0deg)' : (isTyping || passwordHidden) ? `skewX(${(purplePos.bodySkew || 0) - 12}deg) translateX(35px)` : `skewX(${purplePos.bodySkew || 0}deg)`, transformOrigin: 'bottom center' }}>
-                <div style={{ position: 'absolute', left: passwordVisible ? 18 : isLookingAtEachOther ? 50 : 40 + purplePos.faceX, top: passwordVisible ? 32 : isLookingAtEachOther ? 60 : 36 + purplePos.faceY, display: 'flex', gap: 24, transition: 'all 0.7s ease-in-out' }}>
-                  <EyeBall size={18} pupilSize={7} maxDistance={5} eyeColor='white' pupilColor='#2D2D2D' isBlinking={isPurpleBlinking} forceLookX={passwordVisible ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined} forceLookY={passwordVisible ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined} />
-                  <EyeBall size={18} pupilSize={7} maxDistance={5} eyeColor='white' pupilColor='#2D2D2D' isBlinking={isPurpleBlinking} forceLookX={passwordVisible ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined} forceLookY={passwordVisible ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined} />
-                </div>
-              </div>
-
-              {/* Black shorter rectangle — middle */}
-              <div ref={blackRef} style={{ position: 'absolute', bottom: 0, left: 198, width: 108, height: 290, backgroundColor: '#2D2D2D', borderRadius: '8px 8px 0 0', zIndex: 2, transition: 'all 0.7s ease-in-out', transform: passwordVisible ? 'skewX(0deg)' : isLookingAtEachOther ? `skewX(${(blackPos.bodySkew || 0) * 1.5 + 10}deg) translateX(18px)` : (isTyping || passwordHidden) ? `skewX(${(blackPos.bodySkew || 0) * 1.5}deg)` : `skewX(${blackPos.bodySkew || 0}deg)`, transformOrigin: 'bottom center' }}>
-                <div style={{ position: 'absolute', left: passwordVisible ? 8 : isLookingAtEachOther ? 28 : 22 + blackPos.faceX, top: passwordVisible ? 26 : isLookingAtEachOther ? 10 : 28 + blackPos.faceY, display: 'flex', gap: 20, transition: 'all 0.7s ease-in-out' }}>
-                  <EyeBall size={15} pupilSize={6} maxDistance={4} eyeColor='white' pupilColor='#1a1a2e' isBlinking={isBlackBlinking} forceLookX={passwordVisible ? -4 : isLookingAtEachOther ? 0 : undefined} forceLookY={passwordVisible ? -4 : isLookingAtEachOther ? -4 : undefined} />
-                  <EyeBall size={15} pupilSize={6} maxDistance={4} eyeColor='white' pupilColor='#1a1a2e' isBlinking={isBlackBlinking} forceLookX={passwordVisible ? -4 : isLookingAtEachOther ? 0 : undefined} forceLookY={passwordVisible ? -4 : isLookingAtEachOther ? -4 : undefined} />
-                </div>
-              </div>
-
-              {/* Orange semi-circle — front left */}
-              <div ref={orangeRef} style={{ position: 'absolute', bottom: 0, left: 0, width: 220, height: 180, backgroundColor: '#FF9B6B', borderRadius: '110px 110px 0 0', zIndex: 3, transition: 'all 0.7s ease-in-out', transform: passwordVisible ? 'skewX(0deg)' : `skewX(${orangePos.bodySkew || 0}deg)`, transformOrigin: 'bottom center' }}>
-                <div style={{ position: 'absolute', left: passwordVisible ? 46 : 76 + (orangePos.faceX || 0), top: passwordVisible ? 78 : 82 + (orangePos.faceY || 0), display: 'flex', gap: 28, transition: 'all 0.2s ease-out' }}>
-                  <Pupil size={11} maxDistance={5} pupilColor='#2D2D2D' forceLookX={passwordVisible ? -5 : undefined} forceLookY={passwordVisible ? -4 : undefined} />
-                  <Pupil size={11} maxDistance={5} pupilColor='#2D2D2D' forceLookX={passwordVisible ? -5 : undefined} forceLookY={passwordVisible ? -4 : undefined} />
-                </div>
-              </div>
-
-              {/* Yellow rounded rectangle — front right */}
-              <div ref={yellowRef} style={{ position: 'absolute', bottom: 0, left: 272, width: 130, height: 210, backgroundColor: '#E8D754', borderRadius: '65px 65px 0 0', zIndex: 4, transition: 'all 0.7s ease-in-out', transform: passwordVisible ? 'skewX(0deg)' : `skewX(${yellowPos.bodySkew || 0}deg)`, transformOrigin: 'bottom center' }}>
-                <div style={{ position: 'absolute', left: passwordVisible ? 18 : 46 + (yellowPos.faceX || 0), top: passwordVisible ? 32 : 36 + (yellowPos.faceY || 0), display: 'flex', gap: 18, transition: 'all 0.2s ease-out' }}>
-                  <Pupil size={11} maxDistance={5} pupilColor='#2D2D2D' forceLookX={passwordVisible ? -5 : undefined} forceLookY={passwordVisible ? -4 : undefined} />
-                  <Pupil size={11} maxDistance={5} pupilColor='#2D2D2D' forceLookX={passwordVisible ? -5 : undefined} forceLookY={passwordVisible ? -4 : undefined} />
-                </div>
-                <div style={{ position: 'absolute', left: passwordVisible ? 8 : 36 + (yellowPos.faceX || 0), top: passwordVisible ? 80 : 82 + (yellowPos.faceY || 0), width: 72, height: 4, backgroundColor: '#2D2D2D', borderRadius: 4, transition: 'all 0.2s ease-out' }} />
-              </div>
-
-            </div>
+          {/* ── Brand highlights ─────────────────────────────── */}
+          <Box sx={{ position: 'relative', zIndex: 1, py: 2 }}>
+            <Typography
+              sx={{
+                color: alpha('#fff', 0.4),
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                letterSpacing: 2.5,
+                mb: 2.5,
+                textTransform: 'uppercase'
+              }}
+            >
+              Citronics 2026 • CDGI Indore
+            </Typography>
+            <Typography
+              sx={{
+                color: '#fff',
+                fontWeight: 900,
+                fontSize: { md: '2rem', lg: '2.6rem' },
+                lineHeight: 1.1,
+                letterSpacing: '-1px',
+                mb: 2
+              }}
+            >
+              Where Innovation
+              <br />
+              Meets Ambition
+            </Typography>
+            <Typography
+              sx={{
+                color: alpha('#fff', 0.68),
+                fontSize: '0.92rem',
+                lineHeight: 1.75,
+                mb: 4,
+                maxWidth: 300
+              }}
+            >
+              Join thousands of students competing, collaborating and creating at Central
+              India&apos;s premier techno-management fest.
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              {[
+                { icon: 'tabler:calendar-event', text: '35+ events across 3 days' },
+                { icon: 'tabler:users', text: '5,000+ participants expected' },
+                { icon: 'tabler:trophy', text: '₹2 Lakh+ prize pool' }
+              ].map(item => (
+                <Box
+                  key={item.text}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    px: 2,
+                    py: 1,
+                    borderRadius: '10px',
+                    bgcolor: alpha('#fff', 0.08),
+                    border: `1px solid ${alpha('#fff', 0.1)}`,
+                    width: 'fit-content'
+                  }}
+                >
+                  <Icon icon={item.icon} fontSize={15} style={{ color: alpha('#fff', 0.8) }} />
+                  <Typography sx={{ color: alpha('#fff', 0.8), fontSize: '0.8rem', fontWeight: 600 }}>
+                    {item.text}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Box>
 
           {/* Ticket notice + footer links */}
           <Box sx={{ position: 'relative', zIndex: 1 }}>
             <Box sx={{ mb: 2.5, p: 2, borderRadius: '12px', bgcolor: alpha('#fff', 0.1), border: `1px solid ${alpha('#fff', 0.15)}`, display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-              <IconInfoCircle size={16} style={{ color: alpha('#fff', 0.9), flexShrink: 0, marginTop: 2 }} />
+              <Icon icon='tabler:info-circle' fontSize={16} style={{ color: alpha('#fff', 0.9), flexShrink: 0, marginTop: 2 }} />
               <Typography variant='body2' sx={{ color: alpha('#fff', 0.9), fontSize: '0.8rem', lineHeight: 1.6, fontWeight: 500 }}>
                 Tickets will be sent to your registered email or phone. Please provide correct details.
               </Typography>
@@ -508,6 +392,25 @@ const LoginPage = () => {
         >
           <Box sx={{ width: '100%', maxWidth: 440 }}>
 
+            {/* Back to home */}
+            <Box sx={{ mb: 3 }}>
+              <Button
+                onClick={() => router.push('/')}
+                startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
+                sx={{
+                  color: c.textSecondary,
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  textTransform: 'none',
+                  p: 0,
+                  minWidth: 0,
+                  '&:hover': { color: c.primary, bgcolor: 'transparent' }
+                }}
+              >
+                Back to Home
+              </Button>
+            </Box>
+
             {/* Mobile logo */}
             <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', mb: 4 }}>
               <Box component='img' src='/logo/citronics2.png' alt={themeConfig.templateName} sx={{ height: 30, width: 'auto' }} />
@@ -519,7 +422,7 @@ const LoginPage = () => {
                 {isExistingUser ? 'Welcome back!' : 'Create your account'}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                {isExistingUser ? 'Enter your phone and password to continue' : 'Fill in the details below to get started'}
+                {isExistingUser ? 'Enter your phone/email and password to continue' : 'Fill in the details below to get started'}
               </Typography>
             </Box>
 
@@ -536,7 +439,7 @@ const LoginPage = () => {
                 gap: 1
               }}
             >
-              <IconInfoCircle size={16} style={{ color: c.warning, flexShrink: 0, marginTop: 1 }} />
+              <Icon icon='tabler:info-circle' fontSize={16} style={{ color: c.warning, flexShrink: 0, marginTop: 1 }} />
               <Typography variant='body2' sx={{ color: c.textSecondary, fontWeight: 500, fontSize: '0.78rem', lineHeight: 1.5 }}>
                 Tickets will be sent to your registered email or phone. Provide correct details.
               </Typography>
@@ -553,52 +456,45 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-                {/* Phone — always full width */}
-                <Box>
-                  <TextField
-                    fullWidth
-                    label='Phone Number'
-                    name='phone'
-                    value={form.phone}
-                    onChange={handleChange}
-                    error={!!errors.phone}
-                    helperText={errors.phone || ' '}
-                    disabled={loading}
-                    autoFocus
-                    placeholder='10-digit mobile number'
-                    sx={fieldSx}
-                    onFocus={() => setIsTyping(true)}
-                    onBlur={() => setIsTyping(false)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <IconPhone size={17} color={errors.phone ? c.error : c.textDisabled} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: lookingUpPhone ? (
-                        <InputAdornment position='end'>
-                          <CircularProgress size={15} sx={{ color: c.textDisabled }} />
-                        </InputAdornment>
-                      ) : phoneLookup?.exists ? (
-                        <InputAdornment position='end'>
-                          <IconCircleCheckFilled size={17} color={c.success} />
-                        </InputAdornment>
-                      ) : undefined
-                    }}
-                  />
-                  {phoneLookup?.exists && mode !== 'login' && (
-                    <Box sx={{ mt: -0.5, mb: 0.5, px: 1.5, py: 0.75, borderRadius: '8px', bgcolor: alpha(c.success, 0.07), border: `1px solid ${alpha(c.success, 0.18)}` }}>
-                      <Typography variant='body2' sx={{ fontSize: '0.76rem', fontWeight: 600, color: c.success, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <IconUserCheck size={13} />
-                        Account found{phoneLookup.name ? ` — ${phoneLookup.name}` : ''}. Enter your password below.
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
+                {/* Phone or Email — shown only in login / existing-user mode */}
+                {isExistingUser && (
+                  <Box>
+                    <CustomTextField
+                      fullWidth
+                      label='Phone or Email'
+                      name='phone'
+                      value={form.phone}
+                      onChange={handleChange}
+                      error={!!errors.phone}
+                      helperText={errors.phone || ' '}
+                      disabled={loading}
+                      autoFocus
+                      placeholder='Mobile number or email address'
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <Icon icon={EMAIL_RE.test(form.phone.trim()) ? 'tabler:mail' : 'tabler:phone'} fontSize={17} color={errors.phone ? c.error : c.textDisabled} />
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                    {(phoneLookup?.exists || emailLookup?.exists) && (
+                      <Box sx={{ mt: -0.5, mb: 0.5, px: 1.5, py: 0.75, borderRadius: '8px', bgcolor: alpha(c.success, 0.07), border: `1px solid ${alpha(c.success, 0.18)}` }}>
+                        <Typography variant='body2' sx={{ fontSize: '0.76rem', fontWeight: 600, color: c.success, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Icon icon='tabler:user-check' fontSize={13} />
+                          {emailLookup?.exists
+                            ? `Account found${emailLookup.name ? ` — ${emailLookup.name}` : ''} — switched to sign in.`
+                            : `Account found${phoneLookup.name ? ` — ${phoneLookup.name}` : ''}. Enter your password below.`
+                          }
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
 
                 {isExistingUser ? (
                   /* Existing user: password only */
-                  <TextField
+                  <CustomTextField
                     fullWidth
                     label='Password'
                     name='password'
@@ -609,17 +505,16 @@ const LoginPage = () => {
                     error={!!errors.password}
                     helperText={errors.password || ' '}
                     disabled={loading}
-                    sx={fieldSx}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position='start'>
-                          <IconLock size={17} color={errors.password ? c.error : c.textDisabled} />
+                          <Icon icon='tabler:lock' fontSize={17} color={errors.password ? c.error : c.textDisabled} />
                         </InputAdornment>
                       ),
                       endAdornment: (
                         <InputAdornment position='end'>
                           <IconButton size='small' onClick={() => setShowPassword(!showPassword)} edge='end'>
-                            {showPassword ? <IconEyeOff size={17} /> : <IconEye size={17} />}
+                            {showPassword ? <Icon icon='tabler:eye-off' fontSize={17} /> : <Icon icon='tabler:eye' fontSize={17} />}
                           </IconButton>
                         </InputAdornment>
                       )
@@ -628,7 +523,45 @@ const LoginPage = () => {
                 ) : (
                   /* New user: 2-column grid on sm+ */
                   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                    <TextField
+                    <Box sx={{ gridColumn: { xs: '1', sm: '1 / -1' } }}>
+                      <CustomTextField
+                        fullWidth
+                        label='Phone Number'
+                        name='phone'
+                        placeholder='10-digit mobile number'
+                        value={form.phone}
+                        onChange={handleChange}
+                        error={!!errors.phone}
+                        helperText={errors.phone || ' '}
+                        disabled={loading}
+                        autoFocus
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <Icon icon='tabler:phone' fontSize={17} color={errors.phone ? c.error : c.textDisabled} />
+                            </InputAdornment>
+                          ),
+                          endAdornment: lookingUpPhone ? (
+                            <InputAdornment position='end'>
+                              <CircularProgress size={15} sx={{ color: c.textDisabled }} />
+                            </InputAdornment>
+                          ) : phoneLookup?.exists ? (
+                            <InputAdornment position='end'>
+                              <Icon icon='tabler:circle-check-filled' fontSize={17} color={c.success} />
+                            </InputAdornment>
+                          ) : undefined
+                        }}
+                      />
+                      {phoneLookup?.exists && (
+                        <Box sx={{ mt: -0.5, mb: 0.5, px: 1.5, py: 0.75, borderRadius: '8px', bgcolor: alpha(c.success, 0.07), border: `1px solid ${alpha(c.success, 0.18)}` }}>
+                          <Typography variant='body2' sx={{ fontSize: '0.76rem', fontWeight: 600, color: c.success, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Icon icon='tabler:user-check' fontSize={13} />
+                            Account found{phoneLookup.name ? ` — ${phoneLookup.name}` : ''}. Enter your password below.
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                    <CustomTextField
                       fullWidth
                       label='Full Name'
                       name='name'
@@ -637,10 +570,9 @@ const LoginPage = () => {
                       error={!!errors.name}
                       helperText={errors.name || ' '}
                       disabled={loading}
-                      sx={fieldSx}
-                      InputProps={{ startAdornment: <InputAdornment position='start'><IconUser size={17} color={errors.name ? c.error : c.textDisabled} /></InputAdornment> }}
+                      InputProps={{ startAdornment: <InputAdornment position='start'><Icon icon='tabler:user' fontSize={17} color={errors.name ? c.error : c.textDisabled} /></InputAdornment> }}
                     />
-                    <TextField
+                    <CustomTextField
                       fullWidth
                       label='Email Address'
                       name='email'
@@ -648,13 +580,31 @@ const LoginPage = () => {
                       placeholder='you@example.com'
                       value={form.email}
                       onChange={handleChange}
-                      error={!!errors.email}
-                      helperText={errors.email || ' '}
+                      error={!!errors.email || emailLookup?.exists === true}
+                      helperText={errors.email || (emailLookup?.exists ? 'This email is already registered.' : ' ')}
                       disabled={loading}
-                      sx={fieldSx}
-                      InputProps={{ startAdornment: <InputAdornment position='start'><IconMail size={17} color={errors.email ? c.error : c.textDisabled} /></InputAdornment> }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <Icon icon='tabler:mail' fontSize={17} color={(errors.email || emailLookup?.exists) ? c.error : c.textDisabled} />
+                          </InputAdornment>
+                        ),
+                        endAdornment: lookingUpEmail ? (
+                          <InputAdornment position='end'>
+                            <CircularProgress size={15} sx={{ color: c.textDisabled }} />
+                          </InputAdornment>
+                        ) : emailLookup?.exists ? (
+                          <InputAdornment position='end'>
+                            <Icon icon='tabler:alert-circle' fontSize={17} color={c.error} />
+                          </InputAdornment>
+                        ) : emailLookup?.exists === false ? (
+                          <InputAdornment position='end'>
+                            <Icon icon='tabler:circle-check-filled' fontSize={17} color={c.success} />
+                          </InputAdornment>
+                        ) : undefined
+                      }}
                     />
-                    <TextField
+                    <CustomTextField
                       fullWidth
                       label='Password'
                       name='password'
@@ -665,19 +615,18 @@ const LoginPage = () => {
                       error={!!errors.password}
                       helperText={errors.password || ' '}
                       disabled={loading}
-                      sx={fieldSx}
                       InputProps={{
-                        startAdornment: <InputAdornment position='start'><IconLock size={17} color={errors.password ? c.error : c.textDisabled} /></InputAdornment>,
+                        startAdornment: <InputAdornment position='start'><Icon icon='tabler:lock' fontSize={17} color={errors.password ? c.error : c.textDisabled} /></InputAdornment>,
                         endAdornment: (
                           <InputAdornment position='end'>
                             <IconButton size='small' onClick={() => setShowPassword(!showPassword)} edge='end'>
-                              {showPassword ? <IconEyeOff size={17} /> : <IconEye size={17} />}
+                              {showPassword ? <Icon icon='tabler:eye-off' fontSize={17} /> : <Icon icon='tabler:eye' fontSize={17} />}
                             </IconButton>
                           </InputAdornment>
                         )
                       }}
                     />
-                    <TextField
+                    <CustomTextField
                       fullWidth
                       label='College'
                       name='college'
@@ -686,10 +635,9 @@ const LoginPage = () => {
                       error={!!errors.college}
                       helperText={errors.college || ' '}
                       disabled={loading}
-                      sx={fieldSx}
-                      InputProps={{ startAdornment: <InputAdornment position='start'><IconBuilding size={17} color={errors.college ? c.error : c.textDisabled} /></InputAdornment> }}
+                      InputProps={{ startAdornment: <InputAdornment position='start'><Icon icon='tabler:building' fontSize={17} color={errors.college ? c.error : c.textDisabled} /></InputAdornment> }}
                     />
-                    <TextField
+                    <CustomTextField
                       fullWidth
                       label='City'
                       name='city'
@@ -698,8 +646,8 @@ const LoginPage = () => {
                       error={!!errors.city}
                       helperText={errors.city || ' '}
                       disabled={loading}
-                      sx={{ ...fieldSx, gridColumn: { xs: '1', sm: '1 / -1' } }}
-                      InputProps={{ startAdornment: <InputAdornment position='start'><IconMapPin size={17} color={errors.city ? c.error : c.textDisabled} /></InputAdornment> }}
+                      sx={{ gridColumn: { xs: '1', sm: '1 / -1' } }}
+                      InputProps={{ startAdornment: <InputAdornment position='start'><Icon icon='tabler:map-pin' fontSize={17} color={errors.city ? c.error : c.textDisabled} /></InputAdornment> }}
                     />
                   </Box>
                 )}
@@ -740,7 +688,7 @@ const LoginPage = () => {
                   <Box
                     component='button'
                     type='button'
-                    onClick={() => { setMode('register'); setPhoneLookup(null); setErrors({}); setServerError('') }}
+                    onClick={() => { setMode('register'); setPhoneLookup(null); setEmailLookup(null); setErrors({}); setServerError('') }}
                     sx={{
                       all: 'unset', display: 'inline', cursor: 'pointer',
                       color: 'primary.main', fontWeight: 700, fontSize: 'inherit', fontFamily: 'inherit',
@@ -757,7 +705,7 @@ const LoginPage = () => {
                   <Box
                     component='button'
                     type='button'
-                    onClick={() => { setMode('login'); setErrors({}); setServerError('') }}
+                    onClick={() => { setMode('login'); setEmailLookup(null); setErrors({}); setServerError('') }}
                     sx={{
                       all: 'unset', display: 'inline', cursor: 'pointer',
                       color: 'primary.main', fontWeight: 700, fontSize: 'inherit', fontFamily: 'inherit',

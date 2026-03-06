@@ -5,9 +5,9 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import Pagination from '@mui/material/Pagination'
-import TextField from '@mui/material/TextField'
+import CustomTextField from 'src/components/mui/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
@@ -17,6 +17,7 @@ import { alpha } from '@mui/material/styles'
 import { useAppPalette } from 'src/components/palette'
 import { motion, AnimatePresence } from 'framer-motion'
 import Icon from 'src/components/Icon'
+import BackButton from 'src/components/customComponent/BackButton'
 import { fetchEvents, fetchDepartments } from 'src/store/slices/eventsSlice'
 import { addToCart, selectCartItems } from 'src/store/slices/cartSlice'
 import { useSession } from 'next-auth/react'
@@ -216,7 +217,7 @@ function EventCard({ event, index }) {
           )}
 
           {almostFull && spotsLeft !== null && (
-            <Chip
+            <CustomChip
               label={spotsLeft <= 0 ? 'Sold Out' : `${spotsLeft} Spot${spotsLeft !== 1 ? 's' : ''} Left`}
               size='small'
               sx={{
@@ -486,6 +487,9 @@ export default function EventsPageView() {
     <Box component='section' aria-label='Events' sx={{ pt: { xs: 6, md: 8 } }}>
       <Container maxWidth='xl'>
 
+        {/* Back navigation */}
+        <BackButton href='/' label='Back to Home' sx={{ mb: 3 }} />
+
         {/* Page Header */}
         <MotionBox
           initial={{ opacity: 0, y: 16 }}
@@ -549,13 +553,13 @@ export default function EventsPageView() {
             borderBottom: `1px solid ${c.dividerA30}`
           }}
         >
-          <TextField
+          <CustomTextField
             placeholder='Search events...'
             value={searchQuery}
             onChange={handleSearch}
             size='small'
             aria-label='Search events'
-            sx={{ ...inputSx, flexGrow: 1, maxWidth: { sm: 300 } }}
+            sx={{ flexGrow: 1, maxWidth: { sm: 300 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position='start'>

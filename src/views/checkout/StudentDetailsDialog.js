@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
+import CustomTextField from 'src/components/mui/TextField'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -73,7 +73,7 @@ function StyledField({ icon, label, name, value, onChange, error, helperText, ty
   const c = useAppPalette()
 
   return (
-    <TextField
+    <CustomTextField
       fullWidth
       label={label}
       name={name}
@@ -93,35 +93,6 @@ function StyledField({ icon, label, name, value, onChange, error, helperText, ty
             </InputAdornment>
           ) : undefined,
           endAdornment: endAdornment || undefined
-        }
-      }}
-      sx={{
-        '& .MuiOutlinedInput-root': {
-          borderRadius: '10px',
-          fontSize: '0.9rem',
-          '& fieldset': {
-            borderColor: alpha(c.divider, 0.5),
-            transition: 'border-color 0.2s ease'
-          },
-          '&:hover fieldset': {
-            borderColor: alpha(c.primary, 0.4)
-          },
-          '&.Mui-focused fieldset': {
-            borderColor: c.primary,
-            borderWidth: '1.5px'
-          },
-          '&.Mui-error fieldset': {
-            borderColor: c.error
-          }
-        },
-        '& .MuiInputLabel-root': {
-          fontSize: '0.85rem',
-          fontWeight: 500
-        },
-        '& .MuiFormHelperText-root': {
-          fontSize: '0.72rem',
-          mt: 0.5,
-          minHeight: '1em'
         }
       }}
       {...props}

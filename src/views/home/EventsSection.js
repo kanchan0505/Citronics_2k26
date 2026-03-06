@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import Button from '@mui/material/Button'
 import LinearProgress from '@mui/material/LinearProgress'
 import { alpha } from '@mui/material/styles'
@@ -123,7 +123,7 @@ function EventCard({ event, index }) {
         {/* Tags */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2 }}>
           {event.tags.map(tag => (
-            <Chip
+            <CustomChip
               key={tag}
               label={tag}
               size='small'

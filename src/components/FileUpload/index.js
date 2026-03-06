@@ -13,9 +13,9 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
-  Chip,
   Alert
 } from '@mui/material'
+import CustomChip from 'src/components/mui/Chip'
 import { useDropzone } from 'react-dropzone'
 import { useTheme } from '@mui/material/styles'
 import axios from 'axios'
@@ -163,7 +163,7 @@ const FileUpload = ({
       error: { label: 'Error', color: 'error' }
     }
     const cfg = map[status] ?? map.pending
-    return <Chip label={cfg.label} color={cfg.color} size='small' />
+    return <CustomChip label={cfg.label} color={cfg.color} size='small' />
   }
 
   const formatBytes = bytes =>
