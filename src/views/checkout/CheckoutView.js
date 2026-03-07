@@ -10,7 +10,7 @@ import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
 import CircularProgress from '@mui/material/CircularProgress'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import { alpha } from '@mui/material/styles'
 import { useAppPalette } from 'src/components/palette'
 import Icon from 'src/components/Icon'
@@ -138,7 +138,7 @@ function CheckoutItemCard({ item }) {
         </Typography>
 
         {item.departmentName && (
-          <Chip
+          <CustomChip
             label={item.departmentName}
             size='small'
             sx={{
@@ -181,7 +181,7 @@ function CheckoutItemCard({ item }) {
               {formatCurrency(item.ticketPrice)} × {item.quantity}
             </Typography>
             {item.quantityCapped && (
-              <Chip
+              <CustomChip
                 label={`Capped (max ${item.available})`}
                 size='small'
                 sx={{

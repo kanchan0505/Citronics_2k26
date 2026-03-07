@@ -14,12 +14,31 @@ import checkoutService from 'src/services/checkout-service'
 
 export default async function handler(req, res) {
   switch (req.method) {
-    // ── GET — Look up user by phone number ──────────────────────────────────
+    // ── GET — Look up user by phone number or email ──────────────────────────
     case 'GET': {
       try {
-        const { phone } = req.query
+        const { phone, email } = req.query
+
+        // Helper: mask a name for privacy
+        const maskName = name =>
+          name ? name.split(' ').map(w => w.charAt(0) + '*'.repeat(Math.max(0, w.length - 1))).join(' ') : ''
+
+        // Email lookup
+        if (email && typeof email === 'string') {
+          const trimmed = email.trim()
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+            return res.status(400).json({ success: false, message: 'Invalid email address' })
+          }
+          const user = await checkoutService.findUserByEmail(trimmed)
+          if (user) {
+            return res.status(200).json({ success: true, exists: true, data: { maskedName: maskName(user.name) } })
+          }
+          return res.status(200).json({ success: true, exists: false })
+        }
+
+        // Phone lookup
         if (!phone || typeof phone !== 'string') {
-          return res.status(400).json({ success: false, message: 'phone query parameter is required' })
+          return res.status(400).json({ success: false, message: 'phone or email query parameter is required' })
         }
         const clean = phone.trim().replace(/[\s\-+()]/g, '').slice(-10)
         if (!/^\d{10}$/.test(clean)) {
@@ -28,10 +47,7 @@ export default async function handler(req, res) {
         const user = await checkoutService.findUserByPhone(clean)
         if (user) {
           // Return only a masked name — no userId until password is verified
-          const maskedName = user.name
-            ? user.name.split(' ').map(w => w.charAt(0) + '*'.repeat(Math.max(0, w.length - 1))).join(' ')
-            : ''
-          return res.status(200).json({ success: true, exists: true, data: { maskedName } })
+          return res.status(200).json({ success: true, exists: true, data: { maskedName: maskName(user.name) } })
         }
         return res.status(200).json({ success: true, exists: false })
       } catch (error) {

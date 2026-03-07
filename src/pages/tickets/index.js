@@ -5,7 +5,7 @@ import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Tabs from '@mui/material/Tabs'
@@ -13,6 +13,7 @@ import Tab from '@mui/material/Tab'
 import { alpha } from '@mui/material/styles'
 import { useAppPalette } from 'src/components/palette'
 import Icon from 'src/components/Icon'
+import BackButton from 'src/components/customComponent/BackButton'
 import PublicNavbar from 'src/views/home/PublicNavbar'
 import PublicFooter from 'src/views/home/PublicFooter'
 import axios from 'axios'
@@ -85,7 +86,7 @@ function TicketCard({ ticket, onDownload, downloading }) {
               Ticket #{ticket.ticketId}
             </Typography>
           </Box>
-          <Chip
+          <CustomChip
             icon={<Icon icon={status.icon} fontSize={14} />}
             label={status.label}
             color={status.color}
@@ -294,6 +295,9 @@ function MyTicketsView() {
 
   return (
     <Container maxWidth='md' sx={{ py: { xs: 4, md: 8 } }}>
+      {/* Back navigation */}
+      <BackButton href='/' label='Back to Home' sx={{ mb: 3 }} />
+
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>

@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Divider from '@mui/material/Divider'
+import Tooltip from '@mui/material/Tooltip'
 import Link from 'next/link'
 import { alpha } from '@mui/material/styles'
 import Icon from 'src/components/Icon'
@@ -12,21 +13,29 @@ import themeConfig from 'src/configs/themeConfig'
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const LINK_COLUMN_1 = [
-  { label: 'Contact Us', href: '/contact' },
-  { label: 'Ticketing Terms & Conditions', href: '/terms-ticketing' },
-  { label: 'Privacy Policy', href: '/privacy' }
+  { label: 'Contact Us', href: '#' },
+
+  { label: 'Privacy Policy', href: '/privacy-policy' }
 ]
 
 const LINK_COLUMN_2 = [
-  { label: 'Social Media Disclaimer', href: '/social-disclaimer' },
-  { label: 'Terms of Use', href: '/terms' },
-  { label: 'Accessibility Statement', href: '/accessibility' }
+ { label: 'Core Team', href: '/team' },
+  { label: 'Gallery', href: '/gallery' },
+ 
+
+
 ]
 
 const SOCIAL_LINKS = [
-  { icon: 'tabler:brand-facebook', href: '#', label: 'Facebook' },
-  { icon: 'tabler:brand-x', href: '#', label: 'X (Twitter)' },
-  { icon: 'tabler:brand-instagram', href: '#', label: 'Instagram' }
+  { icon: 'tabler:brand-facebook', href: 'https://www.facebook.com/socialcdgi', label: 'Facebook', tooltip: 'Facebook' },
+  { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/school/chameli-devi-group-of-institutions/posts/?feedView=all', label: 'LinkedIn', tooltip: 'LinkedIn' },
+  { icon: 'tabler:brand-instagram', href: 'https://www.instagram.com/cdgi_citronics/', label: 'Instagram', tooltip: 'Instagram' },
+  {
+    icon: 'tabler:brand-github',
+    href: 'https://github.com/NexEvent/Citronics_2k26',
+    label: 'GitHub',
+    tooltip: '⭐ Star us on GitHub'
+  }
 ]
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -128,7 +137,7 @@ export default function Footer() {
             <Typography
               variant='body1'
               component='a'
-              href='tel:+919876543210'
+              href='tel:+918109285689'
               sx={{
                 fontWeight: 600,
                 color: c.primary,
@@ -140,7 +149,7 @@ export default function Footer() {
                 '&:hover': { opacity: 0.8 }
               }}
             >
-              +91 98765 43210
+              +91 8109285689
             </Typography>
           </Grid>
 
@@ -215,31 +224,32 @@ export default function Footer() {
             }}
           >
             {SOCIAL_LINKS.map(s => (
-              <IconButton
-                key={s.label}
-                component='a'
-                href={s.href}
-                target='_blank'
-                rel='noopener noreferrer'
-                aria-label={s.label}
-                size='small'
-                sx={{
-                  color: c.isDark ? c.whiteA65 : c.textSecondary,
-                  border: `1px solid ${c.isDark ? c.whiteA15 : c.primaryA12}`,
-                  width: 36,
-                  height: 36,
-                  transition: 'all 0.25s ease',
-                  '&:hover': {
-                    color: c.primary,
-                    borderColor: c.primaryA50,
-                    bgcolor: c.primaryA8,
-                    transform: 'translateY(-2px)',
-                    boxShadow: `0 4px 14px ${c.primaryA20}`
-                  }
-                }}
-              >
-                <Icon icon={s.icon} fontSize={17} />
-              </IconButton>
+              <Tooltip key={s.label} title={s.tooltip || s.label} arrow placement='top'>
+                <IconButton
+                  component='a'
+                  href={s.href}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label={s.tooltip || s.label}
+                  size='small'
+                  sx={{
+                    color: c.isDark ? c.whiteA65 : c.textSecondary,
+                    border: `1px solid ${c.isDark ? c.whiteA15 : c.primaryA12}`,
+                    width: 36,
+                    height: 36,
+                    transition: 'all 0.25s ease',
+                    '&:hover': {
+                      color: s.label === 'GitHub' ? c.textPrimary : c.primary,
+                      borderColor: s.label === 'GitHub' ? c.divider : c.primaryA50,
+                      bgcolor: c.primaryA8,
+                      transform: 'translateY(-2px)',
+                      boxShadow: `0 4px 14px ${c.primaryA20}`
+                    }
+                  }}
+                >
+                  <Icon icon={s.icon} fontSize={17} />
+                </IconButton>
+              </Tooltip>
             ))}
           </Box>
 

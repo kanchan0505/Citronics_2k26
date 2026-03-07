@@ -1,6 +1,9 @@
 import { getServerSession } from 'next-auth/next'
 import nextAuthConfig from 'src/lib/nextAuthConfig'
 import paymentService from 'src/services/payment-service'
+import rateLimit from 'src/lib/rateLimit'
+
+const limiter = rateLimit({ windowMs: 60_000, max: 5 })
 
 /**
  * POST /api/payment/initiate
@@ -20,6 +23,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    // ── Rate limiting ────────────────────────────────────────────────
+    const { ok } = limiter.check(req)
+    if (!ok) {
+      return res.status(429).json({ success: false, message: 'Too many requests. Please wait a moment.' })
+    }
+
     // ── Authentication ──────────────────────────────────────────────────
     const session = await getServerSession(req, res, nextAuthConfig)
     const userId = session?.user?.id
@@ -54,16 +63,30 @@ export default async function handler(req, res) {
     }
 
     // ── Build return URL ────────────────────────────────────────────────
-    // After Juspay redirects, we land on our payment callback page
-    // SECURITY: Validate host to prevent host-header injection attacks
-    const protocol = req.headers['x-forwarded-proto'] || 'http'
-    const rawHost = req.headers['x-forwarded-host'] || req.headers.host || ''
-    // Strip port, whitespace, and reject anything with special chars
-    const host = rawHost.split(',')[0].trim()
-    if (!host || /[\s<>'";(){}\\]/.test(host)) {
-      return res.status(400).json({ success: false, message: 'Invalid request origin' })
+    // After Juspay redirects, we land on our payment callback page.
+    // SECURITY: Use APP_URL / NEXTAUTH_URL as the authoritative origin.
+    // Falling back to request headers is unreliable behind reverse proxies
+    // (Vercel, Railway, etc.) and can produce http:// or internal hostnames.
+    const rawAppUrl = process.env.APP_URL || process.env.NEXTAUTH_URL || ''
+    // Strip whitespace/newlines — env vars can have accidental trailing chars
+    const appUrl = rawAppUrl.trim().replace(/[\r\n]+/g, '')
+    let returnUrl
+
+    if (appUrl && !appUrl.includes('localhost')) {
+      // Production: use the configured app URL (guaranteed correct)
+      returnUrl = `${appUrl.replace(/\/+$/, '')}/api/payment/callback`
+    } else {
+      // Local / fallback: derive from request headers
+      const protocol = req.headers['x-forwarded-proto'] || 'http'
+      const rawHost = req.headers['x-forwarded-host'] || req.headers.host || ''
+      const host = rawHost.split(',')[0].trim()
+      if (!host || /[\s<>'";(){}\\]/.test(host)) {
+        return res.status(400).json({ success: false, message: 'Invalid request origin' })
+      }
+      returnUrl = `${protocol === 'https' ? 'https' : 'http'}://${host}/api/payment/callback`
     }
-    const returnUrl = `${protocol === 'https' ? 'https' : 'http'}://${host}/api/payment/callback`
+
+    console.log(`[Payment Initiate] returnUrl=${returnUrl}`)
 
     // ── Initiate payment ────────────────────────────────────────────────
     const result = await paymentService.createOrderSession(

@@ -79,6 +79,21 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
     '&.MuiInputBase-inputAdornedEnd:not(.MuiAutocomplete-input)': { paddingRight: 0 }
   },
 
+  // ── Input adornments — fix vertical centering for external-label layout ──
+  '& .MuiInputAdornment-root': {
+    marginTop: '0 !important',          // filled variant adds marginTop for floating labels; reset
+    height: 'auto',
+    maxHeight: 'none'
+  },
+  '& .MuiInputAdornment-positionStart': {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(0.75)
+  },
+  '& .MuiInputAdornment-positionEnd': {
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(0.5)
+  },
+
   // ── Helper / error text ──────────────────────────────────────────────────
   '& .MuiFormHelperText-root': {
     margin: theme.spacing(0.75, 0, 0),

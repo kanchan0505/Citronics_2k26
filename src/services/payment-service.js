@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
+import crypto from 'crypto'
 import { dbOne, dbOneOrNone, dbAny, dbNone, dbTx } from 'src/lib/database'
 import { enqueueTicketEmails } from 'src/services/email-service'
 
@@ -128,7 +129,7 @@ const paymentService = {
       }
 
       const grandTotalFinal = parseFloat(total.toFixed(2))
-      const orderId = `CIT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+      const orderId = `CIT-${Date.now()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
       const idempKey = uuidv4()
 
       // Create payment record linked to the FIRST booking (primary)
@@ -166,7 +167,7 @@ const paymentService = {
         FROM users u WHERE u.id = $1
       `, [userId])
 
-      const sessionPayload = {
+      const orderPayload = {
         order_id: juspayOrderId,
         amount: grandTotal,
         payment_page_client_id: paymentPageClientId,
@@ -178,7 +179,7 @@ const paymentService = {
         currency: 'INR'
       }
 
-      const sessionResponse = await juspay.orderSession.create(sessionPayload)
+      const sessionResponse = await juspay.order.create(orderPayload)
 
       // Remove internal http field
       if (sessionResponse?.http) delete sessionResponse.http
@@ -204,7 +205,12 @@ const paymentService = {
       await _cancelPendingPayment(paymentId)
 
       if (error instanceof APIError) {
-        throw new Error(`Payment gateway error: ${error.message}`)
+        // SDK may return raw HTML (e.g. Cloudflare block page) as the message — never expose that to users
+        const isHtml = typeof error.message === 'string' && error.message.includes('<!DOCTYPE')
+        const safeMsg = isHtml
+          ? 'Payment gateway is currently unavailable. Please try again in a few moments.'
+          : error.message
+        throw new Error(`Payment gateway error: ${safeMsg}`)
       }
       throw new Error('Failed to initialize payment. Please try again.')
     }
@@ -310,7 +316,7 @@ const paymentService = {
     const gatewayAmount = parseFloat(gatewayStatus.amount)
     const expectedAmount = parseFloat(payment.amount)
 
-    if (orderStatus === 'CHARGED' && gatewayAmount !== expectedAmount) {
+    if (orderStatus === 'CHARGED' && Math.abs(gatewayAmount - expectedAmount) > 0.01) {
       console.error(
         `[PaymentService] AMOUNT MISMATCH! orderId=${juspayOrderId} expected=${expectedAmount} gateway=${gatewayAmount}`
       )

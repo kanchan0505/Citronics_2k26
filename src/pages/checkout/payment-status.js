@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
-import Chip from '@mui/material/Chip'
+import CustomChip from 'src/components/mui/Chip'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import { alpha } from '@mui/material/styles'
@@ -203,7 +203,7 @@ function PaymentStatusView() {
         </Typography>
 
         {result.payment?.transactionId && (
-          <Chip
+          <CustomChip
             label={`Transaction: ${result.payment.transactionId}`}
             size='small'
             sx={{ mb: 3, fontWeight: 600, fontSize: '0.72rem', bgcolor: alpha(c.success, 0.08), color: c.success }}
@@ -251,7 +251,7 @@ function PaymentStatusView() {
                     {(() => {
                       const s = getTicketStatusInfo(ticket.checkInAt, ticket.bookingStatus, c)
                       return (
-                        <Chip
+                        <CustomChip
                           label={s.label}
                           size='small'
                           sx={{ fontWeight: 600, fontSize: '0.65rem', height: 20, bgcolor: s.bgColor, color: s.color }}

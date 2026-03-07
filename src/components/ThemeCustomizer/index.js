@@ -12,24 +12,7 @@ import Slider from '@mui/material/Slider'
 import { styled, alpha } from '@mui/material/styles'
 
 // Icons
-import {
-  IconSettings,
-  IconX,
-  IconArrowsMaximize,
-  IconArrowsMinimize,
-  IconLayoutAlignCenter,
-  IconLayoutAlignLeft,
-  IconEye,
-  IconEyeOff,
-  IconDroplet,
-  IconDropletOff,
-  IconSun,
-  IconMoon,
-  IconTextSize,
-  IconRefresh,
-  IconToggleRight,
-  IconToggleLeft
-} from '@tabler/icons-react'
+import Icon from 'src/components/Icon'
 
 // Hooks
 import { useSettings } from 'src/hooks/useSettings'
@@ -61,17 +44,24 @@ const TriggerButton = styled(IconButton)(({ theme }) => ({
   top: '50%',
   transform: 'translateY(-50%)',
   zIndex: theme.zIndex.drawer - 1,
-  width: 44,
-  height: 44,
+  width: 40,
+  height: 40,
   borderRadius: '8px 0 0 8px',
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  boxShadow: `-4px 0 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+  backgroundColor: alpha(theme.palette.primary.main, 0.15),
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  color: alpha(theme.palette.primary.main, 0.8),
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+  borderRight: 'none',
+  boxShadow: `-3px 0 12px ${alpha(theme.palette.primary.main, 0.08)}`,
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    backgroundColor: theme.palette.primary.dark,
-    width: 52,
-    boxShadow: `-6px 0 24px ${alpha(theme.palette.primary.main, 0.55)}`
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    width: 40,
+    border: `1px solid ${alpha(theme.palette.primary.main, 0.4)}`,
+    borderRight: 'none',
+    boxShadow: `-6px 0 24px ${alpha(theme.palette.primary.main, 0.45)}`
   }
 }))
 
@@ -248,7 +238,7 @@ const ThemeCustomizer = () => {
       {/* Floating Trigger */}
       <Fade in={!open}>
         <TriggerButton onClick={handleToggle} aria-label='Open theme customizer'>
-          <IconSettings size={22} />
+          <Icon icon='tabler:settings' fontSize={22} />
         </TriggerButton>
       </Fade>
 
@@ -280,7 +270,7 @@ const ThemeCustomizer = () => {
             </Typography>
           </Box>
           <IconButton onClick={handleClose} size='small' aria-label='Close customizer' sx={{ color: c.whiteA80, '&:hover': { color: c.white } }}>
-            <IconX size={18} />
+            <Icon icon='tabler:x' fontSize={18} />
           </IconButton>
         </DrawerHeader>
 
@@ -291,12 +281,12 @@ const ThemeCustomizer = () => {
           <SectionTitle>Mode</SectionTitle>
           <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleModeToggle()} onClick={handleModeToggle} sx={{ mb: 1.5 }}>
             <OptionLabel>
-              {isDark ? <IconMoon /> : <IconSun />}
+              {isDark ? <Icon icon='tabler:moon' /> : <Icon icon='tabler:sun' />}
               <Typography variant='body2'>{isDark ? 'Dark Mode' : 'Light Mode'}</Typography>
             </OptionLabel>
             {isDark
-              ? <IconToggleRight size={28} color={c.primary} />
-              : <IconToggleLeft size={28} color={c.textDisabled} />
+              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
+              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
             }
           </OptionRow>
 
@@ -351,23 +341,23 @@ const ThemeCustomizer = () => {
 
           <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleContentWidth()} onClick={handleContentWidth}>
             <OptionLabel>
-              {settings.contentWidth === 'boxed' ? <IconLayoutAlignCenter /> : <IconLayoutAlignLeft />}
+              {settings.contentWidth === 'boxed' ? <Icon icon='tabler:layout-align-center' /> : <Icon icon='tabler:layout-align-left' />}
               <Typography variant='body2'>Boxed Layout</Typography>
             </OptionLabel>
             {settings.contentWidth === 'boxed'
-              ? <IconToggleRight size={28} color={c.primary} />
-              : <IconToggleLeft size={28} color={c.textDisabled} />
+              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
+              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
             }
           </OptionRow>
 
           <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleFullscreen()} onClick={handleFullscreen}>
             <OptionLabel>
-              {isFullscreen ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
+              {isFullscreen ? <Icon icon='tabler:arrows-minimize' /> : <Icon icon='tabler:arrows-maximize' />}
               <Typography variant='body2'>Fullscreen</Typography>
             </OptionLabel>
             {isFullscreen
-              ? <IconToggleRight size={28} color={c.primary} />
-              : <IconToggleLeft size={28} color={c.textDisabled} />
+              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
+              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
             }
           </OptionRow>
 
@@ -378,23 +368,23 @@ const ThemeCustomizer = () => {
 
           <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleAppBar()} onClick={handleAppBar}>
             <OptionLabel>
-              {settings.appBar !== 'hidden' ? <IconEye /> : <IconEyeOff />}
+              {settings.appBar !== 'hidden' ? <Icon icon='tabler:eye' /> : <Icon icon='tabler:eye-off' />}
               <Typography variant='body2'>Show Navbar</Typography>
             </OptionLabel>
             {settings.appBar !== 'hidden'
-              ? <IconToggleRight size={28} color={c.primary} />
-              : <IconToggleLeft size={28} color={c.textDisabled} />
+              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
+              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
             }
           </OptionRow>
 
           <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleAppBarBlur()} onClick={handleAppBarBlur}>
             <OptionLabel>
-              {settings.appBarBlur !== false ? <IconDroplet /> : <IconDropletOff />}
+              {settings.appBarBlur !== false ? <Icon icon='tabler:droplet' /> : <Icon icon='tabler:droplet-off' />}
               <Typography variant='body2'>Glassmorphism</Typography>
             </OptionLabel>
             {settings.appBarBlur !== false
-              ? <IconToggleRight size={28} color={c.primary} />
-              : <IconToggleLeft size={28} color={c.textDisabled} />
+              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
+              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
             }
           </OptionRow>
         </Box>
@@ -424,7 +414,7 @@ const ThemeCustomizer = () => {
               }
             }}
           >
-            <IconRefresh size={16} />
+            <Icon icon='tabler:refresh' fontSize={16} />
             <Typography variant='body2' fontWeight={500}>Reset to Defaults</Typography>
           </Box>
           <Typography variant='caption' color='text.disabled' sx={{ display: 'block', textAlign: 'center', mt: 1 }}>

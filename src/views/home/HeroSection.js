@@ -270,7 +270,7 @@ function StarburstBadge({ text, size = 120, color }) {
 }
 
 /* ═══════════ HERO SECTION ═══════════════════════════════════════ */
-export default function HeroSection({ eventStartDate }) {
+export default function HeroSection() {
   const c = useAppPalette()
   const isDark = c.isDark
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
@@ -286,7 +286,7 @@ export default function HeroSection({ eventStartDate }) {
 
   useEffect(() => {
     const tick = () => {
-      const targetDate = eventStartDate ? new Date(eventStartDate) : new Date('2026-04-07T09:00:00')
+      const targetDate = new Date('2026-04-07T09:00:00')
       const diff = targetDate - Date.now()
       if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
       setTimeLeft({
@@ -504,11 +504,7 @@ export default function HeroSection({ eventStartDate }) {
             <Button
               variant='contained'
               size='large'
-              href='#events'
-              onClick={e => {
-                e.preventDefault()
-                document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' })
-              }}
+              href='/events'
               endIcon={<Icon icon='tabler:arrow-right' />}
               sx={{
                 px: 4,
@@ -531,12 +527,8 @@ export default function HeroSection({ eventStartDate }) {
             <Button
               variant='outlined'
               size='large'
-              href='#schedule'
-              onClick={e => {
-                e.preventDefault()
-                document.getElementById('schedule')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              startIcon={<Icon icon='tabler:calendar' />}
+              href='/about'
+              startIcon={<Icon icon='tabler:info-circle' />}
               sx={{
                 px: 4,
                 py: 1.8,
@@ -555,7 +547,7 @@ export default function HeroSection({ eventStartDate }) {
                 transition: 'all 0.3s ease'
               }}
             >
-              View Schedule
+              About Us
             </Button>
           </MotionBox>
 

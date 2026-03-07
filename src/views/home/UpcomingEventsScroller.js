@@ -244,13 +244,14 @@ function ScrollRow({ events, direction = 'right', duration = 18 }) {
  * Splits events into two rows scrolling in opposite directions.
  * @param {object} props
  * @param {Array} [props.events=[]] - Array of event objects from the home API
- */export default function UpcomingEventsScroller({ events = [] }) {
+ */export default function UpcomingEventsScroller({ events: eventsProp = [] }) {
   const c = useAppPalette()
   const router = useRouter()
+  const events = eventsProp
 
   if (events.length === 0) return null
 
-  /* Split events into two rows */
+  /* Split events into two rows — 5 each */
   const mid = Math.ceil(events.length / 2)
   const row1 = events.slice(0, mid)
   const row2 = events.slice(mid)

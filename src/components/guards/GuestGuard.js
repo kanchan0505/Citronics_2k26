@@ -12,7 +12,10 @@ const GuestGuard = ({ children, fallback }) => {
 
   useEffect(() => {
     if (status !== 'loading' && session) {
-      router.push('/')
+      // Sanitize: coerce to string, require leading '/', block protocol-relative '//'
+      const raw = Array.isArray(router.query.returnUrl) ? router.query.returnUrl[0] : router.query.returnUrl
+      const safe = (typeof raw === 'string' && raw.startsWith('/') && !raw.startsWith('//')) ? raw : '/'
+      router.push(safe)
     }
   }, [session, status, router])
 

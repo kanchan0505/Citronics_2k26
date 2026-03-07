@@ -326,6 +326,39 @@ const checkoutService = {
       LEFT JOIN students s ON s.user_id = u.id
       WHERE u.phone = $1
     `, [clean])
+  },
+
+  // ── Find User By Email ────────────────────────────────────────────────────
+
+  /**
+   * Look up an existing user by email address.
+   * Returns user info if found, null otherwise.
+   */
+  async findUserByEmail(email) {
+    return dbOneOrNone(`
+      SELECT u.id, u.name, u.email, u.phone, u.role,
+             s.college, s.city
+      FROM users u
+      LEFT JOIN students s ON s.user_id = u.id
+      WHERE LOWER(u.email) = LOWER($1)
+    `, [email.trim()])
+  },
+
+  // ── Verify User By Email ──────────────────────────────────────────────────
+
+  /**
+   * Verify a user's identity by email + password.
+   * Returns { userId } on success, null if email not found or password wrong.
+   */
+  async verifyUserByEmail(email, password) {
+    const user = await dbOneOrNone(
+      'SELECT id, password_hash FROM users WHERE LOWER(email) = LOWER($1)',
+      [email.trim()]
+    )
+    if (!user) return null
+    const valid = await bcrypt.compare(password, user.password_hash)
+    if (!valid) return null
+    return { userId: user.id }
   }
 }
 

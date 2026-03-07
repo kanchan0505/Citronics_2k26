@@ -6,6 +6,54 @@ import Avatar from '@mui/material/Avatar'
 import { useAppPalette } from 'src/components/palette'
 import { motion } from 'framer-motion'
 
+const TESTIMONIALS = [
+  {
+    name: 'Arjun Mehta',
+    role: 'B.Tech CSE, 2025',
+    quote: 'Citronics was the most intense and rewarding experience of my college life. The Chatbot Challenge pushed my limits and I landed an internship!'
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'B.Tech ECE, 2025',
+    quote: 'The RoboSoc event was electrifying. The connections I made with students from other colleges were absolutely priceless.'
+  },
+  {
+    name: 'Ravi Kumar',
+    role: 'B.Tech MECH, 2024',
+    quote: 'Three days of non-stop action. Citronics is the one fest where every event actually teaches you something real.'
+  },
+  {
+    name: 'Sneha Nair',
+    role: 'MBA, 2025',
+    quote: 'Participated in the Ad Mad Show and won! The energy of the crowd and the quality of competition is unmatched.'
+  },
+  {
+    name: 'Karthik Raj',
+    role: 'B.Tech IT, 2024',
+    quote: 'Best fest I have ever attended. Won the UI/UX Design event and the feedback from the judges was incredibly valuable.'
+  },
+  {
+    name: 'Divya Menon',
+    role: 'B.Tech EEE, 2025',
+    quote: 'The Line Follower competition was brilliantly organised. Tight timelines, fair judging, and amazing prizes.'
+  },
+  {
+    name: 'Amar Singh',
+    role: 'B.Tech CSE, 2026',
+    quote: 'Volunteered and then competed. Both sides of Citronics are incredible. See you all at the next edition!'
+  },
+  {
+    name: 'Lakshmi Priya',
+    role: 'B.Tech ECE, 2024',
+    quote: 'The debates and non-technical events are equally thrilling. A well-rounded fest that celebrates all kinds of talent.'
+  },
+  {
+    name: 'Nikhil Desai',
+    role: 'MBA, 2024',
+    quote: 'Citronics opened doors — got to present in front of industry judges and received offers I never expected.'
+  }
+]
+
 const MotionBox = motion(Box)
 
 /**
@@ -111,7 +159,7 @@ function TestimonialsColumn({ testimonials = [], duration = 10, sx = {} }) {
  * @param {object} props
  * @param {Array} [props.testimonials=[]] - Array of testimonial objects from the home API
  */
-export default function TestimonialsSection({ testimonials: TESTIMONIALS = [] }) {
+export default function TestimonialsSection() {
   const c = useAppPalette()
 
   // Split testimonials evenly across three columns
