@@ -584,53 +584,6 @@ export default function HeroSection() {
 
         </MotionBox>
       </Container>
-
-      {/* Scroll indicator */}
-      <MotionBox
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        sx={{
-          position: 'absolute',
-          bottom: { xs: 20, md: 40 },
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 1,
-          zIndex: 2
-        }}
-      >
-        <Box
-          sx={{
-            width: 24,
-            height: 40,
-            borderRadius: '12px',
-            border: `2px solid ${alpha(heroText, 0.15)}`,
-            display: 'flex',
-            justifyContent: 'center',
-            pt: 1
-          }}
-        >
-          <MotionBox
-            animate={{ y: [0, 10, 0], opacity: [1, 0, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            sx={{ width: 3, height: 8, borderRadius: 2, bgcolor: alpha(heroText, 0.4) }}
-          />
-        </Box>
-      </MotionBox>
-
-      {/* Bottom fade */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0, left: 0, right: 0,
-          height: 200,
-          background: `linear-gradient(0deg, transparent 0%, transparent 100%)`,
-          zIndex: 1,
-          pointerEvents: 'none'
-        }}
-      />
     </Box>
   )
 }

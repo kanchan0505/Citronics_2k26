@@ -317,7 +317,7 @@ export default function EventDetailView() {
             )}
 
             {/* Featured badge */}
-            {event.featured && (
+            {/* {event.featured && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -339,7 +339,7 @@ export default function EventDetailView() {
                   ★ FEATURED
                 </Typography>
               </Box>
-            )}
+            )} */}
           </Box>
         </Box>
 
@@ -663,7 +663,7 @@ export default function EventDetailView() {
             )}
 
             {/* ── Download Document ── */}
-            {details.document_url && (
+            {/* {details.document_url && (
               <Box sx={{ mt: 3 }}>
                 <Typography
                   variant='overline'
@@ -697,7 +697,7 @@ export default function EventDetailView() {
                   Download Event Details
                 </Button>
               </Box>
-            )}
+            )} */}
 
             {/* ── Mobile inline action buttons ── */}
             {isMobile && (
