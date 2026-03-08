@@ -4,8 +4,8 @@ import Navbar from 'src/components/Navbar'
 
 const BASE_NAV_LINKS = [
   {
-    label: 'About CDGI',
-    href: '/about',
+    label: 'About',
+    href: '#',
     children: [
       { label: 'About CDGI', href: '/about', icon: 'tabler:school' },
       { label: 'About Citronics', href: '/about-citronics', icon: 'tabler:rocket' },

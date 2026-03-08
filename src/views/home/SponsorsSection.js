@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react'
+﻿import { memo, useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
@@ -51,7 +51,7 @@ function distributeLogos(allLogos, columnCount) {
 
 /* ── Single animated logo column ───────────────────────────────────────── */
 
-function LogoColumn({ logos, index, currentTime, c }) {
+const LogoColumn = memo(function LogoColumn({ logos, index, currentTime, c }) {
   const cycleInterval = 2400
   const columnDelay = index * 250
   const adjustedTime = (currentTime + columnDelay) % (cycleInterval * logos.length)
@@ -115,7 +115,7 @@ function LogoColumn({ logos, index, currentTime, c }) {
       </AnimatePresence>
     </Box>
   )
-}
+})
 
 /* ── Tier badge row ────────────────────────────────────────────────────── */
 
@@ -187,34 +187,10 @@ export default function SponsorsSection() {
           >
             Powering Citronics 2026
           </Typography>
-          <Typography
-            variant='body1'
-            sx={{
-              color: c.textSecondary,
-              maxWidth: 520,
-              mx: 'auto',
-              fontSize: { xs: '0.9rem', md: '1rem' },
-              lineHeight: 1.7
-            }}
-          >
-            Industry leaders and innovators who make this tech fest possible.
-            Interested in sponsoring?{' '}
-            <Typography
-              component='a'
-              href='mailto:sponsors@citronics.in'
-              sx={{
-                color: c.primary,
-                textDecoration: 'none',
-                fontWeight: 600,
-                '&:hover': { textDecoration: 'underline' }
-              }}
-            >
-              Get in touch
-            </Typography>
-          </Typography>
+          
         </MotionBox>
 
-        {/* ── Animated logo carousel ─────────────────────────────── */}
+        {/* ── Animated logo carousel ─────────────────────────────── 
         <MotionBox
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -237,7 +213,7 @@ export default function SponsorsSection() {
             />
           ))}
         </MotionBox>
-
+*/}
         {/* Tier list intentionally removed — animation only section */}
       </Container>
     </Box>

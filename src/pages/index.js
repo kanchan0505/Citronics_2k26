@@ -7,11 +7,9 @@ import CircularProgress from '@mui/material/CircularProgress'
 import PublicNavbar from 'src/views/home/PublicNavbar'
 import HeroSection from 'src/views/home/HeroSection'
 //import AboutSection from 'src/views/home/AboutSection'
-
+import SponsorsSection from 'src/views/home/SponsorsSection'
 
 import FeaturedEvents from 'src/views/home/FeaturedEvents'
-//import TestimonialsSection from 'src/views/home/TestimonialsSection'
-//import SponsorsSection from 'src/views/home/SponsorsSection'
 import PublicFooter from 'src/views/home/PublicFooter'
 import { fetchHomeData } from 'src/store/slices/eventsSlice'
 
@@ -64,8 +62,7 @@ const Home = () => {
       {/*<AboutSection />*/}
   
       <FeaturedEvents categoryEvents={categoryEvents} />
-      {/*<TestimonialsSection />
-      <SponsorsSection />*/}
+      {/*<SponsorsSection/>*/}
       <PublicFooter />
     </Box>
   )

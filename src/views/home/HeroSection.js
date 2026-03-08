@@ -57,27 +57,7 @@ function GridBackground() {
   )
 }
 
-/* ── Floating particle  ───────────────────────────────────────── */
-function Particle({ size, x, y, delay, duration, color }) {
-  return (
-    <MotionBox
-      animate={{ y: [0, -40, 0], opacity: [0, 0.6, 0] }}
-      transition={{ duration, delay, repeat: Infinity, ease: 'easeInOut' }}
-      sx={{
-        position: 'absolute',
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        bgcolor: color,
-        top: y,
-        left: x,
-        pointerEvents: 'none',
-        zIndex: 0,
-        filter: `blur(${size > 4 ? 1 : 0}px)`
-      }}
-    />
-  )
-}
+
 
 /* ── 21st.dev-style Countdown Card ────────────────────────────── */
 function CountCard({ value, label }) {
@@ -201,80 +181,14 @@ function CountColon() {
 
 
 
-/* ── Circular starburst badge (NasSummit-style) ───────────────── */
-function StarburstBadge({ text, size = 120, color }) {
-  const c = useAppPalette()
-  const badgeColor = color || c.primary
 
-  return (
-    <MotionBox
-      animate={{ rotate: 360 }}
-      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-      sx={{
-        width: size,
-        height: size,
-        position: 'relative',
-        flexShrink: 0
-      }}
-    >
-      {/* Starburst SVG */}
-      <Box
-        component='svg'
-        viewBox='0 0 100 100'
-        sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-      >
-        <path
-          d={(() => {
-            const cx = 50, cy = 50, points = 24, outer = 48, inner = 40
-            const pts = []
-            for (let i = 0; i < points * 2; i++) {
-              const angle = (Math.PI * i) / points - Math.PI / 2
-              const r = i % 2 === 0 ? outer : inner
-              pts.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`)
-            }
-            return `M${pts.join('L')}Z`
-          })()}
-          fill={badgeColor}
-          opacity='0.85'
-        />
-      </Box>
-      {/* Badge text — counter-rotates to stay readable */}
-      <MotionBox
-        animate={{ rotate: -360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center'
-        }}
-      >
-        <Typography
-          sx={{
-            color: c.primaryContrast,
-            fontWeight: 800,
-            fontSize: size * 0.12,
-            lineHeight: 1.2,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            px: 1
-          }}
-        >
-          {text}
-        </Typography>
-      </MotionBox>
-    </MotionBox>
-  )
-}
 
 /* ═══════════ HERO SECTION ═══════════════════════════════════════ */
 export default function HeroSection() {
   const c = useAppPalette()
   const isDark = c.isDark
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const [particles, setParticles] = useState([])
+
 
   /* ── Theme-aware color helpers ──────────────────────────────── */
   const heroText = c.heroText
@@ -301,22 +215,7 @@ export default function HeroSection() {
     return () => clearInterval(id)
   }, [])
 
-  // Particles are generated client-side only to avoid SSR/client Math.random() mismatch
-  useEffect(() => {
-    setParticles(
-      Array.from({ length: 20 }, (_, i) => ({
-        size: Math.random() * 4 + 2,
-        x: `${Math.random() * 100}%`,
-        y: `${Math.random() * 100}%`,
-        delay: Math.random() * 5,
-        duration: Math.random() * 4 + 4,
-        color: alpha(
-          i % 3 === 0 ? c.primary : i % 3 === 1 ? c.info : c.warning,
-          0.4
-        )
-      }))
-    )
-  }, [c.primary, c.info, c.warning])
+
 
   const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }
   const fadeUp = {
@@ -346,9 +245,6 @@ export default function HeroSection() {
       }}
     >
       <GridBackground />
-      {particles.map((p, i) => (
-        <Particle key={i} {...p} />
-      ))}
 
       {/* Top fade */}
       <Box
@@ -464,39 +360,7 @@ export default function HeroSection() {
               />
             </Box>
 
-            {/* Starburst badge — bottom-right */}
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: { xs: -20, md: -30 },
-                right: { xs: 16, md: 40 },
-                zIndex: 3
-              }}
-            >
-              <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-                <StarburstBadge text='JOIN THE FEST' size={90} color={c.primary} />
-              </Box>
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                <StarburstBadge text='JOIN THE FEST' size={130} color={c.primary} />
-              </Box>
-            </Box>
 
-            {/* Starburst badge — top-left accent */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: { xs: -16, md: -24 },
-                left: { xs: 12, md: 32 },
-                zIndex: 3,
-                display: { xs: 'none', sm: 'block' }
-              }}
-            >
-              <StarburstBadge
-                text='2026'
-                size={80}
-                color={c.info}
-              />
-            </Box>
           </MotionBox>
 
           {/* ── CTAs ────────────────────────────────────────────────── */}

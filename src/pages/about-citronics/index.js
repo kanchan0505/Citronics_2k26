@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { alpha } from '@mui/material/styles'
 import { motion } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
 import PublicNavbar from 'src/views/home/PublicNavbar'
 import PublicFooter from 'src/views/home/PublicFooter'
 import Icon from 'src/components/Icon'
@@ -130,6 +131,44 @@ function ContentSection({ badge, title, paragraphs, bulletTitle, bullets, childr
 export default function AboutCitronicsPage() {
   const c = useAppPalette()
 
+  const [videoUrl, setVideoUrl] = useState(null)
+  const [muted, setMuted] = useState(true)
+  const videoRef = React.useRef(null)
+
+  // Resolve IPFS CIDs / ipfs:// links to a usable HTTP gateway URL
+  const resolveIpfs = link => {
+    if (!link) return null
+    const gateway = process.env.NEXT_PUBLIC_PINATA_GATEWAY 
+
+    // Already a full URL
+    try {
+      const u = new URL(link)
+      if (u.protocol === 'http:' || u.protocol === 'https:') return link
+    } catch (e) {
+      // not a full URL, continue
+    }
+
+    // ipfs://CID/path or bare CID like bafy...
+    if (link.startsWith('ipfs://')) return `${gateway}/${link.replace('ipfs://', '')}`
+    if (/^(bafy|Qm)[A-Za-z0-9]+/i.test(link)) return `${gateway}/${link}`
+
+    // fallback: return as-is
+    return link
+  }
+
+  useEffect(() => {
+    fetch('/api/media/about-citronics')
+      .then(r => r.json())
+      .then(res => {
+        if (res.success && res.data?.length > 0 && res.data[0].links) {
+          const raw = res.data[0].links
+          const resolved = resolveIpfs(raw)
+          setVideoUrl(resolved)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <Box sx={{ overflowX: 'hidden', pb: { xs: 'calc(64px + env(safe-area-inset-bottom, 0px))', md: 0 } }}>
       <PublicNavbar />
@@ -173,104 +212,201 @@ export default function AboutCitronicsPage() {
           }}
         />
 
-        <Container maxWidth='md' sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 1,
-                px: 2.5,
-                py: 0.75,
-                borderRadius: '100px',
-                background: alpha(c.primary, 0.08),
-                border: `1px solid ${alpha(c.primary, 0.2)}`,
-                mb: 3
-              }}
-            >
-              <Icon icon='tabler:rocket' fontSize={14} style={{ color: c.primary }} />
-              <Typography variant='caption' sx={{ color: c.primary, fontWeight: 700, letterSpacing: 1.5 }}>
-                CITRONICS • TECHNO-MANAGEMENT FEST
-              </Typography>
-            </Box>
-
-            <Typography
-              variant='h1'
-              sx={{
-                fontWeight: 900,
-                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.5rem' },
-                letterSpacing: '-1.5px',
-                lineHeight: 1.05,
-                mb: 3,
-                background: `linear-gradient(135deg, ${c.textPrimary} 0%, ${c.primary} 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              About Citronics
-            </Typography>
-
-            <Typography
-              variant='body1'
-              sx={{
-                color: c.textSecondary,
-                maxWidth: 660,
-                mx: 'auto',
-                lineHeight: 1.8,
-                fontSize: { xs: '1rem', md: '1.125rem' },
-                mb: 5
-              }}
-            >
-              Discover CITRONICS — Central India's largest and most vibrant annual Techno-Management Fest
-              that brings together the brightest minds in technology, management, and innovation.
-            </Typography>
-
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                variant='contained'
-                href='/events'
-                size='large'
-                endIcon={<Icon icon='tabler:arrow-right' />}
-                sx={{
-                  px: 4,
-                  py: 1.6,
-                  borderRadius: '14px',
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  background: c.gradientPrimary,
-                  boxShadow: `0 8px 32px ${alpha(c.primary, 0.3)}`,
-                  '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 12px 40px ${alpha(c.primary, 0.4)}` },
-                  transition: 'all 0.3s ease'
-                }}
+        <Container maxWidth='lg' sx={{ position: 'relative', zIndex: 1 }}>
+          <Grid container spacing={6} alignItems='center'>
+            {/* ── Left: Text Content ── */}
+            <Grid item xs={12} md={6}>
+              <MotionBox
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
               >
-                Explore Events
-              </Button>
-              <Button
-                variant='outlined'
-                href='/about'
-                size='large'
-                startIcon={<Icon icon='tabler:school' />}
-                sx={{
-                  px: 4,
-                  py: 1.6,
-                  borderRadius: '14px',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  borderColor: alpha(c.primary, 0.25),
-                  color: c.textPrimary,
-                  '&:hover': { borderColor: c.primary, bgcolor: alpha(c.primary, 0.06) },
-                  transition: 'all 0.3s ease'
-                }}
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: 2.5,
+                    py: 0.75,
+                    borderRadius: '100px',
+                    background: alpha(c.primary, 0.08),
+                    border: `1px solid ${alpha(c.primary, 0.2)}`,
+                    mb: 3
+                  }}
+                >
+                  <Icon icon='tabler:rocket' fontSize={14} style={{ color: c.primary }} />
+                  <Typography variant='caption' sx={{ color: c.primary, fontWeight: 700, letterSpacing: 1.5 }}>
+                    CITRONICS • TECHNO-MANAGEMENT FEST
+                  </Typography>
+                </Box>
+
+                <Typography
+                  variant='h1'
+                  sx={{
+                    fontWeight: 900,
+                    fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                    letterSpacing: '-1.5px',
+                    lineHeight: 1.05,
+                    mb: 3,
+                    background: `linear-gradient(135deg, ${c.textPrimary} 0%, ${c.primary} 100%)`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
+                  About Citronics
+                </Typography>
+
+                <Typography
+                  variant='body1'
+                  sx={{
+                    color: c.textSecondary,
+                    maxWidth: 540,
+                    lineHeight: 1.8,
+                    fontSize: { xs: '1rem', md: '1.125rem' },
+                    mb: 5
+                  }}
+                >
+                  Discover CITRONICS — Central India's largest and most vibrant annual Techno-Management Fest
+                  that brings together the brightest minds in technology, management, and innovation.
+                </Typography>
+
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Button
+                    variant='contained'
+                    href='/events'
+                    size='large'
+                    endIcon={<Icon icon='tabler:arrow-right' />}
+                    sx={{
+                      px: 4,
+                      py: 1.6,
+                      borderRadius: '14px',
+                      fontWeight: 700,
+                      textTransform: 'none',
+                      background: c.gradientPrimary,
+                      boxShadow: `0 8px 32px ${alpha(c.primary, 0.3)}`,
+                      '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 12px 40px ${alpha(c.primary, 0.4)}` },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Explore Events
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    href='/about'
+                    size='large'
+                    startIcon={<Icon icon='tabler:school' />}
+                    sx={{
+                      px: 4,
+                      py: 1.6,
+                      borderRadius: '14px',
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      borderColor: alpha(c.primary, 0.25),
+                      color: c.textPrimary,
+                      '&:hover': { borderColor: c.primary, bgcolor: alpha(c.primary, 0.06) },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    About CDGI
+                  </Button>
+                </Box>
+              </MotionBox>
+            </Grid>
+
+            {/* ── Right: Video ── */}
+            <Grid item xs={12} md={6}>
+              <MotionBox
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
               >
-                About CDGI
-              </Button>
-            </Box>
-          </MotionBox>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    width: '100%',
+                    aspectRatio: '16/9',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    border: `1px solid ${alpha(c.primary, 0.15)}`,
+                    boxShadow: `0 20px 60px ${alpha(c.primary, 0.15)}`,
+                    background: alpha(c.bgPaper, 0.5)
+                  }}
+                >
+                  {videoUrl ? (
+                    <>
+                      <video
+                        ref={videoRef}
+                        src={videoUrl}
+                        autoPlay
+                        muted={muted}
+                        loop
+                        playsInline
+                        preload='auto'
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block'
+                        }}
+                      />
+                      {/* Tap-to-unmute overlay */}
+                      {muted && (
+                        <Box
+                          onClick={() => {
+                            setMuted(false)
+                            if (videoRef.current) {
+                              videoRef.current.muted = false
+                              videoRef.current.volume = 1
+                            }
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            bottom: 12,
+                            right: 12,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.75,
+                            px: 1.5,
+                            py: 0.6,
+                            borderRadius: '100px',
+                            background: 'rgba(0,0,0,0.55)',
+                            backdropFilter: 'blur(6px)',
+                            cursor: 'pointer',
+                            zIndex: 2,
+                            userSelect: 'none',
+                            '&:hover': { background: 'rgba(0,0,0,0.75)' },
+                            transition: 'background 0.2s'
+                          }}
+                        >
+                          <Icon icon='tabler:volume-off' style={{ fontSize: 15, color: '#fff' }} />
+                          <Typography variant='caption' sx={{ color: '#fff', fontWeight: 600, fontSize: '0.7rem' }}>
+                            Tap to unmute
+                          </Typography>
+                        </Box>
+                      )}
+                    </>
+                  ) : (
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: `linear-gradient(135deg, ${alpha(c.primary, 0.08)} 0%, ${alpha(c.primary, 0.02)} 100%)`
+                      }}
+                    >
+                      <Icon icon='tabler:video' style={{ fontSize: 48, color: alpha(c.primary, 0.3) }} />
+                    </Box>
+                  )}
+                </Box>
+              </MotionBox>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
 
