@@ -419,7 +419,7 @@ export default function EventDetailView() {
                 })
               }
               if (event.venue) rows.push({ label: 'Venue', value: event.venue })
-              if (details.team_size) rows.push({ label: 'Team Size', value: `${details.team_size} member${details.team_size !== 1 ? 's' : ''}` })
+              if (details.team_size_text) rows.push({ label: 'Team Size', value: details.team_size_text })
               if (event.ticket_price > 0) rows.push({ label: 'Entry Fee', value: `₹${parseFloat(event.ticket_price).toLocaleString('en-IN')}` })
 
               if (rows.length === 0) return null

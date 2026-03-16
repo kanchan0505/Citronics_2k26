@@ -475,6 +475,7 @@ const Navbar = ({ navLinks, activeSection, onNavClick }) => {
                         sx={{
                           width: 44, height: 44,
                           bgcolor: c.primaryA85,
+                          color: c.white,
                           fontSize: 14, fontWeight: 700, cursor: 'pointer',
                           border: `1px solid ${c.whiteA20}`,
                           transition: 'box-shadow 0.25s',

@@ -29,12 +29,7 @@ const COLOR_PRESETS = [
 ]
 
 // ── Font size presets ──────────────────────────────────────────────────────────
-const FONT_SIZES = [
-  { label: 'S', value: 13 },
-  { label: 'M', value: 14 },
-  { label: 'L', value: 15 },
-  { label: 'XL', value: 16 }
-]
+
 
 // ── Styled Components ──────────────────────────────────────────────────────────
 
@@ -315,40 +310,13 @@ const ThemeCustomizer = () => {
 
           <Divider sx={{ mb: 2 }} />
 
-          {/* ── Font Size ── */}
-          <SectionTitle>Font Size</SectionTitle>
-          <Box sx={{ display: 'flex', gap: 1, mb: 2.5 }}>
-            {FONT_SIZES.map(fs => (
-              <Tooltip key={fs.value} title={`${fs.value}px`} arrow placement='top'>
-                <FontSizeChip
-                  active={currentFontSize === fs.value}
-                  onClick={() => handleFontSize(fs.value)}
-                  role='button'
-                  tabIndex={0}
-                  onKeyDown={e => e.key === 'Enter' && handleFontSize(fs.value)}
-                  aria-label={`Set font size to ${fs.value}px`}
-                >
-                  {fs.label}
-                </FontSizeChip>
-              </Tooltip>
-            ))}
-          </Box>
+        
 
           <Divider sx={{ mb: 2 }} />
 
-          {/* ── Layout Options ── */}
-          <SectionTitle>Layout</SectionTitle>
+        
 
-          <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleContentWidth()} onClick={handleContentWidth}>
-            <OptionLabel>
-              {settings.contentWidth === 'boxed' ? <Icon icon='tabler:layout-align-center' /> : <Icon icon='tabler:layout-align-left' />}
-              <Typography variant='body2'>Boxed Layout</Typography>
-            </OptionLabel>
-            {settings.contentWidth === 'boxed'
-              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
-              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
-            }
-          </OptionRow>
+         
 
           <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleFullscreen()} onClick={handleFullscreen}>
             <OptionLabel>
@@ -377,46 +345,12 @@ const ThemeCustomizer = () => {
             }
           </OptionRow>
 
-          <OptionRow role='button' tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleAppBarBlur()} onClick={handleAppBarBlur}>
-            <OptionLabel>
-              {settings.appBarBlur !== false ? <Icon icon='tabler:droplet' /> : <Icon icon='tabler:droplet-off' />}
-              <Typography variant='body2'>Glassmorphism</Typography>
-            </OptionLabel>
-            {settings.appBarBlur !== false
-              ? <Icon icon='tabler:toggle-right' fontSize={28} color={c.primary} />
-              : <Icon icon='tabler:toggle-left' fontSize={28} color={c.textDisabled} />
-            }
-          </OptionRow>
+        
         </Box>
 
         {/* Footer */}
         <Box sx={{ p: 2, borderTop: `1px solid ${c.divider}` }}>
-          <Box
-            onClick={handleResetAll}
-            role='button'
-            tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && handleResetAll()}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1,
-              py: 1,
-              borderRadius: '10px',
-              cursor: 'pointer',
-              color: 'text.secondary',
-              border: `1px solid ${c.dividerA50}`,
-              transition: 'all 0.2s',
-              '&:hover': {
-                color: 'error.main',
-                borderColor: c.errorA30,
-                bgcolor: c.errorA4
-              }
-            }}
-          >
-            <Icon icon='tabler:refresh' fontSize={16} />
-            <Typography variant='body2' fontWeight={500}>Reset to Defaults</Typography>
-          </Box>
+         
           <Typography variant='caption' color='text.disabled' sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
             Saved automatically
           </Typography>
