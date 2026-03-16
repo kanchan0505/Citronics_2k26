@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */ // re-deploy
 const nextConfig = {
   reactStrictMode: true,
 
