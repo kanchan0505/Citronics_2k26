@@ -44,12 +44,13 @@ function parseEventDate(iso) {
 
 /**
  * Formats an ISO date string as a 12-hour time string (e.g. "2:30 PM").
+ * Uses en-IN locale with 2-digit hour format to match EventDetailView.
  * @param {string|null} iso - ISO 8601 date string
  * @returns {string} Formatted time string, or empty string if input is falsy
  */
 function formatEventTime(iso) {
   if (!iso) return ''
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
 }
 
 /**

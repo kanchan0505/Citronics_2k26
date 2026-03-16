@@ -601,6 +601,32 @@ export default function EventDetailView() {
                       </Box>
                     ) : null
                   ))}
+                  {details.prize.mvp && (
+                    <Box
+                      sx={{
+                        p: 2.5,
+                        borderRadius: '12px',
+                        border: `1px solid ${c.dividerA30}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        transition: 'all 0.2s ease',
+                        '&:hover': { borderColor: alpha(color, 0.3), bgcolor: alpha(color, 0.03) }
+                      }}
+                    >
+                      <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: alpha(color, 0.08), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon icon='tabler:star' fontSize={20} style={{ color }} />
+                      </Box>
+                      <Box>
+                        <Typography sx={{ fontSize: '0.72rem', color: 'text.disabled', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          MVP Prize
+                        </Typography>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.15rem', color: 'text.primary', lineHeight: 1.3 }}>
+                          ₹{details.prize.mvp.toLocaleString('en-IN')}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             )}
@@ -716,66 +742,95 @@ export default function EventDetailView() {
             {/* ── Mobile inline action buttons ── */}
             {isMobile && (
               <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Button
-                  variant='contained'
-                  disableElevation
-                  fullWidth
-                  disabled={spotsLeft <= 0}
-                  onClick={() => {
-                    dispatch(setCheckoutItems({
-                      items: [{ eventId: event.id, quantity: 1 }],
-                      source: 'buyNow'
-                    }))
-                    if (session?.user?.id) {
-                      dispatch(setExistingUser({ userId: session.user.id }))
-                      router.push('/checkout')
-                    } else {
-                      router.push('/login?returnUrl=/checkout')
-                    }
-                  }}
-                  sx={{
-                    bgcolor: color,
-                    color: c.white,
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    textTransform: 'none',
-                    py: 1.5,
-                    '&:hover': { bgcolor: alpha(color, 0.88) },
-                    '&.Mui-disabled': { bgcolor: c.dividerA30, color: c.textDisabled }
-                  }}
-                >
-                  {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
-                </Button>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  disabled={spotsLeft <= 0}
-                  onClick={() => dispatch(addToCart({
-                    eventId: event.id,
-                    title: event.title,
-                    ticketPrice: event.ticket_price || 0,
-                    quantity: 1,
-                    image: getEventImage(event),
-                    startTime: event.start_time,
-                    venue: event.venue,
-                    maxAvailable: spotsLeft > 0 ? spotsLeft : 0
-                  }))}
-                  startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
-                  sx={{
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                    textTransform: 'none',
-                    py: 1.35,
-                    borderColor: alpha(color, 0.4),
-                    color,
-                    '&:hover': { borderColor: color, bgcolor: alpha(color, 0.06) },
-                    '&.Mui-disabled': { borderColor: c.dividerA30, color: c.textDisabled }
-                  }}
-                >
-                  Add to Cart
-                </Button>
+                {event.registration_link ? (
+                  // Registration Link Button
+                  <Button
+                    variant='contained'
+                    disableElevation
+                    fullWidth
+                    href={event.registration_link}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    startIcon={<Icon icon='tabler:external-link' fontSize={18} />}
+                    sx={{
+                      bgcolor: color,
+                      color: c.white,
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      py: 1.5,
+                      '&:hover': { bgcolor: alpha(color, 0.88) }
+                    }}
+                  >
+                    Register Now
+                  </Button>
+                ) : (
+                  // Normal Buy Now button
+                  <Button
+                    variant='contained'
+                    disableElevation
+                    fullWidth
+                    disabled={spotsLeft <= 0}
+                    onClick={() => {
+                      dispatch(setCheckoutItems({
+                        items: [{ eventId: event.id, quantity: 1 }],
+                        source: 'buyNow'
+                      }))
+                      if (session?.user?.id) {
+                        dispatch(setExistingUser({ userId: session.user.id }))
+                        router.push('/checkout')
+                      } else {
+                        router.push('/login?returnUrl=/checkout')
+                      }
+                    }}
+                    sx={{
+                      bgcolor: color,
+                      color: c.white,
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      py: 1.5,
+                      '&:hover': { bgcolor: alpha(color, 0.88) },
+                      '&.Mui-disabled': { bgcolor: c.dividerA30, color: c.textDisabled }
+                    }}
+                  >
+                    {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
+                  </Button>
+                )}
+                {!event.registration_link && (
+                  // Add to Cart button (only shown if no registration link)
+                  <Button
+                    variant='outlined'
+                    fullWidth
+                    disabled={spotsLeft <= 0}
+                    onClick={() => dispatch(addToCart({
+                      eventId: event.id,
+                      title: event.title,
+                      ticketPrice: event.ticket_price || 0,
+                      quantity: 1,
+                      image: getEventImage(event),
+                      startTime: event.start_time,
+                      venue: event.venue,
+                      maxAvailable: spotsLeft > 0 ? spotsLeft : 0
+                    }))}
+                    startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
+                    sx={{
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      textTransform: 'none',
+                      py: 1.35,
+                      borderColor: alpha(color, 0.4),
+                      color,
+                      '&:hover': { borderColor: color, bgcolor: alpha(color, 0.06) },
+                      '&.Mui-disabled': { borderColor: c.dividerA30, color: c.textDisabled }
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                )}
                 <Button
                   variant='outlined'
                   fullWidth
@@ -870,87 +925,121 @@ export default function EventDetailView() {
             See All Events
           </Button>
 
-          {/* Add to Cart */}
-          <Button
-            variant='outlined'
-            disableElevation
-            disabled={spotsLeft <= 0}
-            onClick={() => dispatch(addToCart({
-              eventId: event.id,
-              title: event.title,
-              ticketPrice: event.ticket_price || 0,
-              quantity: 1,
-              image: getEventImage(event),
-              startTime: event.start_time,
-              venue: event.venue,
-              maxAvailable: spotsLeft > 0 ? spotsLeft : 0
-            }))}
-            startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
-            sx={{
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '0.82rem',
-              textTransform: 'none',
-              px: 2.5,
-              height: 44,
-              borderColor: c.bgPaper,
-              color: c.bgPaper,
-              '&:hover': {
+          {/* Registration Link or Normal Purchase Buttons */}
+          {event.registration_link ? (
+            // Registration Link Button (Desktop)
+            <Button
+              variant='outlined'
+              disableElevation
+              href={event.registration_link}
+              target='_blank'
+              rel='noopener noreferrer'
+              startIcon={<Icon icon='tabler:external-link' fontSize={18} />}
+              sx={{
+                borderRadius: '10px',
+                fontFamily: fontFamilyHeading,
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                px: { xs: 3, md: 5 },
+                height: 44,
                 borderColor: c.bgPaper,
                 color: c.bgPaper,
-                bgcolor: alpha(c.bgPaper, 0.12)
-              },
-              '&.Mui-disabled': {
-                borderColor: c.dividerA30,
-                color: c.textDisabled
-              }
-            }}
-          >
-            Add to Cart
-          </Button>
+                bgcolor: 'transparent',
+                '&:hover': {
+                  bgcolor: alpha(c.bgPaper, 0.12),
+                  borderColor: c.bgPaper
+                },
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Register Now
+            </Button>
+          ) : (
+            <>
+              {/* Add to Cart */}
+              <Button
+                variant='outlined'
+                disableElevation
+                disabled={spotsLeft <= 0}
+                onClick={() => dispatch(addToCart({
+                  eventId: event.id,
+                  title: event.title,
+                  ticketPrice: event.ticket_price || 0,
+                  quantity: 1,
+                  image: getEventImage(event),
+                  startTime: event.start_time,
+                  venue: event.venue,
+                  maxAvailable: spotsLeft > 0 ? spotsLeft : 0
+                }))}
+                startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
+                sx={{
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  textTransform: 'none',
+                  px: 2.5,
+                  height: 44,
+                  borderColor: c.bgPaper,
+                  color: c.bgPaper,
+                  '&:hover': {
+                    borderColor: c.bgPaper,
+                    color: c.bgPaper,
+                    bgcolor: alpha(c.bgPaper, 0.12)
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: c.dividerA30,
+                    color: c.textDisabled
+                  }
+                }}
+              >
+                Add to Cart
+              </Button>
 
-          {/* Buy Now */}
-          <Button
-            variant='outlined'
-            disableElevation
-            disabled={spotsLeft <= 0}
-            onClick={() => {
-              dispatch(setCheckoutItems({
-                items: [{ eventId: event.id, quantity: 1 }],
-                source: 'buyNow'
-              }))
-              if (session?.user?.id) {
-                dispatch(setExistingUser({ userId: session.user.id }))
-                router.push('/checkout')
-              } else {
-                router.push('/login?returnUrl=/checkout')
-              }
-            }}
-            sx={{
-              borderRadius: '10px',
-              fontFamily: fontFamilyHeading,
-              fontWeight: 800,
-              fontSize: '0.9rem',
-              textTransform: 'none',
-              px: { xs: 3, md: 5 },
-              height: 44,
-              borderColor: spotsLeft <= 0 ? c.dividerA30 : c.bgPaper,
-              color: spotsLeft <= 0 ? c.textDisabled : color,
-              bgcolor: spotsLeft <= 0 ? 'transparent' : c.bgPaper,
-              '&:hover': {
-                bgcolor: alpha(c.bgPaper, 0.88),
-                borderColor: c.bgPaper
-              },
-              '&.Mui-disabled': {
-                borderColor: c.dividerA30,
-                color: c.textDisabled,
-                bgcolor: 'transparent'
-              },
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
-          </Button>
+              {/* Buy Now */}
+              <Button
+                variant='outlined'
+                disableElevation
+                disabled={spotsLeft <= 0}
+                onClick={() => {
+                  dispatch(setCheckoutItems({
+                    items: [{ eventId: event.id, quantity: 1 }],
+                    source: 'buyNow'
+                  }))
+                  if (session?.user?.id) {
+                    dispatch(setExistingUser({ userId: session.user.id }))
+                    router.push('/checkout')
+                  } else {
+                    router.push('/login?returnUrl=/checkout')
+                  }
+                }}
+                sx={{
+                  borderRadius: '10px',
+                  fontFamily: fontFamilyHeading,
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  textTransform: 'none',
+                  px: { xs: 3, md: 5 },
+                  height: 44,
+                  borderColor: spotsLeft <= 0 ? c.dividerA30 : c.bgPaper,
+                  color: spotsLeft <= 0 ? c.textDisabled : color,
+                  bgcolor: spotsLeft <= 0 ? 'transparent' : c.bgPaper,
+                  '&:hover': {
+                    bgcolor: alpha(c.bgPaper, 0.88),
+                    borderColor: c.bgPaper
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: c.dividerA30,
+                    color: c.textDisabled,
+                    bgcolor: 'transparent'
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
+              </Button>
+            </>
+          )}
         </Box>
       </Box>
       )}

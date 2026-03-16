@@ -170,54 +170,25 @@ const GalleryCard = memo(function GalleryCard({ image, index, onClick }) {
   )
 })
 
-/* ── Main View ──────────────────────────────────────────────── */
+/* ── Gallery Section Component (Backup for future use) ────────────────────────────── */
 
-export default function GalleryView() {
+function _GallerySection({ title, description, images, isLoading, onClick }) {
   const c = useAppPalette()
-  const [allImages, setAllImages] = useState([])
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE)
-  const [lightboxImage, setLightboxImage] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(true)
+  const [sectionLoading, setSectionLoading] = useState(false)
   const sentinelRef = useRef(null)
 
-  // Fetch gallery images from API
-  useEffect(() => {
-    async function fetchGallery() {
-      try {
-        const res = await fetch('/api/media/gallery')
-        const json = await res.json()
-        if (json.success && Array.isArray(json.data)) {
-          setAllImages(
-            json.data.map(item => ({
-              id: item.id,
-              url: item.links,
-              title: item.name || '',
-              category: 'All'
-            }))
-          )
-        }
-      } catch (err) {
-        console.error('Failed to load gallery images', err)
-      } finally {
-        setInitialLoading(false)
-      }
-    }
-    fetchGallery()
-  }, [])
+  const visibleImages = images.slice(0, visibleCount)
+  const hasMore = visibleCount < images.length
 
-  const visibleImages = allImages.slice(0, visibleCount)
-  const hasMore = visibleCount < allImages.length
-
-  // Infinite scroll with IntersectionObserver
   const loadMore = useCallback(() => {
-    if (!hasMore || loading) return
-    setLoading(true)
+    if (!hasMore || sectionLoading) return
+    setSectionLoading(true)
     setTimeout(() => {
-      setVisibleCount(prev => Math.min(prev + BATCH_SIZE, allImages.length))
-      setLoading(false)
+      setVisibleCount(prev => Math.min(prev + BATCH_SIZE, images.length))
+      setSectionLoading(false)
     }, 600)
-  }, [hasMore, loading, allImages.length])
+  }, [hasMore, sectionLoading, images.length])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -233,6 +204,251 @@ export default function GalleryView() {
 
     return () => observer.disconnect()
   }, [loadMore])
+
+  return (
+    <Box sx={{ mb: { xs: 8, md: 12 } }}>
+      {/* Section Header */}
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        sx={{ mb: 6 }}
+      >
+        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+          <Box
+            sx={{
+              width: 4,
+              height: 32,
+              borderRadius: '2px',
+              background: `linear-gradient(180deg, ${c.primary} 0%, ${alpha(c.primary, 0.4)} 100%)`
+            }}
+          />
+          <Typography
+            variant='h4'
+            sx={{
+              fontWeight: 800,
+              fontSize: { xs: '1.75rem', md: '2.25rem' },
+              color: c.textPrimary,
+              letterSpacing: '-0.5px'
+            }}
+          >
+            {title}
+          </Typography>
+        </Box>
+        {description && (
+          <Typography
+            sx={{
+              color: c.textSecondary,
+              fontSize: '1rem',
+              lineHeight: 1.6,
+              maxWidth: 600,
+              ml: 6
+            }}
+          >
+            {description}
+          </Typography>
+        )}
+      </MotionBox>
+
+      {/* Gallery Grid */}
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+          <CircularProgress size={40} sx={{ color: c.primary }} />
+        </Box>
+      ) : (
+        <>
+          <Box sx={{ columnCount: { xs: 1, sm: 2, md: 3 }, columnGap: 2 }}>
+            <AnimatePresence mode='popLayout'>
+              {visibleImages.map((img, i) => (
+                <GalleryCard key={img.id} image={img} index={i} onClick={onClick} />
+              ))}
+            </AnimatePresence>
+          </Box>
+
+          {/* Infinite scroll sentinel + loader */}
+          {hasMore && (
+            <Box ref={sentinelRef} sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
+              {sectionLoading && <CircularProgress size={32} sx={{ color: c.primary }} />}
+            </Box>
+          )}
+
+          {/* Empty state */}
+          {visibleImages.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 10 }}>
+              <Icon icon='tabler:photo-off' fontSize={48} style={{ color: c.textDisabled }} />
+              <Typography sx={{ color: c.textSecondary, mt: 2 }}>
+                No images in this section yet.
+              </Typography>
+            </Box>
+          )}
+
+          {/* End of section */}
+          {!hasMore && visibleImages.length > 0 && (
+            <MotionBox
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              sx={{ textAlign: 'center', py: 4 }}
+            >
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 3,
+                  py: 1,
+                  borderRadius: '100px',
+                  bgcolor: alpha(c.textDisabled, 0.06),
+                  border: `1px solid ${alpha(c.textDisabled, 0.1)}`
+                }}
+              >
+                <Icon icon='tabler:checks' fontSize={16} style={{ color: c.textDisabled }} />
+                <Typography variant='body2' sx={{ color: c.textDisabled, fontWeight: 500 }}>
+                  All {images.length} images shown
+                </Typography>
+              </Box>
+            </MotionBox>
+          )}
+        </>
+      )}
+    </Box>
+  )
+}
+
+/* ── Main View ──────────────────────────────────────────────── */
+
+/* ── Category Tabs Component ────────────────────────────── */
+
+function CategoryTabs({ categories, selected, onSelect }) {
+  const c = useAppPalette()
+  const scrollRef = useRef(null)
+
+  return (
+    <Box
+      ref={scrollRef}
+      sx={{
+        display: 'flex',
+        gap: 2,
+        overflowX: 'auto',
+        pb: 2,
+        mb: 6,
+        scrollBehavior: 'smooth',
+        '&::-webkit-scrollbar': {
+          height: '4px'
+        },
+        '&::-webkit-scrollbar-track': {
+          background: alpha(c.textDisabled, 0.05),
+          borderRadius: '2px'
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: alpha(c.primary, 0.3),
+          borderRadius: '2px',
+          '&:hover': {
+            background: alpha(c.primary, 0.5)
+          }
+        }
+      }}
+    >
+      {categories.map(category => (
+        <MotionBox
+          key={category.id}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onSelect(category.id)}
+          sx={{
+            flex: '0 0 auto',
+            px: 3,
+            py: 1.5,
+            borderRadius: '100px',
+            cursor: 'pointer',
+            backgroundColor: selected === category.id ? c.primary : alpha(c.primary, 0.08),
+            border: `2px solid ${selected === category.id ? c.primary : alpha(c.primary, 0.2)}`,
+            color: selected === category.id ? c.white : c.textPrimary,
+            fontWeight: selected === category.id ? 700 : 600,
+            fontSize: '0.95rem',
+            transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+            '&:hover': {
+              backgroundColor: selected === category.id ? c.primary : alpha(c.primary, 0.15),
+              borderColor: c.primary
+            }
+          }}
+        >
+          {category.label}
+          {category.count > 0 && (
+            <Typography
+              component='span'
+              sx={{
+                ml: 1,
+                fontSize: '0.85rem',
+                opacity: 0.8,
+                fontWeight: 500
+              }}
+            >
+              ({category.count})
+            </Typography>
+          )}
+        </MotionBox>
+      ))}
+    </Box>
+  )
+}
+
+/* ── Main View ──────────────────────────────────────────────── */
+
+export default function GalleryView() {
+  const c = useAppPalette()
+  const [allImages, setAllImages] = useState([])
+  const [categories, setCategories] = useState([
+    { id: 'citronics', label: 'Citronics', count: 0 },
+    { id: 'flash-mob', label: 'Flash Mob', count: 0 }
+  ])
+  const [selectedCategory, setSelectedCategory] = useState('citronics')
+  const [lightboxImage, setLightboxImage] = useState(null)
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  // Fetch gallery images from API
+  useEffect(() => {
+    async function fetchGallery() {
+      try {
+        const res = await fetch('/api/media/gallery')
+        const json = await res.json()
+        if (json.success && Array.isArray(json.data)) {
+          const images = json.data.map(item => ({
+            id: item.id,
+            url: item.links,
+            title: item.name || '',
+            post: item.post,
+            category: item.post === 'flash-mob' ? 'Flash Mob' : 'Citronics'
+          }))
+          setAllImages(images)
+
+          // Count images by category
+          const citronicsCount = images.filter(img => !img.post || img.post !== 'flash-mob').length
+          const flashMobCount = images.filter(img => img.post === 'flash-mob').length
+
+          setCategories([
+            { id: 'citronics', label: 'Citronics', count: citronicsCount },
+            { id: 'flash-mob', label: 'Flash Mob', count: flashMobCount }
+          ])
+        }
+      } catch (err) {
+        console.error('Failed to load gallery images', err)
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+    fetchGallery()
+  }, [])
+
+  // Filter images based on selected category
+  const filteredImages = allImages.filter(img => {
+    if (selectedCategory === 'flash-mob') {
+      return img.post === 'flash-mob'
+    } else {
+      // Citronics category
+      return !img.post || img.post !== 'flash-mob'
+    }
+  })
 
   return (
     <>
@@ -330,72 +546,51 @@ export default function GalleryView() {
         </Container>
       </Box>
 
-      {/* ── Masonry Gallery Grid ─────────────────────────────── */}
+      {/* ── Gallery Sections ──────────────────────────────── */}
       <Container maxWidth='lg' sx={{ pb: { xs: 6, md: 10 } }}>
         {initialLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
             <CircularProgress size={40} sx={{ color: c.primary }} />
           </Box>
         ) : (
-        <>
-        <Box
-          sx={{
-            columnCount: { xs: 1, sm: 2, md: 3 },
-            columnGap: 2
-          }}
-        >
-          <AnimatePresence mode='popLayout'>
-            {visibleImages.map((img, i) => (
-              <GalleryCard key={img.id} image={img} index={i} onClick={setLightboxImage} />
-            ))}
-          </AnimatePresence>
-        </Box>
+          <>
+            {/* Category Tabs */}
+            {allImages.length > 0 && (
+              <CategoryTabs
+                categories={categories}
+                selected={selectedCategory}
+                onSelect={setSelectedCategory}
+              />
+            )}
 
-        {/* Infinite scroll sentinel + loader */}
-        {hasMore && (
-          <Box ref={sentinelRef} sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
-            {loading && <CircularProgress size={32} sx={{ color: c.primary }} />}
-          </Box>
-        )}
+            {/* Filtered Gallery based on selected category */}
+            {filteredImages.length > 0 ? (
+              <Box sx={{ columnCount: { xs: 1, sm: 2, md: 3 }, columnGap: 2 }}>
+                <AnimatePresence mode='popLayout'>
+                  {filteredImages.map((img, i) => (
+                    <GalleryCard key={img.id} image={img} index={i} onClick={setLightboxImage} />
+                  ))}
+                </AnimatePresence>
+              </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 10 }}>
+                <Icon icon='tabler:photo-off' fontSize={48} style={{ color: c.textDisabled }} />
+                <Typography sx={{ color: c.textSecondary, mt: 2 }}>
+                  No images available in this category yet.
+                </Typography>
+              </Box>
+            )}
 
-        {/* Empty state */}
-        {visibleImages.length === 0 && (
-          <Box sx={{ textAlign: 'center', py: 10 }}>
-            <Icon icon='tabler:photo-off' fontSize={48} style={{ color: c.textDisabled }} />
-            <Typography sx={{ color: c.textSecondary, mt: 2 }}>
-              No images in this category yet.
-            </Typography>
-          </Box>
-        )}
-
-        {/* End of gallery */}
-        {!hasMore && visibleImages.length > 0 && (
-          <MotionBox
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            sx={{ textAlign: 'center', py: 4 }}
-          >
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 1,
-                px: 3,
-                py: 1,
-                borderRadius: '100px',
-                bgcolor: alpha(c.textDisabled, 0.06),
-                border: `1px solid ${alpha(c.textDisabled, 0.1)}`
-              }}
-            >
-              <Icon icon='tabler:checks' fontSize={16} style={{ color: c.textDisabled }} />
-              <Typography variant='body2' sx={{ color: c.textDisabled, fontWeight: 500 }}>
-                You've seen all {allImages.length} photos
-              </Typography>
-            </Box>
-          </MotionBox>
-        )}
-        </>
+            {/* No images at all state */}
+            {allImages.length === 0 && (
+              <Box sx={{ textAlign: 'center', py: 10 }}>
+                <Icon icon='tabler:photo-off' fontSize={48} style={{ color: c.textDisabled }} />
+                <Typography sx={{ color: c.textSecondary, mt: 2 }}>
+                  No gallery images available yet.
+                </Typography>
+              </Box>
+            )}
+          </>
         )}
       </Container>
 
