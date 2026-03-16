@@ -13,27 +13,27 @@ const DevelopersPage = () => {
     {
       name: 'Bhavik Joshi',
       designation: 'Developer',
-      imageSrc: '#',
+      imageSrc: 'https://res.cloudinary.com/djjboqxal/image/upload/v1773679152/WhatsApp_Image_2026-03-16_at_22.07.10_sqrq5y.jpg',
       socialLinks: [
         { icon: 'tabler:brand-github', href: 'https://github.com/Bhav-ikkk', label: 'GitHub' },
         { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/in/bhavik-joshi-6811a9290/', label: 'LinkedIn' },
-        { icon: 'tabler:briefcase', href: '#', label: 'Portfolio' }
+        { icon: 'tabler:briefcase', href: 'https://www.bhavikk.me', label: 'Portfolio' }
       ]
     },
     {
       name: 'Ayush Agrawal',
       designation: 'Developer',
-      imageSrc: '#',
+      imageSrc: 'https://res.cloudinary.com/djjboqxal/image/upload/v1773679152/WhatsApp_Image_2026-03-16_at_22.07.10_1_wywuo8.jpg',
       socialLinks: [
         { icon: 'tabler:brand-github', href: 'https://github.com/Ayuussshhh', label: 'GitHub' },
         { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/in/ayush-agrawal-869940290/', label: 'LinkedIn' },
-        { icon: 'tabler:briefcase', href: '#', label: 'Portfolio' }
+        { icon: 'tabler:briefcase', href: 'https://port-folio-nine-weld.vercel.app/', label: 'Portfolio' }
       ]
     },
      {
       name: 'kanchan Sharma',
       designation: 'Developer',
-      imageSrc: '#',
+      imageSrc: 'https://res.cloudinary.com/djjboqxal/image/upload/v1773679152/WhatsApp_Image_2026-03-16_at_22.08.06_ctawk2.jpg',
       socialLinks: [
         { icon: 'tabler:brand-github', href: 'https://github.com/kanchan0505', label: 'GitHub' },
         { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/in/kanchan-sharma-ba980828b/', label: 'LinkedIn' },

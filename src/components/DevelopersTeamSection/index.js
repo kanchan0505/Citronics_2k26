@@ -33,14 +33,14 @@ const TeamMemberCard = ({ member }) => {
         justifyContent: 'flex-end',
         overflow: 'hidden',
         borderRadius: '16px',
-        padding: { xs: '20px', md: '24px' },
+        padding: { xs: '12px', md: '16px' },
         textAlign: 'center',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: 'pointer',
         backgroundColor: c.isDark ? c.background : 'rgba(255, 255, 255, 0.95)',
         border: `1px solid ${c.isDark ? c.whiteA10 : 'rgba(0, 0, 0, 0.08)'}`,
         backdropFilter: 'blur(10px)',
-        minHeight: '380px',
+        minHeight: '300px',
         transform: isMobile ? 'scale(1)' : (isHovered ? 'scale(1.02)' : 'scale(1)'),
         boxShadow: isMobile
           ? (c.isDark ? `0 8px 24px rgba(0,0,0,0.3)` : '0 8px 24px rgba(0,0,0,0.08)')
@@ -198,6 +198,7 @@ const DevelopersTeamSection = ({ title = 'DEVELOPMENT TEAM', description = '', m
             gap: { xs: 4, md: 8 },
             alignItems: { xs: 'center', md: 'flex-start' },
             mb: { xs: 6, md: 8, lg: 10 },
+            mt: { xs: 4, md: 6, lg: 8 },
             textAlign: { xs: 'center', md: 'left' }
           }}
         >
