@@ -338,7 +338,7 @@ export default function CartView() {
 
   if (!hydrated) {
     return (
-      <Container maxWidth='lg' sx={{ py: { xs: 4, md: 8 } }}>
+      <Container maxWidth='xl' sx={{ py: { xs: 4, md: 8 } }}>
         <Skeleton width={200} height={40} sx={{ mb: 4 }} />
         {[1, 2].map(i => (
           <Skeleton key={i} variant='rectangular' height={120} sx={{ borderRadius: '12px', mb: 2 }} />
@@ -350,7 +350,7 @@ export default function CartView() {
   if (items.length === 0) return <EmptyCart />
 
   return (
-    <Container maxWidth='lg' sx={{ py: { xs: 4, md: 8 } }}>
+    <Container maxWidth='xl' sx={{ py: { xs: 4, md: 8 } }}>
       {/* Back navigation */}
       <BackButton href='/events' label='Back to Events' sx={{ mb: 2 }} />
 
