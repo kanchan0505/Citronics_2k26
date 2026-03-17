@@ -574,7 +574,7 @@ export default function FeaturedEvents({ categoryEvents = [], loading = false })
     <Box
       component='section'
       aria-label='Event Showcase by Category'
-      sx={{ py: { xs: 4, md: 12 } }}
+      sx={{ py: { xs: 0.5, md: 1 } }}
       onMouseEnter={() => { pausedRef.current = true }}
       onMouseLeave={() => { pausedRef.current = false }}
     >
