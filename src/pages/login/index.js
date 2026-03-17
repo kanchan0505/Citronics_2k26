@@ -13,6 +13,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import Collapse from '@mui/material/Collapse'
+import Skeleton from '@mui/material/Skeleton'
 import { alpha } from '@mui/material/styles'
 
 // Icons
@@ -70,6 +71,117 @@ function validateField(name, value) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+ *  Login / Register Page Skeleton
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+function LoginPageSkeleton() {
+  const c = useAppPalette()
+  return (
+    <Box sx={{ minHeight: '100dvh', display: 'flex', alignItems: 'stretch' }}>
+      {/* ══ LEFT — brand skeleton (desktop only) ══ */}
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'flex' },
+          flex: '0 0 45%',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          background: `linear-gradient(145deg, ${c.primary} 0%, ${c.primaryDark} 60%, ${alpha(c.primaryDark, 0.85)} 100%)`,
+          p: '3rem'
+        }}
+      >
+        {/* Logo skeleton */}
+        <Skeleton variant='rectangular' width={120} height={34} sx={{ bgcolor: alpha('#fff', 0.15), borderRadius: '4px' }} />
+
+        {/* Brand content skeleton */}
+        <Box>
+          <Skeleton variant='text' width={220} height={14} sx={{ mb: 2, bgcolor: alpha('#fff', 0.1) }} />
+          <Skeleton variant='text' width={280} height={32} sx={{ mb: 1, bgcolor: alpha('#fff', 0.12) }} />
+          <Skeleton variant='text' width={260} height={28} sx={{ mb: 3, bgcolor: alpha('#fff', 0.12) }} />
+          <Skeleton variant='text' width={300} height={16} sx={{ mb: 2, bgcolor: alpha('#fff', 0.1) }} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, mb: 3 }}>
+            {[1, 2, 3].map(i => (
+              <Skeleton key={i} variant='rectangular' width={240} height={36} sx={{ bgcolor: alpha('#fff', 0.08), borderRadius: '10px' }} />
+            ))}
+          </Box>
+        </Box>
+
+        {/* Footer skeleton */}
+        <Box>
+          <Skeleton variant='rectangular' width='100%' height={60} sx={{ mb: 2, bgcolor: alpha('#fff', 0.08), borderRadius: '12px' }} />
+          <Box sx={{ display: 'flex', gap: 3 }}>
+            {[1, 2, 3].map(i => (
+              <Skeleton key={i} variant='text' width={80} height={12} sx={{ bgcolor: alpha('#fff', 0.1) }} />
+            ))}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* ══ RIGHT — form skeleton ══ */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: { xs: 2.5, sm: 4, md: 5 },
+          bgcolor: 'background.default',
+          minHeight: '100dvh',
+          pb: { xs: 'calc(80px + env(safe-area-inset-bottom, 0px))', md: 5 }
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 440 }}>
+          {/* Back button skeleton */}
+          <Box sx={{ mb: 3 }}>
+            <Skeleton variant='text' width={120} height={20} />
+          </Box>
+
+          {/* Mobile logo skeleton */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', mb: 4 }}>
+            <Skeleton variant='rectangular' width={100} height={30} sx={{ borderRadius: '4px' }} />
+          </Box>
+
+          {/* Header skeleton */}
+          <Box sx={{ mb: 3 }}>
+            <Skeleton variant='text' width={220} height={32} sx={{ mb: 0.5 }} />
+            <Skeleton variant='text' width={280} height={16} />
+          </Box>
+
+          {/* Error box skeleton */}
+          <Skeleton variant='rectangular' width='100%' height={50} sx={{ mb: 2.5, borderRadius: '10px' }} />
+
+          {/* Form fields skeleton */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+            {/* Phone/Email field */}
+            <Box>
+              <Skeleton variant='text' width={100} height={14} sx={{ mb: 0.75 }} />
+              <Skeleton variant='rectangular' width='100%' height={48} sx={{ borderRadius: '8px' }} />
+              <Skeleton variant='text' width={200} height={12} sx={{ mt: 0.5 }} />
+            </Box>
+
+            {/* Display 2 fields for login, 5 for register (excluding phone) */}
+            {[1, 2, 3, 4, 5].map(i => (
+              <Box key={i}>
+                <Skeleton variant='text' width={100} height={14} sx={{ mb: 0.75 }} />
+                <Skeleton variant='rectangular' width='100%' height={48} sx={{ borderRadius: '8px' }} />
+                <Skeleton variant='text' width={180} height={12} sx={{ mt: 0.5 }} />
+              </Box>
+            ))}
+          </Box>
+
+          {/* Submit button skeleton */}
+          <Skeleton variant='rectangular' width='100%' height={52} sx={{ borderRadius: '12px', mb: 3 }} />
+
+          {/* Toggle mode link skeleton */}
+          <Box sx={{ textAlign: 'center' }}>
+            <Skeleton variant='text' width={280} height={16} sx={{ mx: 'auto' }} />
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
  *  Login / Register Page
  * ═════════════════════════════════════════════════════════════════════════ */
 
@@ -77,6 +189,7 @@ const LoginPage = () => {
   const router = useRouter()
   const dispatch = useDispatch()
   const c = useAppPalette()
+  const [mounted, setMounted] = useState(false)
 
   // Sanitize returnUrl: must be a string, start with '/', and not be protocol-relative (//)
   const rawReturn = router.query.returnUrl
@@ -110,6 +223,11 @@ const LoginPage = () => {
 
   // Prevents lookups from firing after form submission (fixes post-registration flash)
   const submittedRef = useRef(false)
+
+  // ── Mount tracking for skeleton ──
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const isExistingUser = mode === 'login' || phoneLookup?.exists
 
@@ -154,6 +272,10 @@ const LoginPage = () => {
 
     return () => { cancelled = true; clearTimeout(phoneLookupTimer.current) }
   }, [form.phone, mode, dispatch])
+
+  // Show skeleton until mounted
+  if (!mounted) return <LoginPageSkeleton />
+
   const handleChange = e => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))

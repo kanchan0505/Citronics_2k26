@@ -3,6 +3,7 @@ import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import Skeleton from '@mui/material/Skeleton'
 import { alpha } from '@mui/material/styles'
 import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
@@ -125,15 +126,91 @@ function ContentSection({ badge, title, paragraphs, bulletTitle, bullets, childr
 }
 
 /* ════════════════════════════════════════════════════════════
+   Skeleton Loader
+   ════════════════════════════════════════════════════════════ */
+
+function AboutCitronicsSkeleton() {
+  const c = useAppPalette()
+  return (
+    <Box sx={{ overflowX: 'hidden', pb: { xs: 'calc(64px + env(safe-area-inset-bottom, 0px))', md: 0 } }}>
+      <PublicNavbar />
+
+      {/* Hero Banner */}
+      <Box sx={{ pt: { xs: 14, md: 20 }, pb: { xs: 10, md: 14 }, overflow: 'hidden', textAlign: 'center' }}>
+        <Container maxWidth='md' sx={{ position: 'relative', zIndex: 1 }}>
+          <Skeleton variant='rectangular' width={200} height={36} sx={{ mx: 'auto', mb: 3, borderRadius: '20px' }} />
+          <Skeleton variant='text' width='80%' height={60} sx={{ mx: 'auto', mb: 3 }} />
+          <Skeleton variant='text' width='70%' height={40} sx={{ mx: 'auto', mb: 5 }} />
+
+          {/* Button skeleton */}
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', mb: 6 }}>
+            <Skeleton variant='rectangular' width={150} height={48} sx={{ borderRadius: '14px' }} />
+            <Skeleton variant='rectangular' width={150} height={48} sx={{ borderRadius: '14px' }} />
+          </Box>
+
+          {/* Video section skeleton */}
+          <Skeleton
+            variant='rectangular'
+            width='100%'
+            height={450}
+            sx={{
+              maxWidth: 800,
+              mx: 'auto',
+              borderRadius: '20px'
+            }}
+          />
+        </Container>
+      </Box>
+
+      {/* Content sections */}
+      {[1, 2].map((section) => (
+        <Box key={section} sx={{ py: { xs: 8, md: 12 }, bgcolor: section === 1 ? alpha(c.bgPaper, 0.3) : 'transparent' }}>
+          <Container maxWidth='md'>
+            <Grid container justifyContent='center'>
+              <Grid item xs={12}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Skeleton variant='rectangular' width={180} height={28} sx={{ mx: 'auto', mb: 3, borderRadius: '20px' }} />
+                  <Skeleton variant='text' width='80%' height={40} sx={{ mx: 'auto', mb: 3 }} />
+                  {[1, 2, 3].map((para) => (
+                    <Skeleton key={para} variant='text' width='100%' height={20} sx={{ mb: 2 }} />
+                  ))}
+                </Box>
+              </Grid>
+            </Grid>
+          </Container>
+        </Box>
+      ))}
+
+      {/* CTA section */}
+      <Box sx={{ py: { xs: 10, md: 14 }, textAlign: 'center' }}>
+        <Container maxWidth='sm'>
+          <Skeleton variant='text' width='70%' height={40} sx={{ mx: 'auto', mb: 2 }} />
+          <Skeleton variant='text' width='60%' height={24} sx={{ mx: 'auto', mb: 5 }} />
+          <Skeleton variant='rectangular' width={150} height={48} sx={{ mx: 'auto', borderRadius: '14px' }} />
+        </Container>
+      </Box>
+
+      <PublicFooter />
+    </Box>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
    About Citronics Page
    ════════════════════════════════════════════════════════════ */
 
 export default function AboutCitronicsPage() {
   const c = useAppPalette()
 
+  const [isPageLoading, setIsPageLoading] = useState(true)
   const [videoUrl, setVideoUrl] = useState(null)
   const [muted, setMuted] = useState(true)
+  const [playing, setPlaying] = useState(true)
   const videoRef = React.useRef(null)
+
+  useEffect(() => {
+    setIsPageLoading(false)
+  }, [])
 
   // Resolve IPFS CIDs / ipfs:// links to a usable HTTP gateway URL
   const resolveIpfs = link => {
@@ -169,6 +246,8 @@ export default function AboutCitronicsPage() {
       .catch(() => {})
   }, [])
 
+  if (isPageLoading) return <AboutCitronicsSkeleton />
+
   return (
     <Box sx={{ overflowX: 'hidden', pb: { xs: 'calc(64px + env(safe-area-inset-bottom, 0px))', md: 0 } }}>
       <PublicNavbar />
@@ -179,19 +258,7 @@ export default function AboutCitronicsPage() {
           position: 'relative',
           pt: { xs: 14, md: 20 },
           pb: { xs: 10, md: 14 },
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `
-              linear-gradient(${alpha(c.primary, 0.05)} 1px, transparent 1px),
-              linear-gradient(90deg, ${alpha(c.primary, 0.05)} 1px, transparent 1px)
-            `,
-            backgroundSize: '64px 64px',
-            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 100%)',
-            zIndex: 0
-          }
+          overflow: 'hidden'
         }}
       >
         <Box
@@ -212,201 +279,231 @@ export default function AboutCitronicsPage() {
           }}
         />
 
-        <Container maxWidth='lg' sx={{ position: 'relative', zIndex: 1 }}>
-          <Grid container spacing={6} alignItems='center'>
-            {/* ── Left: Text Content ── */}
-            <Grid item xs={12} md={6}>
-              <MotionBox
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+        <Container maxWidth='md' sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 1,
+                px: 2.5,
+                py: 0.75,
+                borderRadius: '100px',
+                background: alpha(c.primary, 0.08),
+                border: `1px solid ${alpha(c.primary, 0.2)}`,
+                mb: 3
+              }}
+            >
+              <Icon icon='tabler:rocket' fontSize={14} style={{ color: c.primary }} />
+              <Typography variant='caption' sx={{ color: c.primary, fontWeight: 700, letterSpacing: 1.5 }}>
+                CITRONICS • TECHNO-MANAGEMENT FEST
+              </Typography>
+            </Box>
+
+            <Typography
+              variant='h1'
+              sx={{
+                fontWeight: 900,
+                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                letterSpacing: '-1.5px',
+                lineHeight: 1.05,
+                mb: 3,
+                background: `linear-gradient(135deg, ${c.textPrimary} 0%, ${c.primary} 100%)`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              About Citronics
+            </Typography>
+
+            <Typography
+              variant='body1'
+              sx={{
+                color: c.textSecondary,
+                maxWidth: 540,
+                lineHeight: 1.8,
+                fontSize: { xs: '1rem', md: '1.125rem' },
+                mb: 5,
+                mx: 'auto'
+              }}
+            >
+              Discover CITRONICS — Central India's largest and most vibrant annual Techno-Management Fest
+              that brings together the brightest minds in technology, management, and innovation.
+            </Typography>
+
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', mb: { xs: 6, md: 10 } }}>
+              <Button
+                variant='contained'
+                href='/events'
+                size='large'
+                endIcon={<Icon icon='tabler:arrow-right' />}
+                sx={{
+                  px: 4,
+                  py: 1.6,
+                  borderRadius: '14px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  background: c.gradientPrimary,
+                  boxShadow: `0 8px 32px ${alpha(c.primary, 0.3)}`,
+                  '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 12px 40px ${alpha(c.primary, 0.4)}` },
+                  transition: 'all 0.3s ease'
+                }}
               >
-                <Box
-                  sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    px: 2.5,
-                    py: 0.75,
-                    borderRadius: '100px',
-                    background: alpha(c.primary, 0.08),
-                    border: `1px solid ${alpha(c.primary, 0.2)}`,
-                    mb: 3
-                  }}
-                >
-                  <Icon icon='tabler:rocket' fontSize={14} style={{ color: c.primary }} />
-                  <Typography variant='caption' sx={{ color: c.primary, fontWeight: 700, letterSpacing: 1.5 }}>
-                    CITRONICS • TECHNO-MANAGEMENT FEST
-                  </Typography>
-                </Box>
+                Explore Events
+              </Button>
+              <Button
+                variant='outlined'
+                href='/about'
+                size='large'
+                startIcon={<Icon icon='tabler:school' />}
+                sx={{
+                  px: 4,
+                  py: 1.6,
+                  borderRadius: '14px',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderColor: alpha(c.primary, 0.25),
+                  color: c.textPrimary,
+                  '&:hover': { borderColor: c.primary, bgcolor: alpha(c.primary, 0.06) },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                About CDGI
+              </Button>
+            </Box>
 
-                <Typography
-                  variant='h1'
-                  sx={{
-                    fontWeight: 900,
-                    fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
-                    letterSpacing: '-1.5px',
-                    lineHeight: 1.05,
-                    mb: 3,
-                    background: `linear-gradient(135deg, ${c.textPrimary} 0%, ${c.primary} 100%)`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
-                  }}
-                >
-                  About Citronics
-                </Typography>
-
-                <Typography
-                  variant='body1'
-                  sx={{
-                    color: c.textSecondary,
-                    maxWidth: 540,
-                    lineHeight: 1.8,
-                    fontSize: { xs: '1rem', md: '1.125rem' },
-                    mb: 5
-                  }}
-                >
-                  Discover CITRONICS — Central India's largest and most vibrant annual Techno-Management Fest
-                  that brings together the brightest minds in technology, management, and innovation.
-                </Typography>
-
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  <Button
-                    variant='contained'
-                    href='/events'
-                    size='large'
-                    endIcon={<Icon icon='tabler:arrow-right' />}
+            {/* Video Section */}
+            <Box
+              sx={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: 800,
+                mx: 'auto',
+                aspectRatio: '16/9',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                border: `1px solid ${alpha(c.primary, 0.15)}`,
+                boxShadow: `0 20px 60px ${alpha(c.primary, 0.15)}`,
+                background: alpha(c.bgPaper, 0.5)
+              }}
+            >
+              {videoUrl ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    autoPlay
+                    muted={muted}
+                    loop
+                    playsInline
+                    preload='auto'
+                    onPlay={() => setPlaying(true)}
+                    onPause={() => setPlaying(false)}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block'
+                    }}
+                  />
+                  {/* Video Controls */}
+                  <Box
                     sx={{
-                      px: 4,
-                      py: 1.6,
-                      borderRadius: '14px',
-                      fontWeight: 700,
-                      textTransform: 'none',
-                      background: c.gradientPrimary,
-                      boxShadow: `0 8px 32px ${alpha(c.primary, 0.3)}`,
-                      '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 12px 40px ${alpha(c.primary, 0.4)}` },
-                      transition: 'all 0.3s ease'
+                      position: 'absolute',
+                      bottom: 12,
+                      right: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      px: 1.5,
+                      py: 0.75,
+                      borderRadius: '100px',
+                      background: 'rgba(0,0,0,0.6)',
+                      backdropFilter: 'blur(8px)',
+                      zIndex: 2
                     }}
                   >
-                    Explore Events
-                  </Button>
-                  <Button
-                    variant='outlined'
-                    href='/about'
-                    size='large'
-                    startIcon={<Icon icon='tabler:school' />}
-                    sx={{
-                      px: 4,
-                      py: 1.6,
-                      borderRadius: '14px',
-                      fontWeight: 600,
-                      textTransform: 'none',
-                      borderColor: alpha(c.primary, 0.25),
-                      color: c.textPrimary,
-                      '&:hover': { borderColor: c.primary, bgcolor: alpha(c.primary, 0.06) },
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    About CDGI
-                  </Button>
-                </Box>
-              </MotionBox>
-            </Grid>
-
-            {/* ── Right: Video ── */}
-            <Grid item xs={12} md={6}>
-              <MotionBox
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-              >
-                <Box
-                  sx={{
-                    position: 'relative',
-                    width: '100%',
-                    aspectRatio: '16/9',
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    border: `1px solid ${alpha(c.primary, 0.15)}`,
-                    boxShadow: `0 20px 60px ${alpha(c.primary, 0.15)}`,
-                    background: alpha(c.bgPaper, 0.5)
-                  }}
-                >
-                  {videoUrl ? (
-                    <>
-                      <video
-                        ref={videoRef}
-                        src={videoUrl}
-                        autoPlay
-                        muted={muted}
-                        loop
-                        playsInline
-                        preload='auto'
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block'
-                        }}
-                      />
-                      {/* Tap-to-unmute overlay */}
-                      {muted && (
-                        <Box
-                          onClick={() => {
-                            setMuted(false)
-                            if (videoRef.current) {
-                              videoRef.current.muted = false
-                              videoRef.current.volume = 1
-                            }
-                          }}
-                          sx={{
-                            position: 'absolute',
-                            bottom: 12,
-                            right: 12,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.75,
-                            px: 1.5,
-                            py: 0.6,
-                            borderRadius: '100px',
-                            background: 'rgba(0,0,0,0.55)',
-                            backdropFilter: 'blur(6px)',
-                            cursor: 'pointer',
-                            zIndex: 2,
-                            userSelect: 'none',
-                            '&:hover': { background: 'rgba(0,0,0,0.75)' },
-                            transition: 'background 0.2s'
-                          }}
-                        >
-                          <Icon icon='tabler:volume-off' style={{ fontSize: 15, color: '#fff' }} />
-                          <Typography variant='caption' sx={{ color: '#fff', fontWeight: 600, fontSize: '0.7rem' }}>
-                            Tap to unmute
-                          </Typography>
-                        </Box>
-                      )}
-                    </>
-                  ) : (
+                    {/* Play/Pause Button */}
                     <Box
+                      onClick={() => {
+                        if (videoRef.current) {
+                          if (playing) {
+                            videoRef.current.pause()
+                            setPlaying(false)
+                          } else {
+                            videoRef.current.play()
+                            setPlaying(true)
+                          }
+                        }
+                      }}
                       sx={{
-                        width: '100%',
-                        height: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: `linear-gradient(135deg, ${alpha(c.primary, 0.08)} 0%, ${alpha(c.primary, 0.02)} 100%)`
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'all 0.2s',
+                        '&:hover': { transform: 'scale(1.1)' }
                       }}
                     >
-                      <Icon icon='tabler:video' style={{ fontSize: 48, color: alpha(c.primary, 0.3) }} />
+                      <Icon
+                        icon={playing ? 'tabler:player-pause-filled' : 'tabler:player-play-filled'}
+                        style={{ fontSize: 16, color: '#fff' }}
+                      />
                     </Box>
-                  )}
+
+                    {/* Volume Button */}
+                    <Box
+                      onClick={() => {
+                        setMuted(!muted)
+                        if (videoRef.current) {
+                          videoRef.current.muted = !muted
+                          if (!muted) {
+                            videoRef.current.volume = 1
+                          }
+                        }
+                      }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'all 0.2s',
+                        '&:hover': { transform: 'scale(1.1)' }
+                      }}
+                    >
+                      <Icon
+                        icon={muted ? 'tabler:volume-off' : 'tabler:volume-2'}
+                        style={{ fontSize: 16, color: '#fff' }}
+                      />
+                    </Box>
+                  </Box>
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: `linear-gradient(135deg, ${alpha(c.primary, 0.08)} 0%, ${alpha(c.primary, 0.02)} 100%)`
+                  }}
+                >
+                  <Icon icon='tabler:video' style={{ fontSize: 48, color: alpha(c.primary, 0.3) }} />
                 </Box>
-              </MotionBox>
-            </Grid>
-          </Grid>
+              )}
+            </Box>
+          </MotionBox>
         </Container>
       </Box>
 

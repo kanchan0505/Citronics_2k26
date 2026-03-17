@@ -10,6 +10,8 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
+import Pagination from '@mui/material/Pagination'
+
 import { alpha } from '@mui/material/styles'
 import { useAppPalette } from 'src/components/palette'
 import Icon from 'src/components/Icon'
@@ -186,6 +188,8 @@ function MyTicketsView() {
   const [tab, setTab] = useState(0)
   const [downloadingId, setDownloadingId] = useState(null)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const PAGE_SIZE = 5
 
   const fetchTickets = useCallback(async () => {
     if (!session?.user?.id) return
@@ -236,6 +240,18 @@ function MyTicketsView() {
   const allConfirmed = tickets.filter(t => t.bookingStatus === 'confirmed')
 
   const filteredTickets = tab === 0 ? upcomingTickets : tab === 1 ? pastTickets : tickets
+
+  // ── Pagination ──────────────────────────────────────────────────────
+  const totalPages = Math.ceil(filteredTickets.length / PAGE_SIZE)
+  const paginatedTickets = filteredTickets.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
+
+  // Reset to page 1 when tab changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [tab])
 
   // ── Loading / Auth ──────────────────────────────────────────────────
   if (sessionStatus === 'loading' || (session && loading)) {
@@ -350,16 +366,36 @@ function MyTicketsView() {
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          {filteredTickets.map(ticket => (
-            <TicketCard
-              key={ticket.ticketId}
-              ticket={ticket}
-              onDownload={handleDownloadOne}
-              downloading={downloadingId === ticket.ticketId}
-            />
-          ))}
-        </Box>
+        <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mb: 4 }}>
+            {paginatedTickets.map(ticket => (
+              <TicketCard
+                key={ticket.ticketId}
+                ticket={ticket}
+                onDownload={handleDownloadOne}
+                downloading={downloadingId === ticket.ticketId}
+              />
+            ))}
+          </Box>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(_, page) => setCurrentPage(page)}
+                color='primary'
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    fontWeight: 600,
+                    borderRadius: '8px'
+                  }
+                }}
+              />
+            </Box>
+          )}
+        </>
       )}
     </Container>
   )

@@ -433,21 +433,6 @@ export default function CoreTeamView() {
           overflow: 'hidden'
         }}
       >
-        {/* Grid pattern */}
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `
-              linear-gradient(${alpha(c.primary, 0.04)} 1px, transparent 1px),
-              linear-gradient(90deg, ${alpha(c.primary, 0.04)} 1px, transparent 1px)
-            `,
-            backgroundSize: '72px 72px',
-            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 100%)',
-            zIndex: 0
-          }}
-        />
-
         {/* Glow blobs */}
         <Box
           sx={{

@@ -200,19 +200,7 @@ export default function AboutPage() {
           position: 'relative',
           pt: { xs: 14, md: 20 },
           pb: { xs: 10, md: 14 },
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `
-              linear-gradient(${alpha(c.primary, 0.05)} 1px, transparent 1px),
-              linear-gradient(90deg, ${alpha(c.primary, 0.05)} 1px, transparent 1px)
-            `,
-            backgroundSize: '64px 64px',
-            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 100%)',
-            zIndex: 0
-          }
+          overflow: 'hidden'
         }}
       >
         <Box

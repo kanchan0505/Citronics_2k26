@@ -61,6 +61,7 @@ const eventService = {
         e.name          AS title,
         e.tagline,
         e.start_time,
+        e.end_time,
         e.venue,
         e.max_tickets   AS seats,
         e.registered,

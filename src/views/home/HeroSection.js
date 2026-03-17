@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
+import Skeleton from '@mui/material/Skeleton'
 import { alpha } from '@mui/material/styles'
 import { useAppPalette } from 'src/components/palette'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,9 +12,131 @@ import axios from 'axios'
 const MotionBox = motion(Box)
 const MotionTypography = motion(Typography)
 
+/* ── Hero Section Skeleton ──────────────────────────────── */
+function HeroSectionSkeleton() {
+  const c = useAppPalette()
 
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        pt: { xs: 4, md: 16 },
+        pb: { xs: 6, md: 10 }
+      }}
+    >
+      <Container maxWidth='xl' sx={{ position: 'relative', zIndex: 2 }}>
+        {/* Logo placeholders */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 1.5, md: 1 }, mb: { xs: 3, md: 4 } }}>
+          {/* Mobile: 4 logo skeletons */}
+          <Box
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              gap: 2,
+              width: '100%',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              mb: 1
+            }}
+          >
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} variant='circular' width={90} height={90} />
+            ))}
+          </Box>
 
-/* ── 21st.dev-style Countdown Card ────────────────────────────── */
+          {/* Desktop: Logo skeletons in a row */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, width: '100%', justifyContent: 'space-between', alignItems: 'center', px: { md: 4, lg: 6 } }}>
+            <Skeleton variant='rectangular' width={120} height={120} sx={{ borderRadius: '8px' }} />
+            <Skeleton variant='rectangular' width={160} height={160} sx={{ borderRadius: '8px' }} />
+            <Skeleton variant='circular' width={200} height={200} />
+            <Skeleton variant='rectangular' width={160} height={160} sx={{ borderRadius: '8px' }} />
+            <Skeleton variant='rectangular' width={120} height={120} sx={{ borderRadius: '8px' }} />
+          </Box>
+
+          {/* Citronics logo skeleton */}
+          <Skeleton variant='rectangular' width={{ xs: '70%', md: 300 }} height={{ xs: 200, md: 250 }} sx={{ borderRadius: '8px', my: 1 }} />
+
+          {/* Collaboration text skeleton */}
+          <Skeleton width='40%' height={32} sx={{ borderRadius: '8px', my: 1 }} />
+
+          {/* Nagar logo skeleton */}
+          <Skeleton variant='rectangular' width={{ xs: 160, md: 260 }} height={80} sx={{ borderRadius: '8px' }} />
+        </Box>
+
+        {/* Tagline pill skeleton */}
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
+          <Skeleton width='50%' height={32} sx={{ borderRadius: '9999px', mx: 'auto' }} />
+        </Box>
+
+        {/* Headline skeleton - 3 lines */}
+        <Box sx={{ textAlign: 'center', mb: { xs: 2, md: 3 } }}>
+          <Skeleton width='80%' height={52} sx={{ borderRadius: '8px', mx: 'auto', mb: 1 }} />
+          <Skeleton width='85%' height={52} sx={{ borderRadius: '8px', mx: 'auto', mb: 1 }} />
+          <Skeleton width='75%' height={52} sx={{ borderRadius: '8px', mx: 'auto' }} />
+        </Box>
+
+        {/* Description skeleton - 2 lines */}
+        <Box sx={{ textAlign: 'center', mb: { xs: 3, md: 4 } }}>
+          <Skeleton width='70%' height={28} sx={{ borderRadius: '8px', mx: 'auto', mb: 1 }} />
+          <Skeleton width='65%' height={28} sx={{ borderRadius: '8px', mx: 'auto' }} />
+        </Box>
+
+        {/* CTA Button skeleton */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 3, md: 4 } }}>
+          <Skeleton variant='rectangular' width={200} height={50} sx={{ borderRadius: '8px' }} />
+        </Box>
+      </Container>
+
+      {/* Marquee skeleton - 4 images */}
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: { xs: 220, sm: 260, md: 320 },
+          overflow: 'hidden',
+          mb: { xs: 4, md: 6 },
+          display: 'flex',
+          gap: 2,
+          px: 2,
+          alignItems: 'center'
+        }}
+      >
+        {[...Array(4)].map((_, i) => (
+          <Skeleton
+            key={i}
+            variant='rectangular'
+            width={{ xs: 120, md: 180 }}
+            height={{ xs: 180, md: 280 }}
+            sx={{ borderRadius: '16px', flexShrink: 0 }}
+          />
+        ))}
+      </Box>
+
+      {/* Countdown skeleton - 4 cards */}
+      <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 }, position: 'relative', zIndex: 2 }}>
+        <Skeleton width='50%' height={40} sx={{ borderRadius: '8px', mx: 'auto', mb: 3 }} />
+        <Stack
+          direction='row'
+          justifyContent='center'
+          alignItems='flex-start'
+          sx={{ gap: { xs: 1.5, sm: 2.5, md: 3 } }}
+        >
+          {[...Array(4)].map((_, i) => (
+            <Box key={i} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+              <Skeleton variant='rectangular' width={{ xs: 80, md: 120 }} height={{ xs: 90, md: 130 }} sx={{ borderRadius: '8px' }} />
+              <Skeleton width={60} height={16} sx={{ borderRadius: '4px' }} />
+            </Box>
+          ))}
+        </Stack>
+      </Box>
+    </Box>
+  )
+}
+
 function CountCard({ value, label }) {
   const c = useAppPalette()
   const isDark = c.isDark
@@ -116,19 +239,11 @@ function CountColon() {
 
 
 
-/* ── Extract first image from an event ───────────────────────── */
-function getEventImage(event) {
-  if (event?.images && Array.isArray(event.images) && event.images.length > 0) {
-    const img = event.images[0]
-    return typeof img === 'string' ? img : img?.url || null
-  }
-  return null
-}
-
 /* ═══════════ HERO SECTION ═══════════════════════════════════════ */
-export default function HeroSection() {
+export default function HeroSection({ loading = false }) {
   const c = useAppPalette()
   const isDark = c.isDark
+
   const [timeLeft, setTimeLeft] = useState(() => {
     const diff = new Date('2026-04-07T09:00:00') - Date.now()
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
@@ -140,16 +255,6 @@ export default function HeroSection() {
     }
   })
 
-  /* ── Static logos from public/logo/ ─────── */
-  const logos = {
-    agr2: '/logo/agr.png',
-    cdgi: '/logo/cdgi.png',
-    citronics: '/logo/citronics2.png',
-    nacc: '/logo/naac.png',
-    nba: '/logo/nba.png',
-    nagar: '/logo/nagar.png'
-  }
-
   /* ── Fetch event images for marquee ────────────────────────── */
   const [eventImages, setEventImages] = useState([])
 
@@ -159,18 +264,17 @@ export default function HeroSection() {
       if (cancelled || !res.data?.success) return
       const imgs = []
       res.data.data.forEach(ev => {
-        const url = getEventImage(ev)
-        if (url) imgs.push(url)
+        if (ev?.images && Array.isArray(ev.images)) {
+          ev.images.forEach(img => {
+            const url = typeof img === 'string' ? img : img?.url || null
+            if (url) imgs.push(url)
+          })
+        }
       })
       setEventImages(imgs)
     }).catch(() => {})
     return () => { cancelled = true }
   }, [])
-
-  /* ── Theme-aware color helpers ──────────────────────────────── */
-  const heroText = c.heroText
-  const heroTextMuted = alpha(heroText, 0.5)
-  const heroBorder = alpha(heroText, isDark ? 0.08 : 0.1)
 
   useEffect(() => {
     const target = new Date('2026-04-07T09:00:00').getTime()
@@ -194,7 +298,24 @@ export default function HeroSection() {
     return () => clearInterval(id)
   }, [])
 
+  if (loading) {
+    return <HeroSectionSkeleton />
+  }
 
+  /* ── Static logos from public/logo/ ─────── */
+  const logos = {
+    agr2: '/logo/agr.png',
+    cdgi: '/logo/cdgi.png',
+    citronics: '/logo/citronics2.png',
+    nacc: '/logo/naac.png',
+    nba: '/logo/nba.png',
+    nagar: '/logo/nagar.png'
+  }
+
+  /* ── Theme-aware color helpers ──────────────────────────────── */
+  const heroText = c.heroText
+  const heroTextMuted = alpha(heroText, 0.5)
+  const heroBorder = alpha(heroText, isDark ? 0.08 : 0.1)
 
   const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }
   const fadeUp = {
@@ -256,8 +377,8 @@ export default function HeroSection() {
                   src={logos[name]}
                   alt={name}
                   sx={{
-                    width: 90,
-                    height: 90,
+                    width: name === 'cdgi' ? 130 : 90,
+                    height: name === 'cdgi' ? 130 : 90,
                     objectFit: 'contain',
                     filter: isDark ? 'drop-shadow(0 0 8px rgba(255,255,255,0.10))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))'
                   }}
@@ -296,7 +417,7 @@ export default function HeroSection() {
                   src={logos.cdgi}
                   alt='cdgi'
                   sx={{
-                    width: { md: 120, lg: 140 },
+                    width: { xs: 110, sm: 130, md: 160, lg: 190 },
                     height: 'auto',
                     objectFit: 'contain',
                     ml: { md: 2, lg: 7},
@@ -440,7 +561,7 @@ export default function HeroSection() {
                 fontSize: { xs: '1.6rem', sm: '2rem', md: '2.6rem', lg: '3rem' },
                 lineHeight: 1.15,
                 letterSpacing: '-0.02em',
-                color: c.textPrimary,
+                color: isDark ? c.textPrimary : '#000',
                 maxWidth: 900,
                 mx: 'auto',
                 px: { xs: 2, md: 0 }
@@ -496,7 +617,7 @@ export default function HeroSection() {
                 alignItems: 'center',
                 px: 4,
                 py: 1.5,
-                borderRadius: '9999px',
+                borderRadius: '3px',
                 background: c.gradientPrimary,
                 color: '#fff',
                 fontWeight: 600,
@@ -530,20 +651,28 @@ export default function HeroSection() {
             mb: { xs: 4, md: 6 }
           }}
         >
-          <MotionBox
-            animate={{ x: ['0%', '-50%'] }}
-            transition={{ ease: 'linear', duration: 4, repeat: Infinity }}
-            sx={{ display: 'flex', gap: 2, height: '100%', alignItems: 'center' }}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              height: '100%',
+              alignItems: 'center',
+              width: 'max-content',
+              animation: `marqueeScroll ${eventImages.length * 1.2}s linear infinite`,
+              '@keyframes marqueeScroll': {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-50%)' }
+              }
+            }}
           >
             {[...eventImages, ...eventImages].map((src, i) => (
               <Box
                 key={i}
                 sx={{
-                  position: 'relative',
                   aspectRatio: '3/4',
                   height: { xs: 180, md: 250 },
                   flexShrink: 0,
-                  transform: `rotate(${i % 2 === 0 ? -2 : 5}deg)`
+                  transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`
                 }}
               >
                 <Box
@@ -561,7 +690,7 @@ export default function HeroSection() {
                 />
               </Box>
             ))}
-          </MotionBox>
+          </Box>
         </Box>
       )}
 
@@ -578,6 +707,51 @@ export default function HeroSection() {
         >
           Reserve Your Spot
         </Typography>
+        <Box
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 1.5,
+            borderRadius: '12px',
+            border: `1.5px solid ${heroBorder}`,
+            bgcolor: isDark ? alpha(c.bgPaper, 0.6) : alpha(c.bgPaper, 0.6),
+            backdropFilter: 'blur(12px)',
+            px: 3.5,
+            py: 1.25,
+            mb: { xs: 3, md: 4 }
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.75
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '1rem', sm: '1.15rem', md: '1.3rem' },
+                letterSpacing: 0.8,
+                color: c.primary,
+                fontVariantNumeric: 'tabular-nums'
+              }}
+            >
+              8 • 9 • 10
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                fontSize: { xs: '0.95rem', sm: '1.1rem', md: '1.2rem' },
+                letterSpacing: 1,
+                color: c.textPrimary,
+                textTransform: 'uppercase'
+              }}
+            >
+              April
+            </Typography>
+          </Box>
+        </Box>
         <Stack
           direction='row'
           justifyContent='center'

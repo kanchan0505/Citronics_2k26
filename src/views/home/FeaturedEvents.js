@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import Skeleton from '@mui/material/Skeleton'
 import { alpha } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,7 +15,94 @@ import { addToCart, selectCartItems } from 'src/store/slices/cartSlice'
 
 const MotionBox = motion(Box)
 
-/* ── Helpers ────────────────────────────────────────────────────────────── */
+/* ── Featured Events Skeleton ───────────────────────────────── */
+function FeaturedEventsSkeleton() {
+  const c = useAppPalette()
+
+  return (
+    <Box
+      component='section'
+      aria-label='Loading Featured Events'
+      sx={{ py: { xs: 4, md: 12 } }}
+    >
+      <Container maxWidth='xl'>
+        {/* Header skeleton */}
+        <Box sx={{ mb: { xs: 3, md: 5 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, md: 2 }, minWidth: 0, flex: 1 }}>
+              {/* Category name skeleton */}
+              <Box sx={{ overflow: 'hidden', position: 'relative', minHeight: { xs: 32, md: 42 }, flex: 1 }}>
+                <Skeleton width='40%' height={40} sx={{ borderRadius: '8px' }} />
+              </Box>
+            </Box>
+
+            {/* Desktop: arrows + View All skeleton */}
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
+              <Box sx={{ display: 'flex', gap: 0.75 }}>
+                <Skeleton variant='circular' width={36} height={36} />
+                <Skeleton variant='circular' width={36} height={36} />
+              </Box>
+              <Skeleton width={80} height={40} sx={{ borderRadius: '8px' }} />
+            </Box>
+          </Box>
+
+          {/* Mobile: arrows + View All skeleton */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'space-between', mt: 1.5 }}>
+            <Box sx={{ display: 'flex', gap: 0.75 }}>
+              <Skeleton variant='circular' width={30} height={30} />
+              <Skeleton variant='circular' width={30} height={30} />
+            </Box>
+            <Skeleton width={70} height={32} sx={{ borderRadius: '6px' }} />
+          </Box>
+        </Box>
+
+        {/* Cards carousel skeleton - 3 cards */}
+        <Box sx={{ position: 'relative', overflow: 'hidden', minHeight: { xs: 430, md: 480 } }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+              gap: { xs: 3, md: 5 },
+              mx: { xs: 1.5, sm: 0 }
+            }}
+          >
+            {[...Array(3)].map((_, i) => (
+              <Box key={i}>
+                {/* Image skeleton */}
+                <Skeleton
+                  variant='rectangular'
+                  sx={{
+                    borderRadius: '15px',
+                    aspectRatio: { xs: '16 / 9', md: '5 / 3' },
+                    mb: 2
+                  }}
+                />
+
+                {/* Title skeleton */}
+                <Skeleton width='80%' height={24} sx={{ borderRadius: '8px', mb: 1.5 }} />
+
+                {/* Details skeleton */}
+                <Box sx={{ space: 1 }}>
+                  <Skeleton width='70%' height={16} sx={{ borderRadius: '4px', mb: 1 }} />
+                  <Skeleton width='60%' height={16} sx={{ borderRadius: '4px', mb: 1 }} />
+                  <Skeleton width='65%' height={16} sx={{ borderRadius: '4px' }} />
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Pagination dots skeleton */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: { xs: 4, md: 5 } }}>
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} variant='circular' width={i === 0 ? 28 : 10} height={10} />
+          ))}
+        </Box>
+      </Container>
+    </Box>
+  )
+}
+
 function parseDate(raw) {
   if (!raw) return { dayOfWeek: '—', full: '—', time: '—' }
   const d = new Date(raw)
@@ -45,6 +133,17 @@ function getImage(event) {
   return null
 }
 
+/**
+ * Formats event time with start and end times.
+ * Returns format: "10:00 AM to 4:00 PM" or just "10:00 AM" if no end time
+ */
+function formatTimeDisplay(event) {
+  if (!event.start_time) return '—'
+  const start = parseDate(event.start_time).time
+  const end = event.end_time ? parseDate(event.end_time).time : null
+  return end ? `${start} to ${end}` : start
+}
+
 /* ── Single Event Card (SILO Dallas style) ──────────────────────────────── *//**
  * Renders a single event card in the "This Week" section.
  * @param {object} props
@@ -66,7 +165,7 @@ function getImage(event) {
 
   const details = [
     { label: 'Date:', value: dateStr },
-    { label: 'Time:', value: timeStr },
+    { label: 'Time:', value: formatTimeDisplay(event) },
     { label: 'Venue:', value: event.venue || '—' }
   ]
 
@@ -101,7 +200,7 @@ function getImage(event) {
           mt: { xs: 1.5, md: 2.5 },
           borderRadius: '15px',
           overflow: 'hidden',
-          aspectRatio: { xs: '16 / 10', md: '4 / 3' },
+          aspectRatio: { xs: '16 / 9', md: '5 / 3' },
           bgcolor: c.isDark
             ? alpha(c.bgPaper, 0.15)
             : alpha(c.grey[200], 0.6)
@@ -118,8 +217,8 @@ function getImage(event) {
               height: '100%',
               objectFit: 'cover',
               display: 'block',
-              transition: 'opacity 0.4s ease, transform 0.4s ease',
-              opacity: !isMobile && hovered ? 0 : 1,
+              transition: 'transform 0.4s ease',
+              opacity: 1,
               transform: !isMobile && hovered ? 'scale(1.05)' : 'scale(1)'
             }}
           />
@@ -134,7 +233,7 @@ function getImage(event) {
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'opacity 0.4s ease',
-              opacity: !isMobile && hovered ? 0 : 1
+              opacity: 1
             }}
           >
             <Typography
@@ -163,9 +262,7 @@ function getImage(event) {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 1.5,
-            bgcolor: c.isDark
-              ? alpha(c.bgDefault, 0.88)
-              : alpha(c.white, 0.92),
+            bgcolor: alpha(c.bgDefault, 0.8),
             opacity: hovered ? 1 : 0,
             transition: 'opacity 0.35s ease',
             pointerEvents: hovered ? 'auto' : 'none'
@@ -328,7 +425,7 @@ function getImage(event) {
       )}
 
       {/* ── Event info below image ────────────────────────────────────── */}
-      <Box sx={{ px: { xs: 1.5, md: 2.5 }, pt: { xs: 1.5, md: 2 }, pb: { xs: 2.5, md: 2.5 } }}>
+      <Box sx={{ px: { xs: 1.5, md: 2.5 }, pt: { xs: 1.5, md: 2.5 }, pb: { xs: 2.5, md: 3 } }}>
         <Typography
           variant='h6'
           sx={{
@@ -336,7 +433,7 @@ function getImage(event) {
             color: c.textPrimary,
             mb: { xs: 1, md: 1.5 },
             lineHeight: 1.25,
-            fontSize: { xs: '1rem', md: '1.05rem' }
+            fontSize: { xs: '1rem', md: '1.15rem' }
           }}
         >
           {event.title}
@@ -349,9 +446,9 @@ function getImage(event) {
             width: '100%',
             borderCollapse: 'collapse',
             '& td': {
-              py: { xs: 0.55, md: 0.5 },
+              py: { xs: 0.55, md: 0.65 },
               verticalAlign: 'top',
-              fontSize: { xs: '0.88rem', md: '0.82rem' },
+              fontSize: { xs: '0.88rem', md: '0.9rem' },
               lineHeight: 1.5
             }
           }}
@@ -428,7 +525,7 @@ function PaginationDot({ active, accent, onClick }) {
 }
 
 /* ── Main Section — Category Event Showcase ─────────────────────────────── */
-export default function FeaturedEvents({ categoryEvents = [] }) {
+export default function FeaturedEvents({ categoryEvents = [], loading = false }) {
   const c = useAppPalette()
   const router = useRouter()
   const accent = c.primary
@@ -465,6 +562,10 @@ export default function FeaturedEvents({ categoryEvents = [] }) {
     setActiveIndex(prev => (prev - 1 + totalCategories) % totalCategories)
   }, [totalCategories])
 
+  if (loading) {
+    return <FeaturedEventsSkeleton />
+  }
+
   if (totalCategories === 0) return null
 
   const current = categoryEvents[activeIndex]
@@ -473,7 +574,7 @@ export default function FeaturedEvents({ categoryEvents = [] }) {
     <Box
       component='section'
       aria-label='Event Showcase by Category'
-      sx={{ py: { xs: 8, md: 12 } }}
+      sx={{ py: { xs: 0.5, md: 1 } }}
       onMouseEnter={() => { pausedRef.current = true }}
       onMouseLeave={() => { pausedRef.current = false }}
     >
@@ -508,7 +609,7 @@ export default function FeaturedEvents({ categoryEvents = [] }) {
                       sx={{
                         fontWeight: 800,
                         color: c.textPrimary,
-                        fontSize: { xs: '1.2rem', md: '2rem' },
+                        fontSize: { xs: '1.8rem', md: '2rem' },
                         letterSpacing: '-0.02em',
                         textTransform: 'uppercase',
                         whiteSpace: { xs: 'normal', md: 'nowrap' },
@@ -639,7 +740,7 @@ export default function FeaturedEvents({ categoryEvents = [] }) {
                   sm: 'repeat(2, 1fr)',
                   md: 'repeat(3, 1fr)'
                 },
-                gap: { xs: 1.5, md: 3 },
+                gap: { xs: 3, md: 5 },
                 mx: { xs: 1.5, sm: 0 }
               }}
             >

@@ -181,6 +181,106 @@ const EventCard = memo(function EventCard({ event, index }) {
         </Box>
       </Box>
 
+      {/* Mobile primary action row — xs only, shown horizontally below image */}
+      <Box sx={{ display: { xs: 'flex', sm: 'none' }, px: 2.5, pt: 0, pb: 1.5, gap: 1 }}>
+        {event.registration_link ? (
+          <Button
+            component='a'
+            href={event.registration_link}
+            target='_blank'
+            rel='noopener noreferrer'
+            variant='contained'
+            size='small'
+            disableElevation
+            sx={{
+              flex: 1,
+              height: 30,
+              minHeight: 0,
+              borderRadius: '6px',
+              fontWeight: 700,
+              fontSize: '0.72rem',
+              letterSpacing: 0.6,
+              textTransform: 'uppercase',
+              py: 0.45,
+              bgcolor: accent,
+              color: c.isDark ? c.black : c.white,
+              '&:hover': { bgcolor: alpha(accent, 0.85) },
+            }}
+          >
+            Register Now
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant='contained'
+              size='small'
+              disableElevation
+              disabled={isInCart}
+              onClick={() => dispatch(addToCart({
+                eventId: event.id,
+                title: event.title,
+                ticketPrice: event.ticket_price || 0,
+                quantity: 1,
+                image: getEventImage(event),
+                startTime: event.start_time,
+                venue: event.venue,
+                maxAvailable: event.seats > 0 ? Math.max(0, event.seats - (event.registered || 0)) : null
+              }))}
+              sx={{
+                flex: 1,
+                height: 30,
+                minHeight: 0,
+                borderRadius: '6px',
+                fontWeight: 700,
+                fontSize: '0.72rem',
+                letterSpacing: 0.6,
+                textTransform: 'uppercase',
+                py: 0.45,
+                bgcolor: accent,
+                color: c.isDark ? c.black : c.white,
+                '&:hover': { bgcolor: alpha(accent, 0.85) },
+              }}
+            >
+              {isInCart ? 'In Cart' : 'Add to Cart'}
+            </Button>
+            <Button
+              variant='outlined'
+              size='small'
+              disableElevation
+              disabled={spotsLeft !== null && spotsLeft <= 0}
+              onClick={() => {
+                dispatch(setCheckoutItems({
+                  items: [{ eventId: event.id, quantity: 1 }],
+                  source: 'buyNow'
+                }))
+                if (session?.user?.id) {
+                  dispatch(setExistingUser({ userId: session.user.id }))
+                  router.push('/checkout')
+                } else {
+                  router.push('/login?returnUrl=/checkout')
+                }
+              }}
+              sx={{
+                flex: 1,
+                height: 30,
+                minHeight: 0,
+                borderRadius: '6px',
+                fontWeight: 700,
+                fontSize: '0.72rem',
+                letterSpacing: 0.6,
+                textTransform: 'uppercase',
+                py: 0.45,
+                borderColor: alpha(accent, 0.5),
+                color: accent,
+                '&:hover': { borderColor: accent, bgcolor: alpha(accent, 0.08) },
+              }}
+            >
+              {spotsLeft !== null && spotsLeft <= 0 ? 'Sold Out' : 'Buy Ticket'}
+            </Button>
+          </>
+        )}
+      </Box>
+
       {/* Content */}
       <Box
         sx={{
@@ -188,6 +288,7 @@ const EventCard = memo(function EventCard({ event, index }) {
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
           p: { xs: 2.5, md: 3 },
+          pt: { xs: 0, sm: undefined, md: 3 },
           gap: { xs: 2, sm: 3 }
         }}
       >
@@ -259,49 +360,17 @@ const EventCard = memo(function EventCard({ event, index }) {
             minWidth: { sm: 150 }
           }}
         >
-          {event.registration_link ? (
-            <Button
-              component='a'
-              href={event.registration_link}
-              target='_blank'
-              rel='noopener noreferrer'
-              variant='contained'
-              size='small'
-              disableElevation
-              sx={{
-                width: '100%',
-                minWidth: 150,
-                height: 40,
-                borderRadius: '10px',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                bgcolor: accent,
-                color: c.isDark ? c.black : c.white,
-                '&:hover': { bgcolor: alpha(accent, 0.85), boxShadow: `0 4px 20px ${alpha(accent, 0.25)}` },
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Register Now
-            </Button>
-          ) : (
-            <>
+          {/* Primary buttons — hidden on mobile (rendered above image) */}
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', gap: 1, width: '100%' }}>
+            {event.registration_link ? (
               <Button
+                component='a'
+                href={event.registration_link}
+                target='_blank'
+                rel='noopener noreferrer'
                 variant='contained'
                 size='small'
                 disableElevation
-                disabled={isInCart}
-                onClick={() => dispatch(addToCart({
-                  eventId: event.id,
-                  title: event.title,
-                  ticketPrice: event.ticket_price || 0,
-                  quantity: 1,
-                  image: getEventImage(event),
-                  startTime: event.start_time,
-                  venue: event.venue,
-                  maxAvailable: event.seats > 0 ? Math.max(0, event.seats - (event.registered || 0)) : null
-                }))}
                 sx={{
                   width: '100%',
                   minWidth: 150,
@@ -317,57 +386,94 @@ const EventCard = memo(function EventCard({ event, index }) {
                   transition: 'all 0.2s ease'
                 }}
               >
-                {isInCart ? 'In Cart' : 'Add to Cart'}
+                Register Now
               </Button>
-              <Button
-                variant='contained'
-                size='small'
-                disableElevation
-                disabled={spotsLeft !== null && spotsLeft <= 0}
-                onClick={() => {
-                  dispatch(setCheckoutItems({
-                    items: [{ eventId: event.id, quantity: 1 }],
-                    source: 'buyNow'
-                  }))
-                  if (session?.user?.id) {
-                    dispatch(setExistingUser({ userId: session.user.id }))
-                    router.push('/checkout')
-                  } else {
-                    router.push('/login?returnUrl=/checkout')
-                  }
-                }}
-                sx={{
-                  width: '100%',
-                  minWidth: 150,
-                  height: 40,
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '0.8rem',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  bgcolor: 'transparent',
-                  color: accent,
-                  border: `1px solid ${alpha(accent, 0.22)}`,
-                  '&:hover': { bgcolor: alpha(accent, 0.06), boxShadow: `0 4px 20px ${alpha(accent, 0.08)}` },
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {spotsLeft !== null && spotsLeft <= 0 ? 'Sold Out' : 'Buy Ticket'}
-              </Button>
-            </>
-          )}
+            ) : (
+              <>
+                <Button
+                  variant='contained'
+                  size='small'
+                  disableElevation
+                  disabled={isInCart}
+                  onClick={() => dispatch(addToCart({
+                    eventId: event.id,
+                    title: event.title,
+                    ticketPrice: event.ticket_price || 0,
+                    quantity: 1,
+                    image: getEventImage(event),
+                    startTime: event.start_time,
+                    venue: event.venue,
+                    maxAvailable: event.seats > 0 ? Math.max(0, event.seats - (event.registered || 0)) : null
+                  }))}
+                  sx={{
+                    width: '100%',
+                    minWidth: 150,
+                    height: 40,
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    bgcolor: accent,
+                    color: c.isDark ? c.black : c.white,
+                    '&:hover': { bgcolor: alpha(accent, 0.85), boxShadow: `0 4px 20px ${alpha(accent, 0.25)}` },
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {isInCart ? 'In Cart' : 'Add to Cart'}
+                </Button>
+                <Button
+                  variant='contained'
+                  size='small'
+                  disableElevation
+                  disabled={spotsLeft !== null && spotsLeft <= 0}
+                  onClick={() => {
+                    dispatch(setCheckoutItems({
+                      items: [{ eventId: event.id, quantity: 1 }],
+                      source: 'buyNow'
+                    }))
+                    if (session?.user?.id) {
+                      dispatch(setExistingUser({ userId: session.user.id }))
+                      router.push('/checkout')
+                    } else {
+                      router.push('/login?returnUrl=/checkout')
+                    }
+                  }}
+                  sx={{
+                    width: '100%',
+                    minWidth: 150,
+                    height: 40,
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    bgcolor: 'transparent',
+                    color: accent,
+                    border: `1px solid ${alpha(accent, 0.22)}`,
+                    '&:hover': { bgcolor: alpha(accent, 0.06), boxShadow: `0 4px 20px ${alpha(accent, 0.08)}` },
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {spotsLeft !== null && spotsLeft <= 0 ? 'Sold Out' : 'Buy Ticket'}
+                </Button>
+              </>
+            )}
+          </Box>
           <Button
             variant='text'
             size='small'
             onClick={() => router.push(`/events/${event.id}`)}
             sx={{ width: '100%',
               minWidth: 150,
-              height: 40,
-              borderRadius: '10px',
+              height: 30,
+              minHeight: 0,
+              borderRadius: '6px',
               fontWeight: 700,
-              fontSize: '0.8rem',
-              letterSpacing: '0.06em',
+              fontSize: '0.72rem',
+              letterSpacing: 0.6,
               textTransform: 'uppercase',
+              py: 0.45,
               color: 'text.secondary',
               border: `1px solid ${alpha(accent, 0.18)}`,
               '&:hover': {
@@ -692,15 +798,16 @@ export default function EventsPageView() {
               onChange={(_, v) => setPage(v)}
               shape='rounded'
               disabled={eventsLoading}
+              size='small'
               sx={{
                 '& .MuiPaginationItem-root': {
                   fontWeight: 600,
-                  fontSize: '0.82rem',
-                  borderRadius: '10px',
+                  fontSize: { xs: '0.65rem', md: '0.82rem' },
+                  borderRadius: '6px',
                   color: 'text.secondary',
                   border: `1px solid ${c.dividerA30}`,
-                  minWidth: 38,
-                  height: 38,
+                  minWidth: { xs: 28, md: 38 },
+                  height: { xs: 28, md: 38 },
                   '&:hover': { background: alpha(c.primary, 0.06), borderColor: alpha(c.primary, 0.3) },
                   '&.Mui-selected': {
                     bgcolor: c.primary,

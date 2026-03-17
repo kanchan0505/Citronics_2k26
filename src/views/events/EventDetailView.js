@@ -5,13 +5,11 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import CustomChip from 'src/components/mui/Chip'
-import Divider from '@mui/material/Divider'
 import LinearProgress from '@mui/material/LinearProgress'
 import Skeleton from '@mui/material/Skeleton'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Collapse from '@mui/material/Collapse'
-import IconButton from '@mui/material/IconButton'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 import { alpha } from '@mui/material/styles'
 import { useAppPalette } from 'src/components/palette'
 import { motion } from 'framer-motion'
@@ -48,13 +46,18 @@ function formatTime(iso) {
 }
 
 function getEventImage(event) {
-  // Prefer legacy images array for event images
-  // (event_details.document_url is for the rules/info document, not images)
   if (event?.images && Array.isArray(event.images) && event.images.length > 0) {
     const img = event.images[0]
     return typeof img === 'string' ? img : img?.url || null
   }
   return null
+}
+
+function getAllEventImages(event) {
+  if (!event?.images || !Array.isArray(event.images) || event.images.length === 0) return []
+  return event.images.map(img =>
+    typeof img === 'string' ? { url: img, alt: event.title } : { url: img?.url, alt: img?.alt || event.title }
+  ).filter(img => img.url)
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -102,65 +105,46 @@ function useCountdown() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
- *  Loading Skeleton
+ *  Loading Skeleton — matches the new layout
  * ═════════════════════════════════════════════════════════════════════════ */
 function DetailSkeleton() {
   return (
-    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: '90vh' }}>
-      <Box sx={{ width: { xs: '100%', md: '48%' }, p: 3 }}>
-        <Skeleton variant='rectangular' sx={{ borderRadius: '20px', height: { xs: 300, md: '80vh' } }} />
+    <Box>
+      {/* Hero skeleton */}
+      <Box sx={{
+        display: 'flex', flexDirection: { xs: 'column', md: 'row' },
+        maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 4 }, pt: { xs: 2, md: 4 }, pb: 3, gap: 3
+      }}>
+        <Box sx={{ width: { xs: '100%', md: '50%' } }}>
+          <Skeleton variant='rectangular' sx={{ borderRadius: '16px', height: { xs: 300, md: 420 } }} />
+          <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+            {[1, 2, 3].map(i => (
+              <Skeleton key={i} variant='rectangular' sx={{ width: 64, height: 64, borderRadius: '8px' }} />
+            ))}
+          </Box>
+        </Box>
+        <Box sx={{ flex: 1, pt: { md: 1 } }}>
+          <Skeleton width='30%' height={16} sx={{ mb: 2 }} />
+          <Skeleton width='80%' height={44} sx={{ mb: 1 }} />
+          <Skeleton width='50%' height={20} sx={{ mb: 3 }} />
+          <Skeleton variant='rectangular' height={160} sx={{ borderRadius: '14px', mb: 2 }} />
+          <Skeleton width='60%' height={10} />
+        </Box>
       </Box>
-      <Box sx={{ flex: 1, p: { xs: 3, md: 6 } }}>
-        <Skeleton width='40%' height={20} sx={{ mb: 2 }} />
-        <Skeleton width='70%' height={52} sx={{ mb: 1 }} />
-        <Skeleton width='55%' height={28} sx={{ mb: 5 }} />
+      {/* Tabs skeleton */}
+      <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 4 } }}>
+        <Box sx={{ display: 'flex', gap: 3, py: 1.5 }}>
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} width={80} height={24} sx={{ borderRadius: '4px' }} />
+          ))}
+        </Box>
+      </Box>
+      {/* Content skeleton */}
+      <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 4 }, py: 4 }}>
         {[1, 2, 3].map(i => (
-          <Skeleton key={i} variant='rectangular' height={90} sx={{ borderRadius: '14px', mb: 2 }} />
+          <Skeleton key={i} variant='rectangular' height={80} sx={{ borderRadius: '14px', mb: 2 }} />
         ))}
       </Box>
-    </Box>
-  )
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Info Section Box — label at top, value below (SILO style)
- * ═════════════════════════════════════════════════════════════════════════ */
-function InfoSection({ label, value, children }) {
-  const c = useAppPalette()
-  return (
-    <Box
-      sx={{
-        px: 3,
-        py: 2.5,
-        borderRadius: '14px',
-        border: '1px solid',
-        borderColor: c.dividerA30,
-        background: 'transparent',
-        mb: 2
-      }}
-    >
-      <Typography
-        variant='caption'
-        sx={{
-          color: 'text.disabled',
-          fontWeight: 700,
-          fontSize: '0.68rem',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          display: 'block',
-          mb: 0.75
-        }}
-      >
-        {label}
-      </Typography>
-      {children || (
-        <Typography
-          variant='h6'
-          sx={{ fontWeight: 700, fontSize: { xs: '1rem', md: '1.1rem' }, color: 'text.primary', lineHeight: 1.3 }}
-        >
-          {value}
-        </Typography>
-      )}
     </Box>
   )
 }
@@ -210,6 +194,8 @@ export default function EventDetailView() {
   const { currentEvent: event, currentEventLoading: loading, currentEventError } = useSelector(state => state.events)
   const timeLeft = useCountdown()
   const isMobile = useMediaQuery(c.theme.breakpoints.down('md'))
+  const [activeTab, setActiveTab] = useState(0)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
 
   useEffect(() => {
     if (id) dispatch(fetchEventById(id))
@@ -243,9 +229,31 @@ export default function EventDetailView() {
   const fillPct = event.seats > 0 ? Math.round(((event.registered || 0) / event.seats) * 100) : 0
   const almostFull = fillPct >= 80
   const spotsLeft = event.seats - (event.registered || 0)
-  const imageUrl = getEventImage(event)
+  const allImages = getAllEventImages(event)
+  const currentImage = allImages[activeImageIndex] || null
+  const hasGallery = allImages.length > 1
   const isOver = event.start_time ? new Date(event.start_time).getTime() <= Date.now() : false
   const details = event.details || {}
+
+  const hasPrizes = details.prize && typeof details.prize === 'object' && Object.keys(details.prize).length > 0
+  const hasRules = details.rules && details.rules.length > 0
+  const hasRounds = details.rounds > 0
+
+  // Build meta info rows
+  const metaRows = []
+  const displayDate = event.date || (event.start_time ? formatDate(event.start_time) : null)
+  if (displayDate) metaRows.push({ label: 'Date', value: displayDate })
+  if (event.start_time || event.end_time) {
+    metaRows.push({
+      label: 'Time',
+      value: event.end_time
+        ? `${formatTime(event.start_time)} — ${formatTime(event.end_time)}`
+        : formatTime(event.start_time)
+    })
+  }
+  if (event.venue) metaRows.push({ label: 'Venue', value: event.venue })
+  if (details.team_size_text) metaRows.push({ label: 'Team Size', value: details.team_size_text })
+  if (event.ticket_price > 0) metaRows.push({ label: 'Entry Fee', value: `₹${parseFloat(event.ticket_price).toLocaleString('en-IN')}` })
 
   return (
     <Box
@@ -253,67 +261,47 @@ export default function EventDetailView() {
       aria-label={`Event: ${event.title}`}
       sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', pb: { xs: 'calc(80px + env(safe-area-inset-bottom, 0px))', md: '80px' } }}
     >
-      {/* ── Main content ─────────────────────────────────────────── */}
+
+      {/* ═══════════════════════════════════════════════════════════════════
+       *  ZONE 1: Two-Column Hero
+       * ═════════════════════════════════════════════════════════════════ */}
       <Box
         sx={{
-          flex: 1,
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
-          alignItems: 'flex-start'
+          alignItems: 'flex-start',
+          maxWidth: 1200,
+          mx: 'auto',
+          width: '100%',
+          px: { xs: 2, md: 4 },
+          pt: { xs: 2, md: 4 },
+          pb: { xs: 2, md: 4 }
         }}
       >
-        {/* ───── LEFT: Sticky Image Panel ───── */}
+        {/* ───── LEFT: Image Gallery ───── */}
         <Box
           sx={{
-            width: { xs: '100%', md: '38%' },
+            width: { xs: '100%', md: '50%' },
+            pr: { md: 3 },
             position: { md: 'sticky' },
-            top: { md: 98 },
-            pt: { xs: 2.5, md: 3.5 },
-            pb: { xs: 2.5, md: 3.5 },
-            pl: { xs: 2.5, md: 2 },
-            pr: { xs: 2.5, md: 2 },
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: { md: 'flex-end' },
-            gap: 2
+            top: { md: 90 },
+            alignSelf: 'flex-start'
           }}
         >
-          {/* Back link (keyboard accessible) */}
-          <Button
-            onClick={() => router.push('/events')}
-            startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
-            sx={{
-              justifyContent: 'flex-start',
-              color: 'text.secondary',
-              width: 'fit-content',
-              alignSelf: 'flex-start',
-              mb: 0.5,
-              p: 0,
-              minWidth: 0,
-              textTransform: 'uppercase',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              '&:hover': { color: color }
-            }}
-          >
-            All Events
-          </Button>
-
-          {/* Image */}
+          {/* Main Image */}
           <Box sx={{ position: 'relative', width: '100%' }}>
-            {imageUrl ? (
+            {currentImage ? (
               <Box
                 component='img'
-                src={imageUrl}
-                alt={event.title}
+                src={currentImage.url}
+                alt={currentImage.alt || event.title}
                 sx={{
                   width: '100%',
                   height: 'auto',
-                  maxHeight: { xs: '50vh', md: '70vh' },
+                  maxHeight: { xs: '50vh', md: '65vh' },
                   objectFit: 'contain',
                   display: 'block',
-                  borderRadius: '12px'
+                  borderRadius: '16px'
                 }}
               />
             ) : (
@@ -321,6 +309,9 @@ export default function EventDetailView() {
                 sx={{
                   width: '100%',
                   height: 300,
+                  borderRadius: '16px',
+                  bgcolor: alpha(color, 0.04),
+                  border: `1px solid ${c.dividerA30}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -355,14 +346,43 @@ export default function EventDetailView() {
               </Box>
             )}
           </Box>
+
+          {/* Thumbnail strip */}
+          {hasGallery && (
+            <Box sx={{ display: 'flex', gap: 1, mt: 1.5, overflowX: 'auto', pb: 0.5 }}>
+              {allImages.map((img, i) => (
+                <Box
+                  key={i}
+                  component='img'
+                  src={img.url}
+                  alt={img.alt || `Image ${i + 1}`}
+                  loading='lazy'
+                  onClick={() => setActiveImageIndex(i)}
+                  sx={{
+                    width: { xs: 48, md: 64 },
+                    height: { xs: 48, md: 64 },
+                    borderRadius: '8px',
+                    objectFit: 'cover',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    border: '2px solid',
+                    borderColor: i === activeImageIndex ? color : 'transparent',
+                    opacity: i === activeImageIndex ? 1 : 0.6,
+                    transition: 'all 0.2s ease',
+                    '&:hover': { opacity: 1, borderColor: alpha(color, 0.4) }
+                  }}
+                />
+              ))}
+            </Box>
+          )}
         </Box>
 
-        {/* ───── RIGHT: Details Panel ───── */}
+        {/* ───── RIGHT: Sticky Info Panel ───── */}
         <Box
           sx={{
             flex: 1,
-            py: { xs: 3, md: 5 },
-            px: { xs: 2.5, md: 4.5 },
+            pl: { md: 3 },
+            pt: { xs: 2, md: 0 },
             minWidth: 0
           }}
         >
@@ -371,17 +391,38 @@ export default function EventDetailView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
+            {/* Back link */}
+            <Button
+              onClick={() => router.push('/events')}
+              startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
+              sx={{
+                justifyContent: 'flex-start',
+                color: 'text.secondary',
+                width: 'fit-content',
+                mb: 1.5,
+                p: 0,
+                minWidth: 0,
+                textTransform: 'uppercase',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                '&:hover': { color: color }
+              }}
+            >
+              All Events
+            </Button>
+
             {/* Title */}
             <Typography
               variant='h3'
               component='h1'
               sx={{
-                fontFamily: '"Playfair Display", "Georgia", "Times New Roman", serif',
+                fontFamily: fontFamilyHeading,
                 fontWeight: 800,
                 letterSpacing: '-0.5px',
-                fontSize: { xs: '2.2rem', md: '3rem' },
-                lineHeight: 1.08,
-                mb: 1.5,
+                fontSize: { xs: '2rem', md: '2.6rem' },
+                lineHeight: 1.1,
+                mb: 1,
                 color: 'text.primary'
               }}
             >
@@ -396,7 +437,7 @@ export default function EventDetailView() {
                   fontWeight: 400,
                   fontStyle: 'italic',
                   color: 'text.secondary',
-                  mb: 4,
+                  mb: 3,
                   lineHeight: 1.6,
                   fontSize: '1rem'
                 }}
@@ -405,83 +446,227 @@ export default function EventDetailView() {
               </Typography>
             )}
 
-            {/* ── Info card (single box, stacked rows) ── */}
-            {(() => {
-              const rows = []
-              const displayDate = event.date || (event.start_time ? formatDate(event.start_time) : null)
-              if (displayDate) rows.push({ label: 'Date', value: displayDate })
-              if (event.start_time || event.end_time) {
-                rows.push({
-                  label: 'Time',
-                  value: event.end_time
-                    ? `${formatTime(event.start_time)} — ${formatTime(event.end_time)}`
-                    : formatTime(event.start_time)
-                })
-              }
-              if (event.venue) rows.push({ label: 'Venue', value: event.venue })
-              if (details.team_size_text) rows.push({ label: 'Team Size', value: details.team_size_text })
-              if (event.ticket_price > 0) rows.push({ label: 'Entry Fee', value: `₹${parseFloat(event.ticket_price).toLocaleString('en-IN')}` })
-
-              if (rows.length === 0) return null
-
-              return (
-                <Box
-                  sx={{
-                    borderRadius: '14px',
-                    border: '1px solid',
-                    borderColor: c.dividerA30,
-                    background: 'transparent',
-                    mb: 2,
-                    overflow: 'hidden',
-                    maxWidth: { md: 520 },
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }
-                  }}
-                >
-                  {rows.map((row, i) => (
-                    <Box
-                      key={row.label}
+            {/* Meta Info Card */}
+            {metaRows.length > 0 && (
+              <Box
+                sx={{
+                  borderRadius: '14px',
+                  border: '1px solid',
+                  borderColor: c.dividerA30,
+                  background: 'transparent',
+                  mb: 2,
+                  overflow: 'hidden',
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }
+                }}
+              >
+                {metaRows.map((row) => (
+                  <Box key={row.label} sx={{ px: 3, py: 2.25 }}>
+                    <Typography
+                      variant='caption'
                       sx={{
-                        px: 3,
-                        py: 2.25
+                        color: 'text.disabled',
+                        fontWeight: 700,
+                        fontSize: '0.66rem',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        display: 'block',
+                        mb: 0.5
                       }}
                     >
-                      <Typography
-                        variant='caption'
-                        sx={{
-                          color: 'text.disabled',
-                          fontWeight: 700,
-                          fontSize: '0.66rem',
-                          letterSpacing: '0.1em',
-                          textTransform: 'uppercase',
-                          display: 'block',
-                          mb: 0.5
-                        }}
-                      >
-                        {row.label}
-                      </Typography>
-                      <Typography
-                        variant='h6'
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: { xs: '1rem', md: '1.1rem' },
-                          color: 'text.primary',
-                          lineHeight: 1.3
-                        }}
-                      >
-                        {row.value}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              )
-            })()}
+                      {row.label}
+                    </Typography>
+                    <Typography
+                      variant='h6'
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: '1rem', md: '1.1rem' },
+                        color: 'text.primary',
+                        lineHeight: 1.3
+                      }}
+                    >
+                      {row.value}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
 
-           
+          
 
-            {/* ── Description ── */}
+            {/* ── Mobile inline action buttons ── */}
+            {isMobile && (
+              <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {event.registration_link ? (
+                  <Button
+                    variant='contained'
+                    disableElevation
+                    fullWidth
+                    href={event.registration_link}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    startIcon={<Icon icon='tabler:external-link' fontSize={18} />}
+                    sx={{
+                      bgcolor: color,
+                      color: c.white,
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      py: 1.5,
+                      '&:hover': { bgcolor: alpha(color, 0.88) }
+                    }}
+                  >
+                    Register Now
+                  </Button>
+                ) : (
+                  <Button
+                    variant='contained'
+                    disableElevation
+                    fullWidth
+                    disabled={spotsLeft <= 0}
+                    onClick={() => {
+                      dispatch(setCheckoutItems({
+                        items: [{ eventId: event.id, quantity: 1 }],
+                        source: 'buyNow'
+                      }))
+                      if (session?.user?.id) {
+                        dispatch(setExistingUser({ userId: session.user.id }))
+                        router.push('/checkout')
+                      } else {
+                        router.push('/login?returnUrl=/checkout')
+                      }
+                    }}
+                    sx={{
+                      bgcolor: color,
+                      color: c.white,
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      py: 1.5,
+                      '&:hover': { bgcolor: alpha(color, 0.88) },
+                      '&.Mui-disabled': { bgcolor: c.dividerA30, color: c.textDisabled }
+                    }}
+                  >
+                    {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
+                  </Button>
+                )}
+                {!event.registration_link && (
+                  <Button
+                    variant='outlined'
+                    fullWidth
+                    disabled={spotsLeft <= 0}
+                    onClick={() => dispatch(addToCart({
+                      eventId: event.id,
+                      title: event.title,
+                      ticketPrice: event.ticket_price || 0,
+                      quantity: 1,
+                      image: getEventImage(event),
+                      startTime: event.start_time,
+                      venue: event.venue,
+                      maxAvailable: spotsLeft > 0 ? spotsLeft : 0
+                    }))}
+                    startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
+                    sx={{
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      textTransform: 'none',
+                      py: 1.35,
+                      borderColor: alpha(color, 0.4),
+                      color,
+                      '&:hover': { borderColor: color, bgcolor: alpha(color, 0.06) },
+                      '&.Mui-disabled': { borderColor: c.dividerA30, color: c.textDisabled }
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                )}
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  onClick={() => router.push('/events')}
+                  startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
+                  sx={{
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    textTransform: 'none',
+                    py: 1.35,
+                    borderColor: c.dividerA30,
+                    color: c.textSecondary,
+                    '&:hover': { borderColor: color, color, bgcolor: alpha(color, 0.04) }
+                  }}
+                >
+                  See All Events
+                </Button>
+              </Box>
+            )}
+          </MotionBox>
+        </Box>
+      </Box>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+       *  ZONE 2: Sticky Tabs Bar
+       * ═════════════════════════════════════════════════════════════════ */}
+      <Box
+        sx={{
+          borderBottom: `1px solid ${c.dividerA30}`,
+          borderTop: `1px solid ${c.dividerA30}`,
+          bgcolor: c.bgPaper,
+          position: 'sticky',
+          top: { xs: 56, md: 64 },
+          zIndex: 10
+        }}
+      >
+        <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 0.5, md: 4 } }}>
+          <Tabs
+            value={activeTab}
+            onChange={(_, v) => setActiveTab(v)}
+            variant='scrollable'
+            scrollButtons='auto'
+            allowScrollButtonsMobile
+            sx={{
+              minHeight: 48,
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                fontFamily: fontFamilyHeading,
+                minWidth: 'auto',
+                px: { xs: 2, md: 3 },
+                py: 1.5,
+                gap: 0.75,
+                color: 'text.secondary',
+                '&.Mui-selected': { color: color, fontWeight: 700 },
+                '&.Mui-disabled': { opacity: 0.4 }
+              },
+              '& .MuiTabs-indicator': { display: 'none' }
+            }}
+            TabIndicatorProps={{
+              sx: { bgcolor: color, height: 3, borderRadius: '3px 3px 0 0' }
+            }}
+          >
+            <Tab label='Overview' icon={<Icon icon='tabler:info-circle' fontSize={18} />} iconPosition='start' />
+            <Tab label='Prizes' icon={<Icon icon='tabler:trophy' fontSize={18} />} iconPosition='start' disabled={!hasPrizes} />
+            <Tab label='Rules' icon={<Icon icon='tabler:list-check' fontSize={18} />} iconPosition='start' disabled={!hasRules} />
+            <Tab label='Rounds' icon={<Icon icon='tabler:topology-ring-3' fontSize={18} />} iconPosition='start' disabled={!hasRounds} />
+          </Tabs>
+        </Box>
+      </Box>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+       *  ZONE 3: Tab Content Area
+       * ═════════════════════════════════════════════════════════════════ */}
+      <Box sx={{ maxWidth: 1200, mx: 'auto', width: '100%', px: { xs: 2, md: 4 }, py: { xs: 3, md: 5 }, minHeight: '40vh' }}>
+
+        {/* ── Tab 0: Overview ── */}
+        {activeTab === 0 && (
+          <MotionBox initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            {/* Description */}
             {event.description && (
-              <Box sx={{ mt: 5 }}>
+              <Box sx={{ mb: 5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
                   <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: alpha(color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icon icon='tabler:info-circle' fontSize={20} style={{ color }} />
@@ -504,11 +689,11 @@ export default function EventDetailView() {
               </Box>
             )}
 
-            {/* ── Brief ── */}
+            {/* Brief */}
             {details.brief && (
               <Box
                 sx={{
-                  mt: 5,
+                  mb: 5,
                   p: { xs: 2.5, md: 3.5 },
                   borderRadius: '16px',
                   border: `1px solid ${alpha(color, 0.12)}`,
@@ -541,9 +726,58 @@ export default function EventDetailView() {
               </Box>
             )}
 
-            {/* ── Prizes ── */}
-            {details.prize && typeof details.prize === 'object' && Object.keys(details.prize).length > 0 && (
-              <Box sx={{ mt: 5 }}>
+            {/* Download Document */}
+            {details.document_url && (
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant='overline'
+                  sx={{ color, fontWeight: 700, letterSpacing: '0.12em', mb: 1.5, display: 'block' }}
+                >
+                  Event Document
+                </Typography>
+                <Button
+                  component='a'
+                  href={details.document_url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  download
+                  variant='outlined'
+                  startIcon={<Icon icon='tabler:file-download' fontSize={18} />}
+                  sx={{
+                    borderRadius: '10px',
+                    borderColor: alpha(color, 0.5),
+                    color,
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    textTransform: 'none',
+                    px: 2.5,
+                    py: 1,
+                    '&:hover': {
+                      borderColor: color,
+                      bgcolor: alpha(color, 0.06)
+                    }
+                  }}
+                >
+                  Download Event Details
+                </Button>
+              </Box>
+            )}
+
+            {/* Fallback if no overview content at all */}
+            {!event.description && !details.brief && !details.document_url && (
+              <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Icon icon='tabler:info-circle' fontSize={48} style={{ color: alpha(color, 0.2) }} />
+                <Typography sx={{ color: 'text.disabled', mt: 2 }}>No overview information available.</Typography>
+              </Box>
+            )}
+          </MotionBox>
+        )}
+
+        {/* ── Tab 1: Prizes ── */}
+        {activeTab === 1 && (
+          <MotionBox initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            {hasPrizes ? (
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                   <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: alpha(color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icon icon='tabler:trophy' fontSize={20} style={{ color }} />
@@ -629,11 +863,19 @@ export default function EventDetailView() {
                   )}
                 </Box>
               </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Typography sx={{ color: 'text.disabled' }}>No prize information available.</Typography>
+              </Box>
             )}
+          </MotionBox>
+        )}
 
-            {/* ── Rules ── */}
-            {details.rules && details.rules.length > 0 && (
-              <Box sx={{ mt: 5 }}>
+        {/* ── Tab 2: Rules ── */}
+        {activeTab === 2 && (
+          <MotionBox initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            {hasRules ? (
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                   <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: alpha(color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icon icon='tabler:list-check' fontSize={20} style={{ color }} />
@@ -667,11 +909,19 @@ export default function EventDetailView() {
                   ))}
                 </Box>
               </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Typography sx={{ color: 'text.disabled' }}>No rules information available.</Typography>
+              </Box>
             )}
+          </MotionBox>
+        )}
 
-            {/* ── Rounds ── */}
-            {details.rounds > 0 && (
-              <Box sx={{ mt: 5 }}>
+        {/* ── Tab 3: Rounds ── */}
+        {activeTab === 3 && (
+          <MotionBox initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            {hasRounds ? (
+              <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
                   <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: alpha(color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icon icon='tabler:topology-ring-3' fontSize={20} style={{ color }} />
@@ -700,162 +950,18 @@ export default function EventDetailView() {
                   </Typography>
                 </Box>
               </Box>
-            )}
-
-            {/* ── Download Document ── */}
-            {details.document_url && (
-              <Box sx={{ mt: 3 }}>
-                <Typography
-                  variant='overline'
-                  sx={{ color, fontWeight: 700, letterSpacing: '0.12em', mb: 1.5, display: 'block' }}
-                >
-                  Event Document
-                </Typography>
-                <Button
-                  component='a'
-                  href={details.document_url}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  download
-                  variant='outlined'
-                  startIcon={<Icon icon='tabler:file-download' fontSize={18} />}
-                  sx={{
-                    borderRadius: '10px',
-                    borderColor: alpha(color, 0.5),
-                    color,
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    textTransform: 'none',
-                    px: 2.5,
-                    py: 1,
-                    '&:hover': {
-                      borderColor: color,
-                      bgcolor: alpha(color, 0.06)
-                    }
-                  }}
-                >
-                  Download Event Details
-                </Button>
-              </Box>
-            )}
-
-            {/* ── Mobile inline action buttons ── */}
-            {isMobile && (
-              <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {event.registration_link ? (
-                  // Registration Link Button
-                  <Button
-                    variant='contained'
-                    disableElevation
-                    fullWidth
-                    href={event.registration_link}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    startIcon={<Icon icon='tabler:external-link' fontSize={18} />}
-                    sx={{
-                      bgcolor: color,
-                      color: c.white,
-                      borderRadius: '12px',
-                      fontWeight: 700,
-                      fontSize: '0.95rem',
-                      textTransform: 'none',
-                      py: 1.5,
-                      '&:hover': { bgcolor: alpha(color, 0.88) }
-                    }}
-                  >
-                    Register Now
-                  </Button>
-                ) : (
-                  // Normal Buy Now button
-                  <Button
-                    variant='contained'
-                    disableElevation
-                    fullWidth
-                    disabled={spotsLeft <= 0}
-                    onClick={() => {
-                      dispatch(setCheckoutItems({
-                        items: [{ eventId: event.id, quantity: 1 }],
-                        source: 'buyNow'
-                      }))
-                      if (session?.user?.id) {
-                        dispatch(setExistingUser({ userId: session.user.id }))
-                        router.push('/checkout')
-                      } else {
-                        router.push('/login?returnUrl=/checkout')
-                      }
-                    }}
-                    sx={{
-                      bgcolor: color,
-                      color: c.white,
-                      borderRadius: '12px',
-                      fontWeight: 700,
-                      fontSize: '0.95rem',
-                      textTransform: 'none',
-                      py: 1.5,
-                      '&:hover': { bgcolor: alpha(color, 0.88) },
-                      '&.Mui-disabled': { bgcolor: c.dividerA30, color: c.textDisabled }
-                    }}
-                  >
-                    {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
-                  </Button>
-                )}
-                {!event.registration_link && (
-                  // Add to Cart button (only shown if no registration link)
-                  <Button
-                    variant='outlined'
-                    fullWidth
-                    disabled={spotsLeft <= 0}
-                    onClick={() => dispatch(addToCart({
-                      eventId: event.id,
-                      title: event.title,
-                      ticketPrice: event.ticket_price || 0,
-                      quantity: 1,
-                      image: getEventImage(event),
-                      startTime: event.start_time,
-                      venue: event.venue,
-                      maxAvailable: spotsLeft > 0 ? spotsLeft : 0
-                    }))}
-                    startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
-                    sx={{
-                      borderRadius: '12px',
-                      fontWeight: 700,
-                      fontSize: '0.9rem',
-                      textTransform: 'none',
-                      py: 1.35,
-                      borderColor: alpha(color, 0.4),
-                      color,
-                      '&:hover': { borderColor: color, bgcolor: alpha(color, 0.06) },
-                      '&.Mui-disabled': { borderColor: c.dividerA30, color: c.textDisabled }
-                    }}
-                  >
-                    Add to Cart
-                  </Button>
-                )}
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  onClick={() => router.push('/events')}
-                  startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
-                  sx={{
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                    textTransform: 'none',
-                    py: 1.35,
-                    borderColor: c.dividerA30,
-                    color: c.textSecondary,
-                    '&:hover': { borderColor: color, color, bgcolor: alpha(color, 0.04) }
-                  }}
-                >
-                  See All Events
-                </Button>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Typography sx={{ color: 'text.disabled' }}>No rounds information available.</Typography>
               </Box>
             )}
           </MotionBox>
-        </Box>
+        )}
       </Box>
 
-      {/* ── Bottom Sticky CTA Bar — Desktop only ─────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════════════════
+       *  ZONE 4: Bottom Sticky CTA Bar — Desktop only (UNCHANGED)
+       * ═════════════════════════════════════════════════════════════════ */}
       {!isMobile && (
       <Box
         sx={{

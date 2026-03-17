@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 import PublicNavbar from 'src/views/home/PublicNavbar'
 import HeroSection from 'src/views/home/HeroSection'
 //import AboutSection from 'src/views/home/AboutSection'
@@ -25,15 +24,6 @@ const Home = () => {
   useEffect(() => {
     dispatch(fetchHomeData())
   }, [dispatch])
-
-  // Full-page loader on first load
-  if (homeLoading && !homeData) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress color='primary' />
-      </Box>
-    )
-  }
 
   // Error state
   if (homeError && !homeData) {
@@ -57,11 +47,11 @@ const Home = () => {
   return (
     <Box sx={{ overflowX: 'hidden', pb: { xs: 'calc(64px + env(safe-area-inset-bottom, 0px))', md: 0 } }}>
       <PublicNavbar />
-      <HeroSection />
-     
+      <HeroSection loading={homeLoading && !homeData} />
+
       {/*<AboutSection />*/}
-  
-      <FeaturedEvents categoryEvents={categoryEvents} />
+
+      <FeaturedEvents categoryEvents={categoryEvents} loading={homeLoading && !homeData} />
       {/*<SponsorsSection/>*/}
       <PublicFooter />
     </Box>
