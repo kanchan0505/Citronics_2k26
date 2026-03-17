@@ -1,4 +1,4 @@
-import { dbAny } from 'src/lib/database'
+import mediaService from 'src/services/media-service'
 
 /**
  * /api/media/[page]
@@ -25,21 +25,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    let media = []
-
-    if (post && typeof post === 'string') {
-      // Filter by post type
-      media = await dbAny(
-        'SELECT id, page, name, post, description, links FROM page_media WHERE page = $1 AND post = $2 ORDER BY id ASC',
-        [page, post]
-      )
-    } else {
-      // Get all media for this page
-      media = await dbAny(
-        'SELECT id, page, name, post, description, links FROM page_media WHERE page = $1 ORDER BY id ASC',
-        [page]
-      )
-    }
+    const media = await mediaService.getMediaByPage(page, post)
 
     return res.status(200).json({ success: true, data: media })
   } catch (error) {
