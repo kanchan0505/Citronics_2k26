@@ -9,9 +9,9 @@ const BASE_NAV_LINKS = [
     children: [
       { label: 'About CDGI', href: '/about', icon: 'tabler:school' },
       { label: 'About Citronics', href: '/about-citronics', icon: 'tabler:rocket' },
-      { label: 'About Developers', href: '/developers', icon: 'tabler:code' },
-      { label: 'About Team', href: '/team', icon: 'tabler:users-group' },
 
+      { label: 'About Team', href: '/team', icon: 'tabler:users-group' },
+      { label: 'About Developers', href: '/developers', icon: 'tabler:code' },
     ]
   },
   { label: 'Events', href: '/events' },
