@@ -950,6 +950,10 @@ export default function EventDetailView() {
                   </Typography>
                 </Box>
               </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Typography sx={{ color: 'text.disabled' }}>No rounds information available.</Typography>
+              </Box>
             )}
 
             {/* ── Download Document ── */}
@@ -1070,9 +1074,6 @@ export default function EventDetailView() {
                 >
                   See All Events
                 </Button>
-            ) : (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Typography sx={{ color: 'text.disabled' }}>No rounds information available.</Typography>
               </Box>
             )}
           </MotionBox>
