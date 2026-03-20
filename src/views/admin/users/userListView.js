@@ -285,54 +285,6 @@ const UserListView = () => {
 
       {/* Data Table */}
       <Card sx={{ boxShadow: 1 }}>
-        {/* <CardHeader
-          sx={{ pb: 1 }}
-          title={
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-              <TextField
-                size='small'
-                placeholder='Search users…'
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPagination(p => ({ ...p, page: 0 })) }}
-                sx={{ flex: 1, minWidth: 180 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <Icon icon='tabler:search' fontSize={16} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: search ? (
-                    <InputAdornment position='end'>
-                      <IconButton size='small' onClick={() => setSearch('')}>
-                        <Icon icon='tabler:x' fontSize={14} />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null
-                }}
-              />
-              <FormControl size='small' sx={{ minWidth: 140 }}>
-                <InputLabel>Role</InputLabel>
-                <Select
-                  value={roleFilter}
-                  label='Role'
-                  onChange={e => { setRoleFilter(e.target.value); setPagination(p => ({ ...p, page: 0 })) }}
-                >
-                  <MenuItem value=''>All</MenuItem>
-                  {roleFilters.map(r => (
-                    <MenuItem key={r} value={r} sx={{ textTransform: 'capitalize' }}>
-                      {r}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              {(search || roleFilter || dateFilter !== 'all') && (
-                <Button size='small' onClick={() => { setSearch(''); setRoleFilter(''); setDateFilter('all') }}>
-                  Clear All
-                </Button>
-              )}
-            </Box>
-          }
-        /> */}
         <Box sx={{ display: 'flex', alignItems: 'left', justifyContent: 'left', p:2, flexWrap: 'wrap', gap: 1 }}>
             {/* <Typography variant='body2' color='text.secondary' sx={{ mr: 1, fontWeight: 600 }}>
               <Icon icon='tabler:calendar-stats' fontSize={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
