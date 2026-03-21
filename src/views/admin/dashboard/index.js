@@ -95,7 +95,7 @@ const AdminDashboardView = () => {
         axios.get(`/api/admin/dashboard/stats${dateQuery}`),
         axios.get(`/api/admin/events?limit=8${dateQueryAppend}`),
         axios.get('/api/departments').catch(() => ({ data: { data: [] } })),
-        axios.get('/api/admin/analytics?period=30').catch(() => ({ data: { data: null } }))
+        axios.get(`/api/admin/analytics?period=30${dateQueryAppend}`).catch(() => ({ data: { data: null } }))
       ]
       if (ownerFlag) {
         requests.push(axios.get(`/api/admin/users?limit=6${dateQueryAppend}`))

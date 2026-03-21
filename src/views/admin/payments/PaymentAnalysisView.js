@@ -81,9 +81,13 @@ const PaymentAnalysisView = () => {
       if (from) params.set('dateFrom', from.toISOString())
       if (to) params.set('dateTo', to.toISOString())
 
+      const analyticsParams = new URLSearchParams({ period: '30' })
+      if (from) analyticsParams.set('dateFrom', from.toISOString())
+      if (to) analyticsParams.set('dateTo', to.toISOString())
+
       const [paymentRes, analyticsRes] = await Promise.all([
         axios.get(`/api/admin/payments?${params.toString()}`),
-        axios.get('/api/admin/analytics?period=30').catch(() => ({ data: { data: null } }))
+        axios.get(`/api/admin/analytics?${analyticsParams.toString()}`).catch(() => ({ data: { data: null } }))
       ])
 
       const paymentData = paymentRes.data.data || {}
@@ -324,39 +328,19 @@ const PaymentAnalysisView = () => {
             icon='tabler:currency-rupee' color='success' prefix='₹' loading={loading} />
         </Grid>
         <Grid item xs={6} sm={3}>
-          <KPICard title='Total Payments' value={stats?.totalPayments ?? 0}
-            icon='tabler:credit-card' color='primary' loading={loading} />
-        </Grid>
-        <Grid item xs={6} sm={3}>
           <KPICard title='Tickets Generated' value={stats?.totalTickets ?? 0}
             icon='tabler:ticket' color='info' loading={loading} />
         </Grid>
         <Grid item xs={6} sm={3}>
-          <KPICard title='Checked In' value={stats?.checkedInTickets ?? 0}
-            icon='tabler:scan' color='warning' loading={loading} />
-        </Grid>
-      </Grid>
-
-      {/* Secondary KPIs */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={3}>
-          <KPICard title='Successful' value={stats?.successfulPayments ?? 0}
+          <KPICard title='Successful Payments' value={stats?.successfulPayments ?? 0}
             icon='tabler:circle-check' color='success' loading={loading} />
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <KPICard title='Pending' value={stats?.pendingPayments ?? 0}
-            icon='tabler:clock' color='warning' loading={loading} />
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <KPICard title='Failed / Cancelled' value={stats?.failedPayments ?? 0}
-            icon='tabler:x' color='error' loading={loading} />
         </Grid>
         <Grid item xs={6} sm={3}>
           <KPICard title='Avg. Order Value' value={stats?.avgOrderValue ?? 0}
             icon='tabler:receipt' color='secondary' prefix='₹' loading={loading} />
         </Grid>
       </Grid>
-
+       
       {/* Charts */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         {/* Revenue Trend */}
