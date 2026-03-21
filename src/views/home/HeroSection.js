@@ -524,6 +524,70 @@ export default function HeroSection({ loading = false }) {
                 '&:hover': { transform: 'scale(1.05)' }
               }}
             />
+
+            {/* ── Community Partners Below IMC ──────────────────────── */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2.5,
+                mt: { xs: 2.5, md: 3.5 },
+                pt: { xs: 2, md: 3 },
+                borderTop: `1px solid ${heroBorder}`
+              }}
+            >
+              {/* Heading */}
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  fontSize: { xs: '1.1rem', md: '1.3rem' },
+                  color: c.primary,
+                  letterSpacing: 1,
+                  textTransform: 'uppercase'
+                }}
+              >
+                Community Partners
+              </Typography>
+
+              {/* Logos */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: { xs: 2, sm: 3, md: 5 }
+                }}
+              >
+                <Box
+                  component='img'
+                  src='/sponsors/shekunj.png'
+                  alt='Shekunj - Community Partner'
+                  sx={{
+                    width: { xs: 140, sm: 170, md: 250 },
+                    height: 'auto',
+                    objectFit: 'contain',
+                    filter: isDark ? 'drop-shadow(0 0 8px rgba(255,255,255,0.10))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': { transform: 'scale(1.08)' }
+                  }}
+                />
+                <Box
+                  component='img'
+                  src='/sponsors/mayor.png'
+                  alt='Mayor - Community Partner'
+                  sx={{
+                    width: { xs: 140, sm: 170, md: 200 },
+                    height: 'auto',
+                    objectFit: 'contain',
+                    filter: isDark ? 'drop-shadow(0 0 8px rgba(255,255,255,0.10))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': { transform: 'scale(1.08)' }
+                  }}
+                />
+              </Box>
+            </Box>
           </MotionBox>
 
           {/* ── Tagline pill ─────────────────────────────────────────── */}

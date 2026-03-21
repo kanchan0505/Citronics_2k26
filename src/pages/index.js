@@ -52,7 +52,7 @@ const Home = () => {
       {/*<AboutSection />*/}
 
       <FeaturedEvents categoryEvents={categoryEvents} loading={homeLoading && !homeData} />
-      {/*<SponsorsSection/>*/}
+      <SponsorsSection/>
       <PublicFooter />
     </Box>
   )
