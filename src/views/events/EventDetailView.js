@@ -322,7 +322,7 @@ export default function EventDetailView() {
             )}
 
             {/* Featured badge */}
-            {event.featured && (
+            {/* {event.featured && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -344,7 +344,7 @@ export default function EventDetailView() {
                   ★ FEATURED
                 </Typography>
               </Box>
-            )}
+            )} */}
           </Box>
 
           {/* Thumbnail strip */}
@@ -953,6 +953,127 @@ export default function EventDetailView() {
             ) : (
               <Box sx={{ textAlign: 'center', py: 8 }}>
                 <Typography sx={{ color: 'text.disabled' }}>No rounds information available.</Typography>
+              </Box>
+            )}
+
+            {/* ── Download Document ── */}
+            {/* {details.document_url && (
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant='overline'
+                  sx={{ color, fontWeight: 700, letterSpacing: '0.12em', mb: 1.5, display: 'block' }}
+                >
+                  Event Document
+                </Typography>
+                <Button
+                  component='a'
+                  href={details.document_url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  download
+                  variant='outlined'
+                  startIcon={<Icon icon='tabler:file-download' fontSize={18} />}
+                  sx={{
+                    borderRadius: '10px',
+                    borderColor: alpha(color, 0.5),
+                    color,
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    textTransform: 'none',
+                    px: 2.5,
+                    py: 1,
+                    '&:hover': {
+                      borderColor: color,
+                      bgcolor: alpha(color, 0.06)
+                    }
+                  }}
+                >
+                  Download Event Details
+                </Button>
+              </Box>
+            )} */}
+
+            {/* ── Mobile inline action buttons ── */}
+            {isMobile && (
+              <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Button
+                  variant='contained'
+                  disableElevation
+                  fullWidth
+                  disabled={spotsLeft <= 0}
+                  onClick={() => {
+                    dispatch(setCheckoutItems({
+                      items: [{ eventId: event.id, quantity: 1 }],
+                      source: 'buyNow'
+                    }))
+                    if (session?.user?.id) {
+                      dispatch(setExistingUser({ userId: session.user.id }))
+                      router.push('/checkout')
+                    } else {
+                      router.push('/login?returnUrl=/checkout')
+                    }
+                  }}
+                  sx={{
+                    bgcolor: color,
+                    color: c.white,
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.95rem',
+                    textTransform: 'none',
+                    py: 1.5,
+                    '&:hover': { bgcolor: alpha(color, 0.88) },
+                    '&.Mui-disabled': { bgcolor: c.dividerA30, color: c.textDisabled }
+                  }}
+                >
+                  {spotsLeft <= 0 ? 'Sold Out' : 'Buy Now'}
+                </Button>
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  disabled={spotsLeft <= 0}
+                  onClick={() => dispatch(addToCart({
+                    eventId: event.id,
+                    title: event.title,
+                    ticketPrice: event.ticket_price || 0,
+                    quantity: 1,
+                    image: getEventImage(event),
+                    startTime: event.start_time,
+                    venue: event.venue,
+                    maxAvailable: spotsLeft > 0 ? spotsLeft : 0
+                  }))}
+                  startIcon={<Icon icon='tabler:shopping-cart-plus' fontSize={18} />}
+                  sx={{
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    textTransform: 'none',
+                    py: 1.35,
+                    borderColor: alpha(color, 0.4),
+                    color,
+                    '&:hover': { borderColor: color, bgcolor: alpha(color, 0.06) },
+                    '&.Mui-disabled': { borderColor: c.dividerA30, color: c.textDisabled }
+                  }}
+                >
+                  Add to Cart
+                </Button>
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  onClick={() => router.push('/events')}
+                  startIcon={<Icon icon='tabler:arrow-left' fontSize={15} />}
+                  sx={{
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    textTransform: 'none',
+                    py: 1.35,
+                    borderColor: c.dividerA30,
+                    color: c.textSecondary,
+                    '&:hover': { borderColor: color, color, bgcolor: alpha(color, 0.04) }
+                  }}
+                >
+                  See All Events
+                </Button>
               </Box>
             )}
           </MotionBox>

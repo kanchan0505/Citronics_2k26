@@ -3,9 +3,13 @@ import adminService from 'src/services/admin-service'
 
 /**
  * /api/admin/dashboard/stats
- * 
+ *
  * GET — Fetch dashboard statistics
- * 
+ *
+ * Query params:
+ * - dateFrom: ISO date string for start of date range
+ * - dateTo: ISO date string for end of date range
+ *
  * Returns:
  * - totalEvents: Total number of events
  * - activeEvents: Events with status 'active' or 'published'
@@ -26,9 +30,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Parse date filters
+    const dateFromRaw = Array.isArray(req.query.dateFrom) ? req.query.dateFrom[0] : req.query.dateFrom
+    const dateToRaw = Array.isArray(req.query.dateTo) ? req.query.dateTo[0] : req.query.dateTo
+    const dateFrom = dateFromRaw ? new Date(dateFromRaw) : null
+    const dateTo = dateToRaw ? new Date(dateToRaw) : null
+
     // Admin scoping — Admin sees only stats for their managed events
     const managerId = permissions.isOwner ? null : user.id
-    const stats = await adminService.getDashboardStats(managerId)
+    const stats = await adminService.getDashboardStats(managerId, dateFrom, dateTo)
 
     return res.status(200).json({
       success: true,

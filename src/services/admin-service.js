@@ -10,6 +10,8 @@ import bcrypt from 'bcryptjs'
  *  - Users with student info
  *  - Analytics with revenue / booking trends
  *  - Payment / transaction data
+ *
+ * All methods support date range filtering via `dateFrom` and `dateTo` options
  */
 const adminService = {
   // ── User Management ────────────────────────────────────────────────────────
@@ -18,7 +20,7 @@ const adminService = {
    * Get all users with pagination, filtering, and student info via JOIN
    */
   async getAllUsers(opts = {}) {
-    const { limit = 20, offset = 0, role = null, search = '', canSeeAdmins = true } = opts
+    const { limit = 20, offset = 0, role = null, search = '', canSeeAdmins = true, dateFrom = null, dateTo = null } = opts
     let query = `
       SELECT u.id, u.name, u.email, u.phone, u.role, u.verified, u.created_at,
              s.college, s.city, s.student_id
@@ -41,6 +43,14 @@ const adminService = {
       params.push(`%${search}%`, `%${search}%`)
       p += 2
     }
+    if (dateFrom) {
+      query += ` AND u.created_at >= $${p++}`
+      params.push(dateFrom)
+    }
+    if (dateTo) {
+      query += ` AND u.created_at <= $${p++}`
+      params.push(dateTo)
+    }
 
     query += ` ORDER BY u.created_at DESC LIMIT $${p++} OFFSET $${p++}`
     params.push(limit, offset)
@@ -52,7 +62,7 @@ const adminService = {
    * Get total count of users
    */
   async getUsersCount(opts = {}) {
-    const { role = null, search = '', canSeeAdmins = true } = opts
+    const { role = null, search = '', canSeeAdmins = true, dateFrom = null, dateTo = null } = opts
     let query = `SELECT COUNT(*)::int as count FROM users WHERE 1=1`
     const params = []
     let p = 1
@@ -68,6 +78,14 @@ const adminService = {
       query += ` AND (LOWER(name) LIKE LOWER($${p}) OR LOWER(email) LIKE LOWER($${p + 1}))`
       params.push(`%${search}%`, `%${search}%`)
       p += 2
+    }
+    if (dateFrom) {
+      query += ` AND created_at >= $${p++}`
+      params.push(dateFrom)
+    }
+    if (dateTo) {
+      query += ` AND created_at <= $${p++}`
+      params.push(dateTo)
     }
 
     const result = await dbOneOrNone(query, params)
@@ -100,7 +118,7 @@ const adminService = {
    * Create new user (admin only — created by Owner)
    */
   async createUser(data) {
-    const { name, email, password, phone, role, createdBy } = data
+    const { name, email, password, phone, role } = data
 
     if (!['admin', 'owner'].includes(role)) {
       throw new Error('Invalid role. Only admin can be created.')
@@ -109,10 +127,10 @@ const adminService = {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     return dbOne(
-      `INSERT INTO users (name, email, phone, password_hash, role, verified, created_by)
-       VALUES ($1, $2, $3, $4, $5, true, $6)
+      `INSERT INTO users (name, email, phone, password_hash, role, verified)
+       VALUES ($1, $2, $3, $4, $5, true)
        RETURNING id, name, email, phone, role, verified, created_at`,
-      [name, email.toLowerCase(), phone || null, hashedPassword, role, createdBy]
+      [name, email.toLowerCase(), phone || null, hashedPassword, role]
     )
   },
 
@@ -162,7 +180,7 @@ const adminService = {
    * Get all events with department name, booking count, and revenue in a single query
    */
   async getAllEventsAdmin(opts = {}) {
-    const { limit = 20, offset = 0, status = null, search = '', departmentId = null, managerId = null } = opts
+    const { limit = 20, offset = 0, status = null, search = '', departmentId = null, managerId = null, dateFrom = null, dateTo = null } = opts
     let query = `
       SELECT e.id, e.name, e.description, e.start_time, e.end_time, e.venue,
              e.max_tickets, e.ticket_price, e.status, e.visibility,
@@ -186,6 +204,8 @@ const adminService = {
     if (status) { query += ` AND e.status = $${p++}`; params.push(status) }
     if (departmentId) { query += ` AND e.department_id = $${p++}`; params.push(departmentId) }
     if (search) { query += ` AND LOWER(e.name) LIKE LOWER($${p++})`; params.push(`%${search}%`) }
+    if (dateFrom) { query += ` AND e.created_at >= $${p++}`; params.push(dateFrom) }
+    if (dateTo) { query += ` AND e.created_at <= $${p++}`; params.push(dateTo) }
 
     query += ` ORDER BY e.created_at DESC LIMIT $${p++} OFFSET $${p++}`
     params.push(limit, offset)
@@ -197,7 +217,7 @@ const adminService = {
    * Get total count of events
    */
   async getEventsCountAdmin(opts = {}) {
-    const { status = null, search = '', departmentId = null, managerId = null } = opts
+    const { status = null, search = '', departmentId = null, managerId = null, dateFrom = null, dateTo = null } = opts
     let query = `SELECT COUNT(*)::int as count FROM events WHERE 1=1`
     const params = []
     let p = 1
@@ -207,6 +227,8 @@ const adminService = {
     if (status) { query += ` AND status = $${p++}`; params.push(status) }
     if (departmentId) { query += ` AND department_id = $${p++}`; params.push(departmentId) }
     if (search) { query += ` AND LOWER(name) LIKE LOWER($${p++})`; params.push(`%${search}%`) }
+    if (dateFrom) { query += ` AND created_at >= $${p++}`; params.push(dateFrom) }
+    if (dateTo) { query += ` AND created_at <= $${p++}`; params.push(dateTo) }
 
     const result = await dbOneOrNone(query, params)
 
@@ -289,19 +311,46 @@ const adminService = {
 
   // ── Dashboard Stats (single combined query) ───────────────────────────────
 
-  async getDashboardStats(managerId = null) {
+  async getDashboardStats(managerId = null, dateFrom = null, dateTo = null) {
     // When managerId is provided (Admin), scope stats to their managed events only.
     // Owner (managerId = null) sees global stats.
+    const dateFilter = dateFrom || dateTo
+    const dateCondition = dateFrom && dateTo
+      ? ` AND booked_at >= $${managerId ? 2 : 1} AND booked_at <= $${managerId ? 3 : 2}`
+      : dateFrom
+        ? ` AND booked_at >= $${managerId ? 2 : 1}`
+        : dateTo
+          ? ` AND booked_at <= $${managerId ? 2 : 1}`
+          : ''
+    const userDateCondition = dateFrom && dateTo
+      ? ` AND created_at >= $${managerId ? 2 : 1} AND created_at <= $${managerId ? 3 : 2}`
+      : dateFrom
+        ? ` AND created_at >= $${managerId ? 2 : 1}`
+        : dateTo
+          ? ` AND created_at <= $${managerId ? 2 : 1}`
+          : ''
+    const eventDateCondition = dateFrom && dateTo
+      ? ` AND created_at >= $${managerId ? 2 : 1} AND created_at <= $${managerId ? 3 : 2}`
+      : dateFrom
+        ? ` AND created_at >= $${managerId ? 2 : 1}`
+        : dateTo
+          ? ` AND created_at <= $${managerId ? 2 : 1}`
+          : ''
+
     if (managerId) {
+      const params = [managerId]
+      if (dateFrom) params.push(dateFrom)
+      if (dateTo) params.push(dateTo)
+
       const row = await dbOneOrNone(`
         SELECT
-          (SELECT COUNT(*)::int FROM events WHERE manager_id = $1) AS total_events,
-          (SELECT COUNT(*)::int FROM events WHERE manager_id = $1 AND status IN ('published','active')) AS active_events,
+          (SELECT COUNT(*)::int FROM events WHERE manager_id = $1${eventDateCondition.replace(/\$2/g, `$${params.indexOf(dateFrom) + 1}`).replace(/\$3/g, `$${params.indexOf(dateTo) + 1}`)}) AS total_events,
+          (SELECT COUNT(*)::int FROM events WHERE manager_id = $1 AND status IN ('published','active')${eventDateCondition.replace(/\$2/g, `$${params.indexOf(dateFrom) + 1}`).replace(/\$3/g, `$${params.indexOf(dateTo) + 1}`)}) AS active_events,
           (SELECT COUNT(*)::int FROM bookings WHERE status = 'confirmed'
-             AND event_id IN (SELECT id FROM events WHERE manager_id = $1)) AS total_bookings,
+             AND event_id IN (SELECT id FROM events WHERE manager_id = $1)${dateCondition.replace(/\$2/g, `$${params.indexOf(dateFrom) + 1}`).replace(/\$3/g, `$${params.indexOf(dateTo) + 1}`)}) AS total_bookings,
           (SELECT COALESCE(SUM(total_amount),0)::numeric FROM bookings WHERE status = 'confirmed'
-             AND event_id IN (SELECT id FROM events WHERE manager_id = $1)) AS total_revenue
-      `, [managerId])
+             AND event_id IN (SELECT id FROM events WHERE manager_id = $1)${dateCondition.replace(/\$2/g, `$${params.indexOf(dateFrom) + 1}`).replace(/\$3/g, `$${params.indexOf(dateTo) + 1}`)}) AS total_revenue
+      `, params)
 
       return {
         totalUsers: null, // not relevant for scoped admin view
@@ -312,14 +361,31 @@ const adminService = {
       }
     }
 
+    // Build params for owner (global) stats
+    const params = []
+    let pIdx = 1
+    let dateP1 = '', dateP2 = ''
+    if (dateFrom) { params.push(dateFrom); dateP1 = `$${pIdx++}` }
+    if (dateTo) { params.push(dateTo); dateP2 = `$${pIdx++}` }
+
+    const bookingDateCond = dateFrom && dateTo
+      ? ` AND booked_at >= ${dateP1} AND booked_at <= ${dateP2}`
+      : dateFrom ? ` AND booked_at >= ${dateP1}` : dateTo ? ` AND booked_at <= ${dateP1}` : ''
+    const userDateCond = dateFrom && dateTo
+      ? ` AND created_at >= ${dateP1} AND created_at <= ${dateP2}`
+      : dateFrom ? ` AND created_at >= ${dateP1}` : dateTo ? ` AND created_at <= ${dateP1}` : ''
+    const eventDateCond = dateFrom && dateTo
+      ? ` AND created_at >= ${dateP1} AND created_at <= ${dateP2}`
+      : dateFrom ? ` AND created_at >= ${dateP1}` : dateTo ? ` AND created_at <= ${dateP1}` : ''
+
     const row = await dbOneOrNone(`
       SELECT
-        (SELECT COUNT(*)::int FROM users) AS total_users,
-        (SELECT COUNT(*)::int FROM events) AS total_events,
-        (SELECT COUNT(*)::int FROM events WHERE status IN ('published','active')) AS active_events,
-        (SELECT COUNT(*)::int FROM bookings WHERE status = 'confirmed') AS total_bookings,
-        (SELECT COALESCE(SUM(total_amount),0)::numeric FROM bookings WHERE status = 'confirmed') AS total_revenue
-    `)
+        (SELECT COUNT(*)::int FROM users WHERE 1=1${userDateCond}) AS total_users,
+        (SELECT COUNT(*)::int FROM events WHERE 1=1${eventDateCond}) AS total_events,
+        (SELECT COUNT(*)::int FROM events WHERE status IN ('published','active')${eventDateCond}) AS active_events,
+        (SELECT COUNT(*)::int FROM bookings WHERE status = 'confirmed'${bookingDateCond}) AS total_bookings,
+        (SELECT COALESCE(SUM(total_amount),0)::numeric FROM bookings WHERE status = 'confirmed'${bookingDateCond}) AS total_revenue
+    `, params)
 
     return {
       totalUsers: row?.total_users || 0,
@@ -444,6 +510,118 @@ const adminService = {
       bookingTrend,
       revenueTrend,
       recentTransactions
+    }
+  },
+
+  /**
+   * Payments with tickets — used by admin payments view
+   * Returns bookings joined with user info, event info, ticket counts, and payment details
+   */
+  async getPaymentsWithTickets(opts = {}) {
+    const { limit = 50, offset = 0, status = null, managerId = null, search = '', dateFrom = null, dateTo = null } = opts
+    let query = `
+      SELECT b.id, b.quantity, b.total_amount, b.status, b.booked_at,
+             u.id AS user_id, u.name AS user_name, u.email AS user_email, u.phone AS user_phone,
+             e.id AS event_id, e.name AS event_name,
+             COUNT(t.id)::int AS tickets_generated,
+             COUNT(t.check_in_at)::int AS tickets_checked_in,
+             p.transaction_id, p.gateway, p.status AS gateway_status, p.paid_at
+      FROM bookings b
+      JOIN users u ON u.id = b.user_id
+      JOIN events e ON e.id = b.event_id
+      LEFT JOIN tickets t ON t.booking_id = b.id
+      LEFT JOIN payments p ON p.booking_id = b.id
+    `
+    const params = []
+    const conditions = []
+    let p = 1
+
+    if (managerId) {
+      conditions.push(`e.manager_id = $${p++}`)
+      params.push(managerId)
+    }
+    if (status) {
+      conditions.push(`b.status = $${p++}`)
+      params.push(status)
+    }
+    if (search) {
+      conditions.push(`(LOWER(u.name) LIKE LOWER($${p}) OR LOWER(u.email) LIKE LOWER($${p + 1}) OR LOWER(e.name) LIKE LOWER($${p + 2}))`)
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`)
+      p += 3
+    }
+    if (dateFrom) {
+      conditions.push(`b.booked_at >= $${p++}`)
+      params.push(dateFrom)
+    }
+    if (dateTo) {
+      conditions.push(`b.booked_at <= $${p++}`)
+      params.push(dateTo)
+    }
+
+    if (conditions.length > 0) query += ` WHERE ${conditions.join(' AND ')}`
+    query += ` GROUP BY b.id, u.id, u.name, u.email, u.phone, e.id, e.name,
+               p.transaction_id, p.gateway, p.status, p.paid_at`
+    query += ` ORDER BY b.booked_at DESC LIMIT $${p++} OFFSET $${p++}`
+    params.push(limit, offset)
+
+    return dbAny(query, params)
+  },
+
+  /**
+   * Payment summary stats for KPI cards
+   */
+  async getPaymentStats(managerId = null, dateFrom = null, dateTo = null) {
+    const conditions = ['1=1']
+    const params = []
+    let pIdx = 1
+
+    if (managerId) {
+      conditions.push(`b.event_id IN (SELECT id FROM events WHERE manager_id = $${pIdx++})`)
+      params.push(managerId)
+    }
+    if (dateFrom) {
+      conditions.push(`b.booked_at >= $${pIdx++}`)
+      params.push(dateFrom)
+    }
+    if (dateTo) {
+      conditions.push(`b.booked_at <= $${pIdx++}`)
+      params.push(dateTo)
+    }
+
+    const whereClause = conditions.join(' AND ')
+
+    // For tickets subquery, we need to rebuild the conditions
+    const ticketConditions = managerId
+      ? `bk.event_id IN (SELECT id FROM events WHERE manager_id = $1)`
+      : '1=1'
+    const ticketDateCond = []
+    if (dateFrom) ticketDateCond.push(`bk.booked_at >= $${params.indexOf(dateFrom) + 1}`)
+    if (dateTo) ticketDateCond.push(`bk.booked_at <= $${params.indexOf(dateTo) + 1}`)
+    const ticketWhere = [ticketConditions, ...ticketDateCond, 'bk.status = \'confirmed\''].filter(Boolean).join(' AND ')
+
+    const row = await dbOneOrNone(`
+      SELECT
+        COUNT(*)::int AS total_payments,
+        COUNT(*) FILTER (WHERE b.status = 'confirmed')::int AS successful_payments,
+        COUNT(*) FILTER (WHERE b.status = 'pending')::int AS pending_payments,
+        COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS failed_payments,
+        COALESCE(SUM(b.total_amount) FILTER (WHERE b.status = 'confirmed'), 0)::numeric AS total_revenue,
+        COALESCE(AVG(b.total_amount) FILTER (WHERE b.status = 'confirmed'), 0)::numeric AS avg_order_value,
+        (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE ${ticketWhere}) AS total_tickets,
+        (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE t.check_in_at IS NOT NULL AND ${ticketWhere}) AS checked_in_tickets
+      FROM bookings b
+      WHERE ${whereClause}
+    `, params)
+
+    return {
+      totalPayments: row?.total_payments || 0,
+      successfulPayments: row?.successful_payments || 0,
+      pendingPayments: row?.pending_payments || 0,
+      failedPayments: row?.failed_payments || 0,
+      totalRevenue: parseFloat(row?.total_revenue) || 0,
+      avgOrderValue: Math.round(parseFloat(row?.avg_order_value) || 0),
+      totalTickets: row?.total_tickets || 0,
+      checkedInTickets: row?.checked_in_tickets || 0
     }
   },
 
