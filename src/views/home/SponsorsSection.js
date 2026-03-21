@@ -4,122 +4,62 @@ import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppPalette } from 'src/components/palette'
-import Icon from 'src/components/Icon'
 
 const MotionBox = motion(Box)
 
-/* ── Sponsor data with Iconify icon keys ───────────────────────────────── */
-// colorKey maps to a token in useAppPalette() — no hardcoded hex values
-const SPONSORS = [
-  { name: 'JetBrains',    icon: 'simple-icons:jetbrains',    colorKey: 'error' },
-  { name: 'AWS',          icon: 'simple-icons:amazonaws',    colorKey: 'warning' },
-  { name: 'GitHub',       icon: 'simple-icons:github',       colorKey: 'primary' },
-  { name: 'Postman',      icon: 'simple-icons:postman',      colorKey: 'warning' },
-  { name: 'MongoDB',      icon: 'simple-icons:mongodb',      colorKey: 'success' },
-  { name: 'Vercel',       icon: 'simple-icons:vercel',       colorKey: 'textSecondary' },
-  { name: 'Cloudinary',   icon: 'simple-icons:cloudinary',   colorKey: 'info' },
-  { name: 'Razorpay',     icon: 'simple-icons:razorpay',     colorKey: 'primaryLight' },
-  { name: 'Figma',        icon: 'simple-icons:figma',        colorKey: 'error' },
-  { name: 'Notion',       icon: 'simple-icons:notion',       colorKey: 'textDisabled' },
-  { name: 'Google Cloud', icon: 'simple-icons:googlecloud',  colorKey: 'info' },
-  { name: 'DigitalOcean', icon: 'simple-icons:digitalocean', colorKey: 'primaryDark' }
+/* ── Sponsor Categories with actual logos ───────────────────────────────── */
+const SPONSOR_CATEGORIES = [
+  {
+    category: 'Banking Partner',
+    logos: [
+      { name: 'HDFC Bank', src: '/sponsors/hdfc.png' }
+    ]
+  },
+  {
+    category: 'Community Partners',
+    logos: [
+      { name: 'Shekunj', src: '/sponsors/shekunj.png' },
+      { name: 'Mayor', src: '/sponsors/mayor.png' }
+    ]
+  },
+  {
+    category: 'Media Partner',
+    logos: [
+      { name: 'Indore Talk', src: '/sponsors/indoretalkWhite.png' }
+    ]
+  }
 ]
 
-/* ── Helpers ───────────────────────────────────────────────────────────── */
-
-function shuffleArray(arr) {
-  const shuffled = [...arr]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
-
-function distributeLogos(allLogos, columnCount) {
-  const shuffled = shuffleArray(allLogos)
-  const columns = Array.from({ length: columnCount }, () => [])
-  shuffled.forEach((logo, i) => { columns[i % columnCount].push(logo) })
-  const maxLen = Math.max(...columns.map(col => col.length))
-  columns.forEach(col => {
-    while (col.length < maxLen) {
-      col.push(shuffled[Math.floor(Math.random() * shuffled.length)])
-    }
-  })
-  return columns
-}
-
 /* ── Single animated logo column ───────────────────────────────────────── */
-
-const LogoColumn = memo(function LogoColumn({ logos, index, currentTime, c }) {
-  const cycleInterval = 2400
-  const columnDelay = index * 250
-  const adjustedTime = (currentTime + columnDelay) % (cycleInterval * logos.length)
-  const currentIndex = Math.floor(adjustedTime / cycleInterval)
-  const sponsor = logos[currentIndex]
-
+const SponsorLogo = memo(function SponsorLogo({ logo, c, isDark }) {
   return (
     <Box
       sx={{
         position: 'relative',
-        height: { xs: 90, md: 120 },
-        width: { xs: 90, md: 120 },
-        overflow: 'hidden'
+        height: { xs: 150, md: 200 },
+        width: { xs: 150, md: 200 },
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
-      <AnimatePresence mode='wait'>
-        <MotionBox
-          key={`${sponsor.name}-${currentIndex}`}
-          initial={{ y: '15%', opacity: 0, filter: 'blur(6px)' }}
-          animate={{
-            y: '0%',
-            opacity: 1,
-            filter: 'blur(0px)',
-            transition: { type: 'spring', stiffness: 280, damping: 22, duration: 0.5 }
-          }}
-          exit={{
-            y: '-20%',
-            opacity: 0,
-            filter: 'blur(5px)',
-            transition: { ease: 'easeIn', duration: 0.25 }
-          }}
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1
-          }}
-        >
-          <Icon
-            icon={sponsor.icon}
-            fontSize={48}
-            style={{ color: c[sponsor.colorKey] }}
-          />
-          <Typography
-            variant='caption'
-            sx={{
-              color: c.textSecondary,
-              fontWeight: 600,
-              fontSize: { xs: '0.6rem', md: '0.72rem' },
-              textAlign: 'center',
-              lineHeight: 1.2,
-              px: 0.5
-            }}
-          >
-            {sponsor.name}
-          </Typography>
-        </MotionBox>
-      </AnimatePresence>
+      <Box
+        component='img'
+        src={logo.src}
+        alt={logo.name}
+        sx={{
+          width: { xs: 130, md: 180 },
+          height: 'auto',
+          objectFit: 'contain',
+          filter: isDark ? 'drop-shadow(0 0 8px rgba(255,255,255,0.10))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.12))',
+          transition: 'transform 0.3s ease',
+          '&:hover': { transform: 'scale(1.1)' }
+        }}
+      />
     </Box>
   )
 })
-
-/* ── Tier badge row ────────────────────────────────────────────────────── */
-
-// Tiered sponsor grid removed — only animated logo columns are shown now.
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  SponsorsSection — Citronics 2026
@@ -127,23 +67,47 @@ const LogoColumn = memo(function LogoColumn({ logos, index, currentTime, c }) {
 
 export default function SponsorsSection() {
   const c = useAppPalette()
-  const columnCount = 3
+  const isDark = c.isDark
 
-  const [logoSets, setLogoSets] = useState([])
-  const [currentTime, setCurrentTime] = useState(0)
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0)
+  const [currentLogoIndex, setCurrentLogoIndex] = useState(0)
 
-  const updateTime = useCallback(() => setCurrentTime(prev => prev + 300), [])
-
+  // Cycle through categories: Community Partners stays for 2.4s (shows both), others for 2.4s each
   useEffect(() => {
-    const id = setInterval(updateTime, 300)
-    return () => clearInterval(id)
-  }, [updateTime])
+    const currentCategory = SPONSOR_CATEGORIES[currentCategoryIndex]
+    // Community Partners (index 1) shows both logos at once, so only 1 "iteration"
+    const itemCount = currentCategory.category === 'Community Partners' ? 1 : currentCategory.logos.length
+    const totalTime = itemCount * 2400
 
+    const categoryTimer = setInterval(() => {
+      setCurrentCategoryIndex(prev => (prev + 1) % SPONSOR_CATEGORIES.length)
+      setCurrentLogoIndex(0)
+    }, totalTime)
+
+    return () => clearInterval(categoryTimer)
+  }, [currentCategoryIndex])
+
+  // Cycle through logos within current category (skip for Community Partners)
   useEffect(() => {
-    setLogoSets(distributeLogos(SPONSORS, columnCount))
-  }, [columnCount])
+    const currentCategory = SPONSOR_CATEGORIES[currentCategoryIndex]
+    // Don't cycle through Community Partners - show both at once
+    if (currentCategory.category === 'Community Partners' || currentCategory.logos.length <= 1) return
 
-  // No tiered grid — keep only the animated columns
+    const logoTimer = setInterval(() => {
+      setCurrentLogoIndex(prev => (prev + 1) % currentCategory.logos.length)
+    }, 2400)
+
+    return () => clearInterval(logoTimer)
+  }, [currentCategoryIndex])
+
+  const currentCategory = SPONSOR_CATEGORIES[currentCategoryIndex]
+  const validLogoIndex = Math.min(currentLogoIndex, currentCategory.logos.length - 1)
+  const currentLogo = currentCategory.logos[validLogoIndex]
+
+  // Guard against undefined logo
+  if (!currentLogo) {
+    return null
+  }
 
   return (
     <Box
@@ -187,34 +151,116 @@ export default function SponsorsSection() {
           >
             Powering Citronics 2026
           </Typography>
-          
         </MotionBox>
 
-        {/* ── Animated logo carousel ─────────────────────────────── 
-        <MotionBox
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.15 }}
+        {/* ── Dynamic Category Display ─────────────────────────── */}
+        <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             justifyContent: 'center',
-            gap: { xs: 1.5, md: 2.5 },
-            mb: { xs: 3, md: 4 }
+            gap: 4,
+            mb: { xs: 6, md: 8 }
           }}
         >
-          {logoSets.map((logos, index) => (
-            <LogoColumn
-              key={index}
-              logos={logos}
-              index={index}
-              currentTime={currentTime}
-              c={c}
-            />
-          ))}
-        </MotionBox>
-*/}
-        {/* Tier list intentionally removed — animation only section */}
+          {/* Dynamic Category Heading */}
+          <AnimatePresence mode='wait'>
+            <MotionBox
+              key={currentCategoryIndex}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              sx={{ textAlign: 'center' }}
+            >
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  fontSize: { xs: '1.3rem', md: '1.6rem' },
+                  color: c.primary,
+                  letterSpacing: 1.2,
+                  textTransform: 'uppercase'
+                }}
+              >
+                {currentCategory.category}
+              </Typography>
+              <Box
+                sx={{
+                  width: 50,
+                  height: 3,
+                  background: c.gradientPrimary,
+                  borderRadius: '2px',
+                  mx: 'auto',
+                  mt: 1.5
+                }}
+              />
+            </MotionBox>
+          </AnimatePresence>
+
+          {/* Animated Logo Display */}
+          <AnimatePresence mode='wait'>
+            {currentCategory.category === 'Community Partners' ? (
+              // Show both Community Partner logos side by side
+              <MotionBox
+                key={`${currentCategoryIndex}-both`}
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 200,
+                  damping: 25,
+                  duration: 0.6
+                }}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: { xs: 2, md: 4 },
+                  flexWrap: 'wrap'
+                }}
+              >
+                {currentCategory.logos.map((logo) => (
+                  <Box key={logo.name}>
+                    <SponsorLogo
+                      logo={logo}
+                      c={c}
+                      isDark={isDark}
+                    />
+                  </Box>
+                ))}
+              </MotionBox>
+            ) : (
+              // Show single logo for other categories
+              <MotionBox
+                key={`${currentCategoryIndex}-${currentLogoIndex}`}
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 200,
+                  damping: 25,
+                  duration: 0.6
+                }}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}
+              >
+                <SponsorLogo
+                  logo={currentLogo}
+                  c={c}
+                  isDark={isDark}
+                />
+              </MotionBox>
+            )}
+          </AnimatePresence>
+
+         
+        </Box>
+
+        
       </Container>
     </Box>
   )
