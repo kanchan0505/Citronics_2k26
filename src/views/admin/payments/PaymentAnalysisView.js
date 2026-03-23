@@ -141,16 +141,35 @@ const PaymentAnalysisView = () => {
             {row.user_name?.[0]?.toUpperCase() ?? 'U'}
           </Avatar>
             <Typography variant='body2' fontWeight={600} noWrap>{row.user_name || '—'}</Typography>
-            <Typography variant='caption' color='text.secondary' noWrap>{row.user_email || ''}</Typography>
         </Box>
+      )
+    },
+    { field: 'user_email', headerName: 'Email', width: 220,
+      renderCell: ({ row }) => (
+        <Tooltip title={row.user_email || '—'} arrow >
+        <Typography variant='body2' color='text.secondary' noWrap >
+          {row.user_email || '—'}
+        </Typography>
+        </Tooltip>
+      )
+    },
+
+    {
+      field: 'user_phone', headerName: 'Phone', width: 130,
+      renderCell: ({ row }) => (
+        <Typography variant='body2' color='text.secondary'>
+          {row.user_phone || '—'}
+        </Typography>
       )
     },
     {
       field: 'event_name', headerName: 'Event', flex: 1, minWidth: 180,
       renderCell: ({ row }) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth:0}}>
           <Icon icon='tabler:calendar-event' fontSize={16} style={{ color: theme.palette.text.secondary, flexShrink: 0 }} />
+          <Tooltip title={row.event_name || '—'} arrow>
           <Typography variant='body2' fontWeight={500} noWrap>{row.event_name || '—'}</Typography>
+          </Tooltip>
         </Box>
       )
     },
@@ -169,33 +188,8 @@ const PaymentAnalysisView = () => {
       )
     },
     {
-      field: 'tickets_generated', headerName: 'Tickets', width: 130,
-      renderCell: ({ row }) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <Tooltip title={`${row.tickets_generated || 0} generated, ${row.tickets_checked_in || 0} checked in`}>
-            <Chip
-              icon={<Icon icon='tabler:ticket' fontSize={14} />}
-              label={`${row.tickets_generated || 0}${row.tickets_checked_in > 0 ? ` (${row.tickets_checked_in} in)` : ''}`}
-              size='small'
-              color={row.tickets_generated > 0 ? 'success' : 'default'}
-              variant={row.tickets_generated > 0 ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 600, fontSize: 11 }}
-            />
-          </Tooltip>
-        </Box>
-      )
-    },
-    {
-      field: 'status', headerName: 'Status', width: 120, sortable: false,
+      field: 'status', headerName: 'Status', width: 180, sortable: false,
       renderCell: ({ row }) => <CustomChip label={row.status} type='payment' />
-    },
-    {
-      field: 'payment_method', headerName: 'Method', width: 110,
-      renderCell: ({ row }) => (
-        <Typography variant='caption' color='text.secondary' sx={{ textTransform: 'capitalize' }}>
-          {row.payment_method || '—'}
-        </Typography>
-      )
     },
     {
       field: 'booked_at', headerName: 'Date', width: 170,
