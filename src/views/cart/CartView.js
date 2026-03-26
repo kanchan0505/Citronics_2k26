@@ -34,7 +34,8 @@ function formatDate(iso) {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'Asia/Kolkata'
   })
 }
 
@@ -43,7 +44,8 @@ function formatTime(iso) {
   return new Date(iso).toLocaleTimeString('en-IN', {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
+    timeZone: 'Asia/Kolkata'
   })
 }
 

@@ -20,9 +20,9 @@ const MotionBox = motion(Box)
   if (!iso) return { dayNum: '', weekday: '', month: '' }
   const d = new Date(iso)
   return {
-    dayNum: d.getDate(),
-    weekday: d.toLocaleDateString('en-US', { weekday: 'long' }),
-    month: d.toLocaleDateString('en-US', { month: 'long' })
+    dayNum: d.toLocaleDateString('en-US', { day: 'numeric', timeZone: 'Asia/Kolkata' }),
+    weekday: d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Asia/Kolkata' }),
+    month: d.toLocaleDateString('en-US', { month: 'long', timeZone: 'Asia/Kolkata' })
   }
 }
 

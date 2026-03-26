@@ -106,17 +106,19 @@ function FeaturedEventsSkeleton() {
 function parseDate(raw) {
   if (!raw) return { dayOfWeek: '—', full: '—', time: '—' }
   const d = new Date(raw)
-  const dayOfWeek = d.toLocaleDateString('en-US', { weekday: 'long' })
+  const dayOfWeek = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Asia/Kolkata' })
   const full = d.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'Asia/Kolkata'
   })
   const time = d.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
+    timeZone: 'Asia/Kolkata'
   })
   return { dayOfWeek, full, time }
 }
