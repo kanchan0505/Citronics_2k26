@@ -545,7 +545,7 @@ const adminService = {
              e.id AS event_id, e.name AS event_name,
              COUNT(t.id)::int AS tickets_generated,
              COUNT(t.check_in_at)::int AS tickets_checked_in,
-             p.transaction_id, p.gateway, p.status AS gateway_status, p.paid_at
+             p.transaction_id, p.juspay_order_id, p.gateway, p.status AS gateway_status, p.paid_at
       FROM bookings b
       JOIN users u ON u.id = b.user_id
       JOIN events e ON e.id = b.event_id
@@ -578,7 +578,7 @@ const adminService = {
 
     if (conditions.length > 0) query += ` WHERE ${conditions.join(' AND ')}`
     query += ` GROUP BY b.id, u.id, u.name, u.email, u.phone, e.id, e.name,
-               p.transaction_id, p.gateway, p.status, p.paid_at`
+               p.transaction_id, p.juspay_order_id, p.gateway, p.status, p.paid_at`
     query += ` ORDER BY b.booked_at DESC LIMIT $${p++} OFFSET $${p++}`
     params.push(limit, offset)
 
@@ -613,13 +613,14 @@ const adminService = {
 
     const whereClause = conditions.join(' AND ')
 
-    // For tickets subquery, we need to rebuild the conditions
-    const ticketConditions = managerId
+    // For tickets/payment subqueries, we need to rebuild the conditions
+    const subqueryManagerCond = managerId
       ? `bk.event_id IN (SELECT id FROM events WHERE manager_id = $${managerParamPosition})`
       : '1=1'
-    const ticketDateCond = [`bk.booked_at >= $${fromParamPosition}`]
-    if (toParamPosition) ticketDateCond.push(`bk.booked_at <= $${toParamPosition}`)
-    const ticketWhere = [ticketConditions, ...ticketDateCond, 'bk.status = \'confirmed\''].filter(Boolean).join(' AND ')
+    const subqueryDateCond = [`bk.booked_at >= $${fromParamPosition}`]
+    if (toParamPosition) subqueryDateCond.push(`bk.booked_at <= $${toParamPosition}`)
+    const ticketWhere = [subqueryManagerCond, ...subqueryDateCond, 'bk.status = \'confirmed\''].filter(Boolean).join(' AND ')
+    const paymentWhere = [subqueryManagerCond, ...subqueryDateCond, "p.status IN ('success', 'refunded')"].filter(Boolean).join(' AND ')
 
     const row = await dbOneOrNone(`
       SELECT
@@ -627,8 +628,8 @@ const adminService = {
         COUNT(*) FILTER (WHERE b.status = 'confirmed')::int AS successful_payments,
         COUNT(*) FILTER (WHERE b.status = 'pending')::int AS pending_payments,
         COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS failed_payments,
-        COALESCE(SUM(b.total_amount) FILTER (WHERE b.status = 'confirmed'), 0)::numeric AS total_revenue,
-        COALESCE(AVG(b.total_amount) FILTER (WHERE b.status = 'confirmed'), 0)::numeric AS avg_order_value,
+        COALESCE((SELECT SUM(p.amount - COALESCE(p.refund_amount, 0)) FROM payments p JOIN bookings bk ON bk.id = p.booking_id WHERE ${paymentWhere}), 0)::numeric AS total_revenue,
+        COALESCE((SELECT AVG(p.amount - COALESCE(p.refund_amount, 0)) FROM payments p JOIN bookings bk ON bk.id = p.booking_id WHERE ${paymentWhere} AND (p.amount - COALESCE(p.refund_amount, 0)) > 0), 0)::numeric AS avg_order_value,
         (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE ${ticketWhere}) AS total_tickets,
         (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE t.check_in_at IS NOT NULL AND ${ticketWhere}) AS checked_in_tickets
       FROM bookings b

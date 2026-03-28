@@ -129,6 +129,34 @@ const PaymentAnalysisView = () => {
 
   const txnCols = [
     {
+      field: 'id', headerName: 'Order ID', width: 100,
+      renderCell: ({ row }) => (
+        <Typography variant='body2' fontWeight={600} sx={{ fontFamily: 'monospace' }}>
+          #{row.id}
+        </Typography>
+      )
+    },
+    {
+      field: 'juspay_order_id', headerName: 'Juspay ID', width: 180,
+      renderCell: ({ row }) => (
+        <Tooltip title={row.juspay_order_id || '—'} arrow>
+          <Typography variant='body2' color='text.secondary' noWrap sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+            {row.juspay_order_id || '—'}
+          </Typography>
+        </Tooltip>
+      )
+    },
+    {
+      field: 'transaction_id', headerName: 'Transaction ID', width: 180,
+      renderCell: ({ row }) => (
+        <Tooltip title={row.transaction_id || '—'} arrow>
+          <Typography variant='body2' color='text.secondary' noWrap sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+            {row.transaction_id || '—'}
+          </Typography>
+        </Tooltip>
+      )
+    },
+    {
       field: 'user_name', headerName: 'User', flex: 1, minWidth: 220,
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
