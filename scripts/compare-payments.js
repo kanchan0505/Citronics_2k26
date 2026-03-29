@@ -16,7 +16,7 @@ const os = require('os');
 
 // ─── CSV Parser (handles quoted fields with commas) ───
 function parseCSV(content) {
-  const lines = content.trim().split('\n');
+  const lines = content.trim().split(/\r?\n/);
   const headers = parseCSVLine(lines[0]);
   const rows = [];
   for (let i = 1; i < lines.length; i++) {

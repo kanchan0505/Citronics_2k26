@@ -627,10 +627,10 @@ const adminService = {
 
     const row = await dbOneOrNone(`
       SELECT
-        COUNT(*)::int AS total_payments,
-        COUNT(*) FILTER (WHERE b.status = 'confirmed')::int AS successful_payments,
-        COUNT(*) FILTER (WHERE b.status = 'pending')::int AS pending_payments,
-        COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS failed_payments,
+        COUNT(DISTINCT b.id)::int AS total_payments,
+        COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'confirmed')::int AS successful_payments,
+        COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'pending')::int AS pending_payments,
+        COUNT(DISTINCT b.id) FILTER (WHERE b.status = 'cancelled')::int AS failed_payments,
         COALESCE((SELECT SUM(p.amount - COALESCE(p.refund_amount, 0)) FROM payments p JOIN bookings bk ON bk.id = p.booking_id WHERE ${paymentWhere}), 0)::numeric AS total_revenue,
         COALESCE((SELECT AVG(p.amount - COALESCE(p.refund_amount, 0)) FROM payments p JOIN bookings bk ON bk.id = p.booking_id WHERE ${paymentWhere} AND (p.amount - COALESCE(p.refund_amount, 0)) > 0), 0)::numeric AS avg_order_value,
         (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE ${ticketWhere}) AS total_tickets,

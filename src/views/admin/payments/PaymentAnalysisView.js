@@ -107,8 +107,22 @@ const PaymentAnalysisView = () => {
   const handleSearch = () => setSearch(searchInput.trim())
   const handleSearchKeyDown = e => { if (e.key === 'Enter') handleSearch() }
 
+  // Escape a single CSV field: quote when it contains commas/quotes/newlines,
+  // and prefix formula-triggering characters to prevent spreadsheet injection.
+  const escapeCSVField = val => {
+    if (val == null) return ''
+    let str = String(val)
+    // Sanitize formula injection — prefix with single quote
+    if (/^[=+\-@\t\r]/.test(str)) str = "'" + str
+    str = str.replace(/"/g, '""')
+    return str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')
+      ? `"${str}"`
+      : str
+  }
+
   const handleExportAll = async () => {
     setExporting(true)
+    setError('')
     try {
       const params = new URLSearchParams()
       if (statusFilter) params.set('status', statusFilter)
@@ -132,17 +146,17 @@ const PaymentAnalysisView = () => {
       const csvContent = [
         headers.join(','),
         ...allPayments.map(row => [
-          row.id,
-          row.juspay_order_id || '',
-          row.transaction_id || '',
-          `"${(row.user_name || '').replace(/"/g, '""')}"`,
-          row.user_email || '',
-          row.user_phone || '',
-          `"${(row.event_name || '').replace(/"/g, '""')}"`,
+          escapeCSVField(row.id),
+          escapeCSVField(row.juspay_order_id),
+          escapeCSVField(row.transaction_id),
+          escapeCSVField(row.user_name),
+          escapeCSVField(row.user_email),
+          escapeCSVField(row.user_phone),
+          escapeCSVField(row.event_name),
           row.total_amount || 0,
           row.quantity || 1,
-          row.status || '',
-          row.gateway_status || '',
+          escapeCSVField(row.status),
+          escapeCSVField(row.gateway_status),
           row.booked_at ? format(new Date(row.booked_at), 'yyyy-MM-dd HH:mm:ss') : ''
         ].join(','))
       ].join('\n')
