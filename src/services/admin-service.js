@@ -575,6 +575,8 @@ const adminService = {
       conditions.push(`b.booked_at <= $${p++}`)
       params.push(dateTo)
     }
+    // Exclude sandbox payments — sandbox sdk_payload contains hdfcuat domain
+    conditions.push(`(p.sdk_payload IS NULL OR p.sdk_payload::text NOT LIKE '%hdfcuat%')`)
 
     if (conditions.length > 0) query += ` WHERE ${conditions.join(' AND ')}`
     query += ` GROUP BY b.id, u.id, u.name, u.email, u.phone, e.id, e.name,
@@ -620,7 +622,8 @@ const adminService = {
     const subqueryDateCond = [`bk.booked_at >= $${fromParamPosition}`]
     if (toParamPosition) subqueryDateCond.push(`bk.booked_at <= $${toParamPosition}`)
     const ticketWhere = [subqueryManagerCond, ...subqueryDateCond, 'bk.status = \'confirmed\''].filter(Boolean).join(' AND ')
-    const paymentWhere = [subqueryManagerCond, ...subqueryDateCond, "p.status IN ('success', 'refunded')"].filter(Boolean).join(' AND ')
+    const sandboxExclude = "(p.sdk_payload IS NULL OR p.sdk_payload::text NOT LIKE '%hdfcuat%')"
+    const paymentWhere = [subqueryManagerCond, ...subqueryDateCond, "p.status IN ('success', 'refunded')", sandboxExclude].filter(Boolean).join(' AND ')
 
     const row = await dbOneOrNone(`
       SELECT
@@ -633,7 +636,8 @@ const adminService = {
         (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE ${ticketWhere}) AS total_tickets,
         (SELECT COUNT(*)::int FROM tickets t JOIN bookings bk ON bk.id = t.booking_id WHERE t.check_in_at IS NOT NULL AND ${ticketWhere}) AS checked_in_tickets
       FROM bookings b
-      WHERE ${whereClause}
+      LEFT JOIN payments p ON p.booking_id = b.id
+      WHERE ${whereClause} AND ${sandboxExclude}
     `, params)
 
     return {

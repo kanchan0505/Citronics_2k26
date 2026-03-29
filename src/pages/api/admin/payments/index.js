@@ -14,7 +14,9 @@ export default async function handler(req, res) {
 
   try {
     const managerId = permissions.isOwner ? null : user.id
-    const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 200)
+    const isExport = req.query.export === 'true'
+    const maxLimit = isExport ? 10000 : 200
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), maxLimit)
     const offset = Math.max(parseInt(req.query.offset) || 0, 0)
     const status = ['confirmed', 'pending', 'cancelled'].includes(req.query.status)
       ? req.query.status
