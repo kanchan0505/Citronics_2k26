@@ -47,8 +47,8 @@ export default async function handler(req, res) {
     if (!college?.trim()) return res.status(400).json({ error: 'College name is required' })
     if (!city?.trim()) return res.status(400).json({ error: 'City is required' })
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) return res.status(400).json({ error: 'Invalid email format' })
+    const emailRegex = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/
+    if (email.length > 254 || !emailRegex.test(email)) return res.status(400).json({ error: 'Invalid email format' })
 
     if (phone && !/^\+?[\d\s-]{7,20}$/.test(phone)) {
       return res.status(400).json({ error: 'Invalid phone number' })
