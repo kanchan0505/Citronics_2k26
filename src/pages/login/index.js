@@ -622,33 +622,50 @@ const LoginPage = () => {
                 )}
 
                 {isExistingUser ? (
-                  /* Existing user: password only */
-                  <CustomTextField
-                    fullWidth
-                    label='Password'
-                    name='password'
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder='Enter your password'
-                    value={form.password}
-                    onChange={handleChange}
-                    error={!!errors.password}
-                    helperText={errors.password || ' '}
-                    disabled={loading}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <Icon icon='tabler:lock' fontSize={17} color={errors.password ? c.error : c.textDisabled} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton size='small' onClick={() => setShowPassword(!showPassword)} edge='end'>
-                            {showPassword ? <Icon icon='tabler:eye-off' fontSize={17} /> : <Icon icon='tabler:eye' fontSize={17} />}
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
+                  /* Existing user: password + forgot link */
+                  <Box>
+                    <CustomTextField
+                      fullWidth
+                      label='Password'
+                      name='password'
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder='Enter your password'
+                      value={form.password}
+                      onChange={handleChange}
+                      error={!!errors.password}
+                      helperText={errors.password || ' '}
+                      disabled={loading}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>
+                            <Icon icon='tabler:lock' fontSize={17} color={errors.password ? c.error : c.textDisabled} />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton size='small' onClick={() => setShowPassword(!showPassword)} edge='end'>
+                              {showPassword ? <Icon icon='tabler:eye-off' fontSize={17} /> : <Icon icon='tabler:eye' fontSize={17} />}
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                    <Box sx={{ textAlign: 'right', mt: -0.5 }}>
+                      <Box
+                        component='button'
+                        type='button'
+                        onClick={() => router.push('/forgot-password')}
+                        sx={{
+                          all: 'unset', display: 'inline', cursor: 'pointer',
+                          color: 'primary.main', fontWeight: 600, fontSize: '0.78rem', fontFamily: 'inherit',
+                          '&:hover, &:focus-visible': { textDecoration: 'underline' },
+                          '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2, borderRadius: '2px' }
+                        }}
+                      >
+                        Forgot Password?
+                      </Box>
+                    </Box>
+                  </Box>
                 ) : (
                   /* New user: 2-column grid on sm+ */
                   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
