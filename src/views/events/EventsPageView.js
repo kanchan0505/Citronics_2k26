@@ -104,11 +104,7 @@ const EventCard = memo(function EventCard({ event, index }) {
   const isInCart = cartItems.some(item => item.eventId === event.id)
   const imageUrl = getEventImage(event)
   const spotsLeft = event.seats > 0 ? event.seats - (event.registered || 0) : null
-  // ctaState: 'closed' | 'soldout' | 'open'
-  const ctaState = !!event.registration_closed ? 'closed'
-    : (spotsLeft !== null && spotsLeft <= 0) ? 'soldout'
-    : 'open'
-  const isDisabled = ctaState !== 'open'
+  const isRegClosed = !!event.registration_closed
   const displayDate = event.date || parseEventDate(event.start_time).full
   const time = formatEventTime(event.start_time)
 
@@ -187,7 +183,7 @@ const EventCard = memo(function EventCard({ event, index }) {
 
       {/* Mobile primary action row — xs only, shown horizontally below image */}
       <Box sx={{ display: { xs: 'flex', sm: 'none' }, px: 2.5, pt: 0, pb: 1.5, gap: 1 }}>
-        {ctaState !== 'open' ? (
+        {isRegClosed ? (
           <Button
             variant='contained'
             size='small'
@@ -205,7 +201,7 @@ const EventCard = memo(function EventCard({ event, index }) {
               py: 0.45,
             }}
           >
-            {ctaState === 'closed' ? 'Registration Closed' : 'Sold Out'}
+            Registration Closed
           </Button>
         ) : event.registration_link ? (
           <Button
@@ -239,7 +235,7 @@ const EventCard = memo(function EventCard({ event, index }) {
               variant='contained'
               size='small'
               disableElevation
-              disabled={isDisabled || isInCart}
+              disabled={isRegClosed || isInCart}
               onClick={() => dispatch(addToCart({
                 eventId: event.id,
                 title: event.title,
@@ -271,7 +267,7 @@ const EventCard = memo(function EventCard({ event, index }) {
               variant='outlined'
               size='small'
               disableElevation
-              disabled={isDisabled}
+              disabled={isRegClosed}
               onClick={() => {
                 dispatch(setCheckoutItems({
                   items: [{ eventId: event.id, quantity: 1 }],
@@ -368,7 +364,7 @@ const EventCard = memo(function EventCard({ event, index }) {
         >
           {/* Primary buttons — hidden on mobile (rendered above image) */}
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', gap: 1, width: '100%' }}>
-            {ctaState !== 'open' ? (
+            {isRegClosed ? (
               <Button
                 variant='contained'
                 size='small'
@@ -385,7 +381,7 @@ const EventCard = memo(function EventCard({ event, index }) {
                   textTransform: 'uppercase',
                 }}
               >
-                {ctaState === 'closed' ? 'Registration Closed' : 'Sold Out'}
+                Registration Closed
               </Button>
             ) : event.registration_link ? (
               <Button
@@ -419,7 +415,7 @@ const EventCard = memo(function EventCard({ event, index }) {
                   variant='contained'
                   size='small'
                   disableElevation
-                  disabled={isDisabled || isInCart}
+                  disabled={isRegClosed || isInCart}
                   onClick={() => dispatch(addToCart({
                     eventId: event.id,
                     title: event.title,
@@ -451,7 +447,7 @@ const EventCard = memo(function EventCard({ event, index }) {
                   variant='contained'
                   size='small'
                   disableElevation
-                  disabled={isDisabled}
+                  disabled={isRegClosed}
                   onClick={() => {
                     dispatch(setCheckoutItems({
                       items: [{ eventId: event.id, quantity: 1 }],

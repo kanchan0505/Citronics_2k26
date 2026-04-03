@@ -18,9 +18,7 @@ import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Link from '@mui/material/Link'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Skeleton from '@mui/material/Skeleton'
-import Switch from '@mui/material/Switch'
 import InputAdornment from '@mui/material/InputAdornment'
 import Icon from 'src/components/Icon'
 import { canModify } from 'src/configs/acl'
@@ -49,8 +47,7 @@ const EditEventPage = () => {
     name: '', description: '', venue: '',
     startTime: '', endTime: '',
     maxTickets: '', ticketPrice: '',
-    departmentId: '', status: 'draft', visibility: 'public',
-    registrationClosed: false
+    departmentId: '', status: 'draft', visibility: 'public'
   })
   const [formErrors, setFormErrors] = useState({})
 
@@ -79,8 +76,7 @@ const EditEventPage = () => {
           ticketPrice: ev.ticket_price ?? '',
           departmentId: ev.department_id || '',
           status: ev.status || 'draft',
-          visibility: ev.visibility || 'public',
-          registrationClosed: !!ev.registration_closed
+          visibility: ev.visibility || 'public'
         })
       } catch (e) {
         setError(e.response?.data?.error || 'Failed to load event.')
@@ -128,8 +124,7 @@ const EditEventPage = () => {
         ticketPrice: parseFloat(form.ticketPrice) || 0,
         departmentId: form.departmentId || null,
         status: form.status,
-        visibility: form.visibility,
-        registrationClosed: form.registrationClosed
+        visibility: form.visibility
       })
       toast.success('Event updated successfully!')
       router.push(`/admin/events/${id}`)
@@ -313,26 +308,6 @@ const EditEventPage = () => {
                   </Select>
                 </FormControl>
               )}
-              <Box sx={{ mt: 2 }}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={form.registrationClosed}
-                      onChange={e => setForm(prev => ({ ...prev, registrationClosed: e.target.checked }))}
-                      color='error'
-                      disabled={pageLoading}
-                    />
-                  }
-                  label={
-                    <Box>
-                      <Typography variant='body2' fontWeight={700}>Close Registration</Typography>
-                      <Typography variant='caption' color='text.secondary'>
-                        Prevents new purchases for this event
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </Box>
             </CardContent>
             <Divider />
             <CardActions sx={{ px: 2, py: 1.5, justifyContent: 'flex-end', gap: 1 }}>

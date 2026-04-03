@@ -301,9 +301,6 @@ const adminService = {
     if (visibility !== undefined && ['public', 'private', 'invite_only', 'college_only'].includes(visibility)) {
       updates.push(`visibility = $${p++}`); params.push(visibility)
     }
-    if (data.registrationClosed !== undefined) {
-      updates.push(`registration_closed = $${p++}`); params.push(!!data.registrationClosed)
-    }
     if (updates.length === 0) return null
 
     updates.push(`updated_at = CURRENT_TIMESTAMP`)

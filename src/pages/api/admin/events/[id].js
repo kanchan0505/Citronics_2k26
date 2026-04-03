@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       const event = await adminService.getEventById(eventId)
       if (!event) return res.status(404).json({ success: false, message: 'Event not found' })
 
-      const { name, description, startTime, endTime, venue, maxTickets, ticketPrice, departmentId, status, visibility, registrationClosed } = req.body
+      const { name, description, startTime, endTime, venue, maxTickets, ticketPrice, departmentId, status, visibility } = req.body
 
       const updated = await adminService.updateEvent(eventId, {
         name, description,
@@ -52,8 +52,7 @@ export default async function handler(req, res) {
         venue,
         maxTickets: maxTickets ? parseInt(maxTickets, 10) : undefined,
         ticketPrice: ticketPrice !== undefined ? parseFloat(ticketPrice) : undefined,
-        departmentId, status, visibility,
-        registrationClosed
+        departmentId, status, visibility
       })
 
       return res.status(200).json({ success: true, message: 'Event updated successfully', data: updated })

@@ -233,11 +233,7 @@ export default function EventDetailView() {
   const currentImage = allImages[activeImageIndex] || null
   const hasGallery = allImages.length > 1
   const isOver = event.start_time ? new Date(event.start_time).getTime() <= Date.now() : false
-  // ctaState: 'closed' | 'soldout' | 'open'
-  const ctaState = !!event.registration_closed ? 'closed'
-    : (spotsLeft <= 0) ? 'soldout'
-    : 'open'
-  const isDisabled = ctaState !== 'open'
+  const isRegClosed = !!event.registration_closed
   const details = event.details || {}
 
   const hasPrizes = details.prize && typeof details.prize === 'object' && Object.keys(details.prize).length > 0
@@ -502,7 +498,7 @@ export default function EventDetailView() {
             {/* ── Mobile inline action buttons ── */}
             {isMobile && (
               <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {ctaState !== 'open' ? (
+                {isRegClosed ? (
                   <Button
                     variant='contained'
                     disableElevation
@@ -518,7 +514,7 @@ export default function EventDetailView() {
                       py: 1.5,
                     }}
                   >
-                    {ctaState === 'closed' ? 'Registration Closed' : 'Sold Out'}
+                    Registration Closed
                   </Button>
                 ) : event.registration_link ? (
                   <Button
@@ -547,7 +543,7 @@ export default function EventDetailView() {
                     variant='contained'
                     disableElevation
                     fullWidth
-                    disabled={isDisabled}
+                    disabled={isRegClosed}
                     onClick={() => {
                       dispatch(setCheckoutItems({
                         items: [{ eventId: event.id, quantity: 1 }],
@@ -575,11 +571,11 @@ export default function EventDetailView() {
                     Buy Now
                   </Button>
                 )}
-                {ctaState === 'open' && !event.registration_link && (
+                {!isRegClosed && !event.registration_link && (
                   <Button
                     variant='outlined'
                     fullWidth
-                    disabled={isDisabled}
+                    disabled={isRegClosed}
                     onClick={() => dispatch(addToCart({
                       eventId: event.id,
                       title: event.title,
@@ -1019,7 +1015,7 @@ export default function EventDetailView() {
             {/* ── Mobile inline action buttons ── */}
             {isMobile && (
               <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {ctaState !== 'open' ? (
+                {isRegClosed ? (
                   <Button
                     variant='contained'
                     disableElevation
@@ -1035,7 +1031,7 @@ export default function EventDetailView() {
                       py: 1.5,
                     }}
                   >
-                    {ctaState === 'closed' ? 'Registration Closed' : 'Sold Out'}
+                    Registration Closed
                   </Button>
                 ) : (
                   <>
@@ -1043,7 +1039,7 @@ export default function EventDetailView() {
                       variant='contained'
                       disableElevation
                       fullWidth
-                      disabled={isDisabled}
+                      disabled={isRegClosed}
                       onClick={() => {
                         dispatch(setCheckoutItems({
                           items: [{ eventId: event.id, quantity: 1 }],
@@ -1073,7 +1069,7 @@ export default function EventDetailView() {
                     <Button
                       variant='outlined'
                       fullWidth
-                      disabled={isDisabled}
+                      disabled={isRegClosed}
                       onClick={() => dispatch(addToCart({
                     eventId: event.id,
                     title: event.title,
@@ -1198,7 +1194,7 @@ export default function EventDetailView() {
           </Button>
 
           {/* Registration Link or Normal Purchase Buttons */}
-          {ctaState !== 'open' ? (
+          {isRegClosed ? (
             <Button
               variant='outlined'
               disableElevation
@@ -1215,7 +1211,7 @@ export default function EventDetailView() {
                 color: c.textDisabled,
               }}
             >
-              {ctaState === 'closed' ? 'Registration Closed' : 'Sold Out'}
+              Registration Closed
             </Button>
           ) : event.registration_link ? (
             // Registration Link Button (Desktop)
@@ -1252,7 +1248,7 @@ export default function EventDetailView() {
               <Button
                 variant='outlined'
                 disableElevation
-                disabled={isDisabled}
+                disabled={isRegClosed}
                 onClick={() => dispatch(addToCart({
                   eventId: event.id,
                   title: event.title,
@@ -1291,7 +1287,7 @@ export default function EventDetailView() {
               <Button
                 variant='outlined'
                 disableElevation
-                disabled={isDisabled}
+                disabled={isRegClosed}
                 onClick={() => {
                   dispatch(setCheckoutItems({
                     items: [{ eventId: event.id, quantity: 1 }],
