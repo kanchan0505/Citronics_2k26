@@ -128,9 +128,7 @@ function CartItem({ item, accent }) {
   const dispatch = useDispatch()
   const imageUrl = getItemImage(item)
   const subtotal = item.ticketPrice * item.quantity
-  const isClosed = !!item.registrationClosed
-  const isSoldOut = !isClosed && (item.maxAvailable === 0 || item.maxAvailable === null)
-  const isUnavailable = isClosed || isSoldOut
+  const isUnavailable = !!item.registrationClosed
 
   return (
     <Box
@@ -186,7 +184,7 @@ function CartItem({ item, accent }) {
             >
               {item.title}
             </Typography>
-            {isClosed && (
+            {isUnavailable && (
               <Typography
                 variant='caption'
                 sx={{
@@ -204,26 +202,6 @@ function CartItem({ item, accent }) {
                 }}
               >
                 Registration Closed
-              </Typography>
-            )}
-            {isSoldOut && (
-              <Typography
-                variant='caption'
-                sx={{
-                  display: 'inline-block',
-                  bgcolor: alpha(c.error || '#f44336', 0.1),
-                  color: c.error || '#f44336',
-                  fontWeight: 700,
-                  px: 1,
-                  py: 0.2,
-                  borderRadius: '4px',
-                  fontSize: '0.72rem',
-                  letterSpacing: 0.5,
-                  textTransform: 'uppercase',
-                  mb: 0.5
-                }}
-              >
-                Sold Out
               </Typography>
             )}
           </Box>
@@ -364,8 +342,7 @@ export default function CartView() {
   const itemCount = useSelector(selectCartItemCount)
   const subtotal = useSelector(selectCartSubtotal)
   const { validating, hydrated, validationRemovedCount } = useSelector(state => state.cart)
-  const hasClosedItems = items.some(item => item.registrationClosed)
-  const hasSoldOutItems = items.some(item => !item.registrationClosed && (item.maxAvailable === 0 || item.maxAvailable === null))
+  const hasUnavailableItems = items.some(item => item.registrationClosed)
 
   // Validate on every cart page visit.
   // - Initial load: fires when hydrated flips false→true (after CartHydrator dispatches hydrateCart).
@@ -564,7 +541,7 @@ export default function CartView() {
           </Box>
 
           {/* Checkout CTA */}
-          {(hasClosedItems || hasSoldOutItems) && (
+          {hasUnavailableItems && (
             <Typography
               variant='caption'
               sx={{
@@ -576,16 +553,14 @@ export default function CartView() {
                 fontSize: '0.8rem'
               }}
             >
-              {hasClosedItems && !hasSoldOutItems && 'Remove closed events from your cart to proceed.'}
-              {hasSoldOutItems && !hasClosedItems && 'Remove sold-out events from your cart to proceed.'}
-              {hasClosedItems && hasSoldOutItems && 'Remove unavailable events from your cart to proceed.'}
+              Remove unavailable events from your cart to proceed.
             </Typography>
           )}
           <Button
             variant='contained'
             size='large'
             fullWidth
-            disabled={validating || hasClosedItems || hasSoldOutItems}
+            disabled={validating || hasUnavailableItems}
             endIcon={<Icon icon='tabler:arrow-right' />}
             onClick={async () => {
               // Re-validate prices and availability immediately before checkout
