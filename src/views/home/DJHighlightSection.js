@@ -185,6 +185,18 @@ export default function DJHighlightSection() {
                   {event?.name || 'DJ Evening'}
                 </Typography>
 
+                <Typography
+                  variant='caption'
+                  sx={{
+                    color: alpha(accent, 0.7),
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    letterSpacing: '0.5px'
+                  }}
+                >
+                  Passes will be sold offline
+                </Typography>
+
                 <Button
                   variant='contained'
                   endIcon={<Icon icon='tabler:arrow-right' fontSize={18} />}
