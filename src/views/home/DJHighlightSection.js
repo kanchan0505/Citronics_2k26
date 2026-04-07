@@ -13,7 +13,7 @@ import axios from 'axios'
 
 const MotionBox = motion(Box)
 
-const DJ_DEPARTMENT_ID = 17
+const DJ_EVENT_NAME = 'DJ EVEONICS'
 
 function getEventImage(event) {
   if (event?.images && Array.isArray(event.images) && event.images.length > 0) {
@@ -32,7 +32,7 @@ export default function DJHighlightSection() {
   useEffect(() => {
     let cancelled = false
     axios
-      .get(`/api/events?departmentId=${DJ_DEPARTMENT_ID}&limit=1`)
+      .get(`/api/events?name=${encodeURIComponent(DJ_EVENT_NAME)}&limit=1`)
       .then(res => {
         if (cancelled) return
         const events = res.data?.data || []
@@ -185,17 +185,19 @@ export default function DJHighlightSection() {
                   {event?.name || 'DJ Evening'}
                 </Typography>
 
-                <Typography
-                  variant='caption'
-                  sx={{
-                    color: alpha(accent, 0.7),
-                    fontWeight: 600,
-                    fontSize: '0.8rem',
-                    letterSpacing: '0.5px'
-                  }}
-                >
-                  Passes will be sold offline
-                </Typography>
+                {event?.name === DJ_EVENT_NAME && (
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      color: alpha(accent, 0.7),
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      letterSpacing: '0.5px'
+                    }}
+                  >
+                    Passes will be sold offline
+                  </Typography>
+                )}
 
                 <Button
                   variant='contained'
@@ -218,7 +220,7 @@ export default function DJHighlightSection() {
                     transition: 'all 0.25s ease'
                   }}
                 >
-                  View Details
+                  View Details 
                 </Button>
               </>
             )}

@@ -710,42 +710,6 @@ export default function EventDetailView() {
               </Box>
             )}
 
-            {/* Passes Info - Only for DJ Evening */}
-            {event.department_id === 17 && (
-              <Box
-                sx={{
-                  mb: 5,
-                  p: { xs: 2.5, md: 3.5 },
-                  borderRadius: '16px',
-                  border: `1px solid ${alpha(color, 0.12)}`,
-                  background: alpha(color, 0.03),
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-              >
-                <Box sx={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', bgcolor: color, borderRadius: '4px 0 0 4px' }} />
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-                  <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: alpha(color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon icon='tabler:ticket' fontSize={20} style={{ color }} />
-                  </Box>
-                  <Typography variant='h6' sx={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.01em', color: 'text.primary' }}>
-                    Purchase Information
-                  </Typography>
-                </Box>
-                <Typography
-                  variant='body1'
-                  sx={{
-                    color: 'text.secondary',
-                    lineHeight: 1.85,
-                    fontSize: '0.95rem',
-                    pl: 1
-                  }}
-                >
-                  Passes will be sold offline.
-                </Typography>
-              </Box>
-            )}
-
             {/* Brief */}
             {details.brief && (
               <Box
